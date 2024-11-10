@@ -1,0 +1,28 @@
+{
+  "name": "venues",
+  "version": "1.0.0",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "client": "npm start --prefix client",
+    "server": "nodemon server.js",
+    "dev": "concurrently \"npm run server\" \"npm run client\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@fullcalendar/daygrid": "^6.1.15",
+    "@fullcalendar/react": "^6.1.15",
+    "concurrently": "^9.1.0",
+    "cors": "^2.8.5",
+    "express": "^4.21.1",
+    "googleapis": "^144.0.0",
+    "pg": "^8.13.1",
+    "react-router-dom": "^6.28.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7"
+  }
+}
