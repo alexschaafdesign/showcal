@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction'; 
 import axios from 'axios';
 
@@ -64,17 +66,16 @@ const Calendar = () => {
   };
 
   // Filter events by selected venues and search term
-const filteredEvents = events.filter(event => {
-  const venueMatch = filters.venues.length === 0 || filters.venues.includes(event.venue);
+  const filteredEvents = events.filter(event => {
+    const venueMatch = filters.venues.length === 0 || filters.venues.includes(event.venue);
   
-  // Check if the properties are null or undefined and default to an empty string
-  const searchMatch =
-    (event.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (event.description || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
-    (event.venue || '').toLowerCase().includes(searchTerm.toLowerCase());
-    
-  return venueMatch && searchMatch;
-});
+    const searchMatch =
+      (event.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (event.description || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (event.venue || '').toLowerCase().includes(searchTerm.toLowerCase());
+      
+    return venueMatch && searchMatch;
+  });
 
   // Reset the filter
   const resetFilter = () => {
@@ -83,52 +84,72 @@ const filteredEvents = events.filter(event => {
   };
 
   return (
-    <div>
-      {/* Search Field */}
-      <div>
-        <label>Search Events:</label>
-        <input 
-          type="text" 
-          placeholder="Search by band, venue, or description"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}  // Update search term
+    <div className="container">
+      <div className="search-filter-container">
+        {/* Search Field */}
+        <div>
+          <label>Search Events:</label>
+          <input 
+            type="text" 
+            placeholder="Search by band, venue, or description"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}  // Update search term
+          />
+        </div>
+
+        {/* Venue Filter */}
+        <div className="filters">
+          <label>Filter by Venue:</label>
+          <div className="dropdown">
+            <button onClick={() => setDropdownOpen(!dropdownOpen)} className="dropdown-btn">
+              Select Venues
+            </button>
+            {dropdownOpen && (
+              <div className="dropdown-content">
+                {venues.map((venue, index) => (
+                  <label key={index}>
+                    <input
+                      type="checkbox"
+                      value={venue}
+                      checked={filters.venues.includes(venue)}
+                      onChange={handleFilterChange}
+                    />
+                    {venue}
+                  </label>
+                ))}
+              </div>
+            )}
+          </div>
+          <button onClick={resetFilter}>Reset Filter</button>
+        </div>
+      </div>
+
+      {/* Calendar Component */}
+      <div className="calendar-container">
+        <FullCalendar
+          plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
+          initialView="dayGridMonth"
+          events={filteredEvents}
+          eventClick={handleEventClick}
+          headerToolbar={{
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek',  // Switch between Month, Week, Day, and List view
+          }}
+          views={{
+            dayGridMonth: { buttonText: 'Month' },
+            timeGridWeek: { buttonText: 'Week' },
+            timeGridDay: { buttonText: 'Day' },
+            listWeek: { buttonText: 'List' },
+            dayGridYear: {  // Custom Year View
+              type: 'dayGrid',
+              duration: { years: 1 },
+              buttonText: 'Year',
+            },
+          }}
         />
       </div>
-
-      {/* Venue Filter */}
-      <div>
-        <label>Filter by Venue:</label>
-        <div className="dropdown">
-          <button onClick={() => setDropdownOpen(!dropdownOpen)} className="dropdown-btn">
-            {filters.venues.length === 0 ? 'Select Venues' : filters.venues.join(', ')}
-          </button>
-          {dropdownOpen && (
-            <div className="dropdown-content">
-              {venues.map((venue, index) => (
-                <label key={index}>
-                  <input
-                    type="checkbox"
-                    value={venue}
-                    checked={filters.venues.includes(venue)}
-                    onChange={handleFilterChange}
-                  />
-                  {venue}
-                </label>
-              ))}
-            </div>
-          )}
-        </div>
-        <button onClick={resetFilter}>Reset Filter</button>
-      </div>
-
-      <FullCalendar
-        plugins={[dayGridPlugin, interactionPlugin]}
-        initialView="dayGridMonth"
-        events={filteredEvents}  // Pass the filtered events to the calendar
-        eventClick={handleEventClick}  // Show modal when event is clicked
-        className={modalVisible ? 'calendar-disabled' : ''}  // Apply class when modal is visible
-      />
-      
+    
       {/* Modal */}
       {modalVisible && selectedEvent && (
         <div style={modalStyles.overlay} onClick={closeModal}>
@@ -136,7 +157,7 @@ const filteredEvents = events.filter(event => {
             <h3>{selectedEvent.title}</h3>
             <p><strong>Venue:</strong> {selectedEvent.extendedProps.venue}</p>
             <p><strong>Description:</strong> {selectedEvent.extendedProps.description}</p>
-            <p><strong>Event Link:</strong> <a href={selectedEvent.url} target="_blank" rel="noopener noreferrer">{selectedEvent.url}</a></p> {/* Now correctly showing event link */}
+            <p><strong>Event Link:</strong> <a href={selectedEvent.url} target="_blank" rel="noopener noreferrer">{selectedEvent.url}</a></p>
             <button onClick={closeModal}>Close</button>
           </div>
         </div>
