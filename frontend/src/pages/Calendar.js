@@ -69,7 +69,6 @@ const Calendar = () => {
   const filteredEvents = events.filter(event => {
     const venueMatch = filters.venues.length === 0 || filters.venues.includes(event.venue);
   
-    // Check if the properties are null or undefined and default to an empty string
     const searchMatch =
       (event.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       (event.description || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -102,7 +101,6 @@ const Calendar = () => {
         <div className="filters">
           <label>Filter by Venue:</label>
           <div className="dropdown">
-            {/* The button text is static */}
             <button onClick={() => setDropdownOpen(!dropdownOpen)} className="dropdown-btn">
               Select Venues
             </button>
@@ -136,7 +134,18 @@ const Calendar = () => {
           headerToolbar={{
             left: 'prev,next today',
             center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek',
+            right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek',  // Switch between Month, Week, Day, and List view
+          }}
+          views={{
+            dayGridMonth: { buttonText: 'Month' },
+            timeGridWeek: { buttonText: 'Week' },
+            timeGridDay: { buttonText: 'Day' },
+            listWeek: { buttonText: 'List' },
+            dayGridYear: {  // Custom Year View
+              type: 'dayGrid',
+              duration: { years: 1 },
+              buttonText: 'Year',
+            },
           }}
         />
       </div>
@@ -148,7 +157,7 @@ const Calendar = () => {
             <h3>{selectedEvent.title}</h3>
             <p><strong>Venue:</strong> {selectedEvent.extendedProps.venue}</p>
             <p><strong>Description:</strong> {selectedEvent.extendedProps.description}</p>
-            <p><strong>Event Link:</strong> <a href={selectedEvent.url} target="_blank" rel="noopener noreferrer">{selectedEvent.url}</a></p> {/* Event link is now shown */}
+            <p><strong>Event Link:</strong> <a href={selectedEvent.url} target="_blank" rel="noopener noreferrer">{selectedEvent.url}</a></p>
             <button onClick={closeModal}>Close</button>
           </div>
         </div>

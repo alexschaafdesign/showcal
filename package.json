@@ -4,6 +4,11 @@
     "@fullcalendar/interaction": "^6.1.15",
     "@fullcalendar/list": "^6.1.15",
     "@fullcalendar/react": "^6.1.15",
+<<<<<<< HEAD
     "@fullcalendar/timegrid": "^6.1.15"
+=======
+    "@fullcalendar/timegrid": "^6.1.15",
+    "react-scripts": "^3.0.1"
+>>>>>>> reinstall-branch
   }
 }

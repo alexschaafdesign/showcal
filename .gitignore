@@ -1,3 +1,12 @@
 # Ignore .DS_Store files (common on macOS)
 .DS_Store
+
+# Ignore node_modules folder, recursively for all subdirectories
 node_modules/
+
+# Ignore any .DS_Store files in subdirectories
+**/.DS_Store
+
+# Optional: Ignore npm package lock files (if you want to, usually kept in version control)
+# package-lock.json
+# yarn.lock
