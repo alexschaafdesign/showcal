@@ -5,17 +5,22 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction'; 
 import axios from 'axios';
+import Button from '../components/button.js'; // Import the custom button component
 
 const Calendar = () => {
-  const [events, setEvents] = useState([]);  // State to store events
-  const [modalVisible, setModalVisible] = useState(false);  // Control modal visibility
-  const [selectedEvent, setSelectedEvent] = useState(null);  // Store selected event data
+  const [events, setEvents] = useState([]);  
+  const [modalVisible, setModalVisible] = useState(false);  
+  const [selectedEvent, setSelectedEvent] = useState(null);  
   const [filters, setFilters] = useState({
-    venues: []  // Array to store selected venues
-  });  
-  const [venues, setVenues] = useState([]);  // State to store unique venue names
-  const [dropdownOpen, setDropdownOpen] = useState(false);  // Control dropdown visibility
-  const [searchTerm, setSearchTerm] = useState('');  // State for search term
+    venues: [],
+    minCapacity: null,
+    maxCapacity: null,
+    filterByCapacity: false,  // New flag to determine if we're filtering by capacity
+  });
+  const [venues, setVenues] = useState([]);  
+  const [dropdownOpen, setDropdownOpen] = useState(false);  
+  const [searchTerm, setSearchTerm] = useState('');
+  const [buttonStyle, setButtonStyle] = useState({});
 
   useEffect(() => {
     axios.get('http://127.0.0.1:3001/events')
@@ -27,10 +32,11 @@ const Calendar = () => {
           description: event.description,
           venue: event.venue,
           url: event.url,
-          flyerImage: event.flyerImage
+          flyerImage: event.flyerImage,
+          minCapacity: event.minCapacity,
+          maxCapacity: event.maxCapacity
         }));
         
-        // Extract unique venues
         const uniqueVenues = [...new Set(formattedEvents.map(event => event.venue))];
         
         setEvents(formattedEvents);
@@ -39,17 +45,36 @@ const Calendar = () => {
       .catch(error => {
         console.error('Error fetching events:', error);
       });
+
+    // Fetch Figma button data for styling
+    axios.get('http://127.0.0.1:3001/figma-data')
+      .then(response => {
+        const figmaData = response.data;
+        setButtonStyle({
+          backgroundColor: figmaData.buttonColor || 'defaultColor',
+          padding: '12px 24px',
+          borderRadius: '4px'
+        });
+      })
+      .catch(error => {
+        console.error('Error fetching Figma data:', error);
+      });
   }, []);
 
   const handleEventClick = (info) => {
-    info.jsEvent.preventDefault();  // This will stop the link from being triggered
-    setSelectedEvent(info.event);  // Set the clicked event to the state
-    setModalVisible(true);  // Show the modal
+    info.jsEvent.preventDefault();
+    setSelectedEvent(info.event);  
+    setModalVisible(true);  
   };
 
   const closeModal = () => {
-    setModalVisible(false);  // Hide the modal
-    setSelectedEvent(null);  // Clear the selected event
+    setModalVisible(false);  
+    setSelectedEvent(null);  
+  };
+
+  const resetFilter = () => {
+    setFilters({ venues: [], minCapacity: null, maxCapacity: null, filterByCapacity: false });
+    setSearchTerm('');
   };
 
   const handleFilterChange = (e) => {
@@ -57,31 +82,62 @@ const Calendar = () => {
     setFilters(prevState => {
       let updatedVenues = [...prevState.venues];
       if (checked) {
-        updatedVenues.push(value);  // Add selected venue
+        updatedVenues.push(value);  
       } else {
-        updatedVenues = updatedVenues.filter(venue => venue !== value);  // Remove unselected venue
+        updatedVenues = updatedVenues.filter(venue => venue !== value);  
       }
       return { ...prevState, venues: updatedVenues };
     });
   };
 
-  // Filter events by selected venues and search term
+  const handleCapacityFilterChange = (e) => {
+    const value = e.target.value;
+    if (value === ">2000") {
+      setFilters(prevState => ({
+        ...prevState,
+        maxCapacity: null,  // No upper limit
+        minCapacity: 2001,  // Set the minimum limit to 2001
+        filterByCapacity: true
+      }));
+    } else if (value === "<150") {
+      setFilters(prevState => ({
+        ...prevState,
+        maxCapacity: 149,  // Set the maximum to 149
+        minCapacity: null,  // No minimum limit
+        filterByCapacity: true
+      }));
+    } else if (value.includes("-")) {
+      const [min, max] = value.split("-");
+      setFilters(prevState => ({
+        ...prevState,
+        minCapacity: parseInt(min),
+        maxCapacity: parseInt(max),
+        filterByCapacity: true
+      }));
+    } else {
+      setFilters(prevState => ({
+        ...prevState,
+        minCapacity: null,
+        maxCapacity: null,
+        filterByCapacity: false
+      }));
+    }
+  };
+
   const filteredEvents = events.filter(event => {
     const venueMatch = filters.venues.length === 0 || filters.venues.includes(event.venue);
-  
     const searchMatch =
       (event.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       (event.description || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       (event.venue || '').toLowerCase().includes(searchTerm.toLowerCase());
-      
-    return venueMatch && searchMatch;
-  });
+    const sizeMatch =
+      (filters.filterByCapacity && (
+        (filters.minCapacity === null || event.minCapacity >= filters.minCapacity) &&
+        (filters.maxCapacity === null || event.maxCapacity <= filters.maxCapacity)
+      )) || !filters.filterByCapacity;
 
-  // Reset the filter
-  const resetFilter = () => {
-    setFilters({ venues: [] });
-    setSearchTerm('');  // Clear search term when reset
-  };
+    return venueMatch && searchMatch && sizeMatch;
+  });
 
   return (
     <div className="container">
@@ -93,7 +149,7 @@ const Calendar = () => {
             type="text" 
             placeholder="Search by band, venue, or description"
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}  // Update search term
+            onChange={(e) => setSearchTerm(e.target.value)}  
           />
         </div>
 
@@ -101,9 +157,7 @@ const Calendar = () => {
         <div className="filters">
           <label>Filter by Venue:</label>
           <div className="dropdown">
-            <button onClick={() => setDropdownOpen(!dropdownOpen)} className="dropdown-btn">
-              Select Venues
-            </button>
+          <Button onClick={() => setDropdownOpen(!dropdownOpen)} label="Select Venues" style={buttonStyle} />
             {dropdownOpen && (
               <div className="dropdown-content">
                 {venues.map((venue, index) => (
@@ -120,7 +174,23 @@ const Calendar = () => {
               </div>
             )}
           </div>
-          <button onClick={resetFilter}>Reset Filter</button>
+
+          {/* Size Filter */}
+          <div>
+            <label>Filter by Venue Size:</label>
+            <select onChange={handleCapacityFilterChange} value={filters.minCapacity ? `${filters.minCapacity}-${filters.maxCapacity}` : ""}>
+              <option value="">Select Capacity Range</option>
+              <option value="<150">Under 150</option>
+              <option value="150-350">150 - 350</option>
+              <option value="350-500">350 - 500</option>
+              <option value="500-1000">500 - 1000</option>
+              <option value="1000-2000">1000 - 2000</option>
+              <option value=">2000">Over 2000</option>
+            </select>
+          </div>
+
+          {/* Custom Button styled by Figma */}
+          <Button onClick={resetFilter} label="Reset Filter" style={buttonStyle} />
         </div>
       </div>
 
@@ -129,28 +199,17 @@ const Calendar = () => {
         <FullCalendar
           plugins={[dayGridPlugin, timeGridPlugin, listPlugin, interactionPlugin]}
           initialView="dayGridMonth"
-          events={filteredEvents}
-          eventClick={handleEventClick}
+          events={filteredEvents}  
+          eventClick={handleEventClick}  
           headerToolbar={{
             left: 'prev,next today',
             center: 'title',
-            right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek',  // Switch between Month, Week, Day, and List view
-          }}
-          views={{
-            dayGridMonth: { buttonText: 'Month' },
-            timeGridWeek: { buttonText: 'Week' },
-            timeGridDay: { buttonText: 'Day' },
-            listWeek: { buttonText: 'List' },
-            dayGridYear: {  // Custom Year View
-              type: 'dayGrid',
-              duration: { years: 1 },
-              buttonText: 'Year',
-            },
+            right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek',  
           }}
         />
       </div>
-    
-      {/* Modal */}
+
+      {/* Modal for event details */}
       {modalVisible && selectedEvent && (
         <div style={modalStyles.overlay} onClick={closeModal}>
           <div style={modalStyles.modal} onClick={(e) => e.stopPropagation()}>
@@ -158,6 +217,10 @@ const Calendar = () => {
             <p><strong>Venue:</strong> {selectedEvent.extendedProps.venue}</p>
             <p><strong>Description:</strong> {selectedEvent.extendedProps.description}</p>
             <p><strong>Event Link:</strong> <a href={selectedEvent.url} target="_blank" rel="noopener noreferrer">{selectedEvent.url}</a></p>
+            <p><strong>Capacity:</strong> {selectedEvent.extendedProps.minCapacity === selectedEvent.extendedProps.maxCapacity
+              ? `Capacity = ${selectedEvent.extendedProps.minCapacity}`
+              : `Capacity = ${selectedEvent.extendedProps.minCapacity} - ${selectedEvent.extendedProps.maxCapacity}`}
+            </p>
             <button onClick={closeModal}>Close</button>
           </div>
         </div>
@@ -174,19 +237,19 @@ const modalStyles = {
     left: 0,
     width: '100%',
     height: '100%',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',  // This is the scrim background color with opacity
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
-    zIndex: 1000,  // Ensure the modal is above other content
+    zIndex: 1000,
   },
   modal: {
-    backgroundColor: 'white',  // The modal itself is fully opaque
+    backgroundColor: 'white',
     padding: '20px',
     borderRadius: '8px',
     width: '300px',
     textAlign: 'center',
-    zIndex: 1001,  // Ensure the modal is above the overlay
+    zIndex: 1001,
   }
 };
 
