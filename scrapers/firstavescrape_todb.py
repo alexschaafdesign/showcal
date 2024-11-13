@@ -146,7 +146,7 @@ if response.status_code == 200:
             print(f"Error inserting event {headline}: {e}")
 
 else:
-    print(f"Failed to retrieve data. Status code: {response.status_code}")
+    print(f"Failed to to retrieve data. Status code: {response.status_code}")
 
 # Now scrape for the next month (December)
 
