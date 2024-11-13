@@ -11,7 +11,7 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Home />} />  {/* Default homepage */}
+        <Route path="/venues" element={<Home />} />  {/* Default homepage */}
         <Route path="/calendar" element={<Calendar />} />  {/* Calendar page */}
       </Routes>
     </Router>

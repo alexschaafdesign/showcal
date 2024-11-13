@@ -5,7 +5,6 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import listPlugin from '@fullcalendar/list';
 import interactionPlugin from '@fullcalendar/interaction'; 
 import axios from 'axios';
-import Button from '../components/button.js'; // Import the custom button component
 
 const Calendar = () => {
   const [events, setEvents] = useState([]);  
@@ -15,12 +14,11 @@ const Calendar = () => {
     venues: [],
     minCapacity: null,
     maxCapacity: null,
-    filterByCapacity: false,  // New flag to determine if we're filtering by capacity
+    filterByCapacity: false,
   });
   const [venues, setVenues] = useState([]);  
   const [dropdownOpen, setDropdownOpen] = useState(false);  
   const [searchTerm, setSearchTerm] = useState('');
-  const [buttonStyle, setButtonStyle] = useState({});
 
   useEffect(() => {
     axios.get('http://127.0.0.1:3001/events')
@@ -45,21 +43,7 @@ const Calendar = () => {
       .catch(error => {
         console.error('Error fetching events:', error);
       });
-
-    // Fetch Figma button data for styling
-    axios.get('http://127.0.0.1:3001/figma-data')
-      .then(response => {
-        const figmaData = response.data;
-        setButtonStyle({
-          backgroundColor: figmaData.buttonColor || 'defaultColor',
-          padding: '12px 24px',
-          borderRadius: '4px'
-        });
-      })
-      .catch(error => {
-        console.error('Error fetching Figma data:', error);
-      });
-  }, []);
+  }, []); // Closing the useEffect function here
 
   const handleEventClick = (info) => {
     info.jsEvent.preventDefault();
@@ -95,15 +79,15 @@ const Calendar = () => {
     if (value === ">2000") {
       setFilters(prevState => ({
         ...prevState,
-        maxCapacity: null,  // No upper limit
-        minCapacity: 2001,  // Set the minimum limit to 2001
+        maxCapacity: null,
+        minCapacity: 2001,
         filterByCapacity: true
       }));
     } else if (value === "<150") {
       setFilters(prevState => ({
         ...prevState,
-        maxCapacity: 149,  // Set the maximum to 149
-        minCapacity: null,  // No minimum limit
+        maxCapacity: 149,
+        minCapacity: null,
         filterByCapacity: true
       }));
     } else if (value.includes("-")) {
@@ -157,7 +141,7 @@ const Calendar = () => {
         <div className="filters">
           <label>Filter by Venue:</label>
           <div className="dropdown">
-          <Button onClick={() => setDropdownOpen(!dropdownOpen)} label="Select Venues" style={buttonStyle} />
+            <button onClick={() => setDropdownOpen(!dropdownOpen)}>Select Venues</button>
             {dropdownOpen && (
               <div className="dropdown-content">
                 {venues.map((venue, index) => (
@@ -189,8 +173,8 @@ const Calendar = () => {
             </select>
           </div>
 
-          {/* Custom Button styled by Figma */}
-          <Button onClick={resetFilter} label="Reset Filter" style={buttonStyle} />
+          {/* Reset Filter Button */}
+          <button onClick={resetFilter}>Reset Filter</button>
         </div>
       </div>
 
