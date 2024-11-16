@@ -12,8 +12,7 @@ const Calendar = () => {
   const [selectedEvent, setSelectedEvent] = useState(null);  
   const [filters, setFilters] = useState({
     venues: [],
-    minCapacity: null,
-    maxCapacity: null,
+    capacity: null,
     filterByCapacity: false,
   });
   const [venues, setVenues] = useState([]);  
@@ -25,14 +24,17 @@ const Calendar = () => {
       .then(response => {
         const formattedEvents = response.data.map(event => ({
           id: event.id,
-          title: `${event.title} - ${event.venue}`,
-          start: new Date(event.start).toISOString(),
-          description: event.description,
-          venue: event.venue,
-          url: event.url,
+          title: `${event.headliner} - ${event.venue}`,
+          start: event.start,  // Assuming 'start' is already formatted as ISO string
+          date: event.date,
+          time: event.time,
+          support: event.support,
+          eventLink: event.eventLink,
           flyerImage: event.flyerImage,
-          minCapacity: event.minCapacity,
-          maxCapacity: event.maxCapacity
+          otherInfo: event.otherInfo,
+          venue: event.venue,
+          location: event.location,  // New field for location
+          capacity: event.capacity,  // Adjusted to use single capacity value
         }));
         
         const uniqueVenues = [...new Set(formattedEvents.map(event => event.venue))];
@@ -43,7 +45,7 @@ const Calendar = () => {
       .catch(error => {
         console.error('Error fetching events:', error);
       });
-  }, []); // Closing the useEffect function here
+  }, []);
 
   const handleEventClick = (info) => {
     info.jsEvent.preventDefault();
@@ -57,7 +59,7 @@ const Calendar = () => {
   };
 
   const resetFilter = () => {
-    setFilters({ venues: [], minCapacity: null, maxCapacity: null, filterByCapacity: false });
+    setFilters({ venues: [], capacity: null, filterByCapacity: false });
     setSearchTerm('');
   };
 
@@ -79,31 +81,27 @@ const Calendar = () => {
     if (value === ">2000") {
       setFilters(prevState => ({
         ...prevState,
-        maxCapacity: null,
-        minCapacity: 2001,
-        filterByCapacity: true
+        capacity: 2001,
+        filterByCapacity: true,
       }));
     } else if (value === "<150") {
       setFilters(prevState => ({
         ...prevState,
-        maxCapacity: 149,
-        minCapacity: null,
-        filterByCapacity: true
+        capacity: 149,
+        filterByCapacity: true,
       }));
     } else if (value.includes("-")) {
       const [min, max] = value.split("-");
       setFilters(prevState => ({
         ...prevState,
-        minCapacity: parseInt(min),
-        maxCapacity: parseInt(max),
-        filterByCapacity: true
+        capacity: { min: parseInt(min), max: parseInt(max) },
+        filterByCapacity: true,
       }));
     } else {
       setFilters(prevState => ({
         ...prevState,
-        minCapacity: null,
-        maxCapacity: null,
-        filterByCapacity: false
+        capacity: null,
+        filterByCapacity: false,
       }));
     }
   };
@@ -114,11 +112,12 @@ const Calendar = () => {
       (event.title || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       (event.description || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
       (event.venue || '').toLowerCase().includes(searchTerm.toLowerCase());
-    const sizeMatch =
-      (filters.filterByCapacity && (
-        (filters.minCapacity === null || event.minCapacity >= filters.minCapacity) &&
-        (filters.maxCapacity === null || event.maxCapacity <= filters.maxCapacity)
-      )) || !filters.filterByCapacity;
+    
+    const sizeMatch = !filters.filterByCapacity || (
+      typeof filters.capacity === 'number'
+        ? event.capacity >= filters.capacity
+        : event.capacity >= filters.capacity.min && event.capacity <= filters.capacity.max
+    );
 
     return venueMatch && searchMatch && sizeMatch;
   });
@@ -162,7 +161,7 @@ const Calendar = () => {
           {/* Size Filter */}
           <div>
             <label>Filter by Venue Size:</label>
-            <select onChange={handleCapacityFilterChange} value={filters.minCapacity ? `${filters.minCapacity}-${filters.maxCapacity}` : ""}>
+            <select onChange={handleCapacityFilterChange} value={filters.capacity ? `${filters.capacity.min || ""}-${filters.capacity.max || ""}` : ""}>
               <option value="">Select Capacity Range</option>
               <option value="<150">Under 150</option>
               <option value="150-350">150 - 350</option>
@@ -199,12 +198,10 @@ const Calendar = () => {
           <div style={modalStyles.modal} onClick={(e) => e.stopPropagation()}>
             <h3>{selectedEvent.title}</h3>
             <p><strong>Venue:</strong> {selectedEvent.extendedProps.venue}</p>
-            <p><strong>Description:</strong> {selectedEvent.extendedProps.description}</p>
-            <p><strong>Event Link:</strong> <a href={selectedEvent.url} target="_blank" rel="noopener noreferrer">{selectedEvent.url}</a></p>
-            <p><strong>Capacity:</strong> {selectedEvent.extendedProps.minCapacity === selectedEvent.extendedProps.maxCapacity
-              ? `Capacity = ${selectedEvent.extendedProps.minCapacity}`
-              : `Capacity = ${selectedEvent.extendedProps.minCapacity} - ${selectedEvent.extendedProps.maxCapacity}`}
-            </p>
+            <p><strong>Location:</strong> {selectedEvent.extendedProps.location}</p>
+            <p><strong>Also playing:</strong> {selectedEvent.extendedProps.support}</p>
+            <p><strong>Event Link:</strong> <a href={selectedEvent.extendedProps.eventLink} target="_blank" rel="noopener noreferrer">{selectedEvent.extendedProps.eventLink}</a></p>
+            <p><strong>Capacity:</strong> {selectedEvent.extendedProps.capacity}</p>
             <button onClick={closeModal}>Close</button>
           </div>
         </div>

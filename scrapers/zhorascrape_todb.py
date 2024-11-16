@@ -6,7 +6,6 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
 import psycopg2
-from datetime import datetime
 
 # Database connection parameters
 DB_NAME = "tcup"
@@ -16,7 +15,7 @@ DB_HOST = "localhost"  # or use your database host if it's hosted remotely
 
 # Initialize WebDriver
 driver = webdriver.Chrome()
-url = 'https://331club.com/#calendar'
+url = 'https://dice.fm/venue/zhora-darling-ql9y'
 driver.get(url)
 
 # Click "See all upcoming events" button
@@ -48,7 +47,7 @@ for event in events:
     # Initialize a dictionary to store the event details for each event
     event_details = {}
 
-    # Find the event date
+    # Find the event date within the top-level event class
     date_tag = event.find("div", class_="event-date")
     if date_tag:
         month_text = date_tag.find("span", class_="month").get_text(strip=True)
@@ -60,8 +59,8 @@ for event in events:
             "Nov": "11", "Dec": "12"
         }
         month = month_mapping.get(month_text, "N/A")
-        year = "2024" if month in ["11", "12"] else "2025"
-        event_details['date'] = f"{year}-{month}-{int(day_text):02d}"
+        year = "24" if month in ["11", "12"] else "25"
+        event_details['date'] = f"{month}/{day_text}/{year}"
     else:
         event_details['date'] = 'N/A'
 
@@ -97,6 +96,8 @@ for event in events:
                 else:
                     event_time = re.sub(r'(\d+:\d{2})\s?(am|pm)', r'\1 \2', event_time)
                 event_details['time'] = event_time
+                # Remove time from the last line if it's there
+                full_text[-1] = re.sub(r'(\d{1,2}(:\d{2})?\s?[ap]m)', '', full_text[-1], flags=re.IGNORECASE).strip()
             else:
                 event_details['time'] = 'N/A'
 
@@ -110,16 +111,8 @@ for event in events:
             event_details['time'] = "N/A"
             event_details['support'] = "N/A"
 
-        # Combine date and time to create `start`
-        try:
-            start_datetime = datetime.strptime(f"{event_details['date']} {event_details['time']}", "%Y-%m-%d %I:%M %p")
-            event_details['start'] = start_datetime
-        except ValueError as e:
-            print(f"Error combining date and time for {event_details['name']}: {e}")
-            event_details['start'] = None
-
         # Append the event to events_data
-        events_data.append(event_details.copy())
+        events_data.append(event_details.copy())  # Use `.copy()` to avoid overwriting data in subsequent loops
 
 # Connect to the PostgreSQL database
 conn = psycopg2.connect(
@@ -134,35 +127,40 @@ cursor = conn.cursor()
 cursor.execute("""
     CREATE TABLE IF NOT EXISTS shows (
         venue TEXT,
-        headliner TEXT,
-        start TIMESTAMP,
-        support TEXT,
-        event_link TEXT
+        name TEXT,
+        date TEXT,
+        time TEXT,
+        support TEXT
     );
 """)
 
 # Fetch existing events to avoid duplicates
-cursor.execute("SELECT headliner, start FROM shows")
+cursor.execute("SELECT name, date, time FROM shows")
 existing_events = set(cursor.fetchall())
 
-# Prepare rows to add to the database with `start` datetime
-rows_to_add = []
-for event in events_data:
-    if event['start'] and (event['name'], event['start']) not in existing_events:
-        rows_to_add.append((
-            event['venue'],
-            event['name'],  # Assuming 'name' is equivalent to 'headliner'
-            event['start'],
-            event['support'],
-            event.get('event_link', '')
-        ))
+# Update rows_to_add to include all columns
+rows_to_add = [
+    (
+        event['venue'],
+        event['name'],  # Assuming this is equivalent to 'headliner'
+        event['date'],
+        event['time'],
+        event['support'],
+        event.get('event_link', ''),  # Add a default empty string if key is missing
+        event.get('flyer_image', ''),
+        event.get('other_info', '')
+    )
+    for event in events_data
+    if (event['name'], event['date'], event['time']) not in existing_events
+]
 
 # Insert new events into the database
 if rows_to_add:
+    # Correct INSERT statement based on the columns in shows
     insert_query = """
-    INSERT INTO shows (venue, headliner, start, support, event_link)
-    VALUES (%s, %s, %s, %s, %s)
-    """
+    INSERT INTO "shows" (venue, headliner, date, time, support, event_link, flyer_image, other_info)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+"""
     cursor.executemany(insert_query, rows_to_add)
     conn.commit()
     print(f"{len(rows_to_add)} new events added to the database.")

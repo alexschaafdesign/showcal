@@ -15,3 +15,6 @@ node_modules/
 # Ignore cache files in frontend/node_modules/.cache/ and recursively
 frontend/node_modules/.cache/
 **/node_modules/.cache/
+
+# Ignore environment variables file
+.env
