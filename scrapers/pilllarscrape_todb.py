@@ -8,7 +8,7 @@ import psycopg2
 
 # Database connection
 conn = psycopg2.connect(
-    dbname="venues",
+    dbname="tcup",
     user="aschaaf",
     password="notthesame",  # replace with your actual password
     host="localhost"
@@ -82,7 +82,21 @@ for block in event_blocks:
     event_details['headliner'] = name_tag.get_text(strip=True) if name_tag else None
 
     # Set a fixed time or None if unavailable
-    event_details['time'] = "18:30" if 'time' in event_details else None
+    event_details['time'] = "18:30"
+
+    # Combine date and time into `start` for database insertion
+    try:
+        if event_details['date'] and event_details['time']:
+            event_details['start'] = datetime.datetime.strptime(
+                f"{event_details['date']} {event_details['time']}", "%m/%d/%Y %H:%M"
+            )
+            print(f"Parsed start datetime: {event_details['start']} for event: {event_details['headliner']}")
+        else:
+            print(f"Missing date or time for event: {event_details['headliner']}")
+            event_details['start'] = None
+    except ValueError as ve:
+        print(f"Error parsing start datetime for event '{event_details['headliner']}': {ve}")
+        event_details['start'] = None
 
     # Extract support acts
     support_tag = name_tag.find_next('p') if name_tag else None
@@ -105,49 +119,58 @@ for block in event_blocks:
 
 print(f"Extracted {len(events_data)} events.")
 
+# Define counters for added and skipped events
+added_count = 0
+duplicate_count = 0
+missing_start_count = 0
+
 # Define the function to check if an event already exists in the database
 def check_duplicate_event(event_details):
+    if event_details['start'] is None:
+        return False
     check_query = """
-        SELECT * FROM "Show Calendar"
+        SELECT 1 FROM "shows"
         WHERE start = %s AND venue = %s AND headliner = %s
     """
     cursor.execute(check_query, (
-        event_details['date'] + ' ' + event_details['time'],  # Combine date and time for comparison
+        event_details['start'],
         event_details['venue'], 
-        event_details['headliner']  # Check for the unique combination of event data
+        event_details['headliner']
     ))
-    return cursor.fetchone()  # If a row is returned, it means a duplicate exists
+    return cursor.fetchone() is not None  # Returns True if a duplicate exists
 
 # Define the function to insert events into the database
 def insert_event(event_details):
     insert_query = """
-        INSERT INTO "Show Calendar" (venue, headliner, date, time, support, event_link, flyer_image)
-        VALUES (%s, %s, %s, %s, %s, %s, %s)
+        INSERT INTO "shows" (venue, headliner, start, support, event_link, flyer_image)
+        VALUES (%s, %s, %s, %s, %s, %s)
     """
     cursor.execute(insert_query, (
         event_details.get('venue'),
         event_details.get('headliner'),
-        event_details.get('date'),
-        event_details.get('time'),
+        event_details.get('start'),
         event_details.get('support'),
-        event_details.get('event_link'),
-        event_details.get('flyer_image')
+        event_details.get('link'),
+        event_details.get('image')
     ))
     conn.commit()
 
 # Insert all extracted events into the database
 for event in events_data:
-    # Skip events with no date
-    if not event.get('date'):
-        print(f"Skipping event '{event.get('headliner')}' due to missing date.")
+    # Skip events with no start datetime
+    if not event.get('start'):
+        print(f"Skipping event '{event.get('headliner')}' due to missing start datetime.")
+        missing_start_count += 1
         continue
     
     # Check for duplicates before inserting
     if check_duplicate_event(event):
         print(f"Duplicate event '{event['headliner']}' found. Skipping insert.")
+        duplicate_count += 1
     else:
         try:
             insert_event(event)
+            added_count += 1
             print(f"Inserted event: {event['headliner']}")
         except Exception as e:
             print(f"Error inserting event {event['headliner']}: {e}")
@@ -155,4 +178,6 @@ for event in events_data:
 # Close the database connection
 cursor.close()
 conn.close()
-print("All events processed and added to the database.")
+
+# Print summary of added and skipped events
+print(f"All events processed. Added: {added_count}, Duplicates skipped: {duplicate_count}, Missing start datetime: {missing_start_count}.")

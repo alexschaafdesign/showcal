@@ -45,11 +45,21 @@ for card in event_cards:
     support_tag = card.find(class_='vp-support')
     event_details['support'] = support_tag.get_text(strip=True) if support_tag else 'N/A'
     
+    # Combine date and time into a single `start` datetime field
+    date_str = f"{event_details['date']} {current_year}"
+    time_str = event_details['time']
+    try:
+        # Parse the combined `date` and `time` into a datetime object
+        event_details['start'] = datetime.datetime.strptime(f"{date_str} {time_str}", "%a %b %d %Y %I:%M %p")
+    except ValueError as e:
+        print(f"Skipping event due to date/time format issue: {event_details}. Error: {e}")
+        event_details['start'] = None  # Set to None if parsing fails
+
     events_data.append(event_details)
 
 # Set up PostgreSQL connection
 conn = psycopg2.connect(
-    dbname="venues",  # Database name
+    dbname="tcup",  # Database name
     user="aschaaf",   # Database username
     password="notthesame",  # Database password
     host="localhost",  # Database host
@@ -58,43 +68,54 @@ conn = psycopg2.connect(
 
 cursor = conn.cursor()
 
-# Function to insert event into the database
-def insert_event(event_details):
-    insert_query = """
-        INSERT INTO "Show Calendar" (venue, headliner, date, time, support)
-        VALUES (%s, %s, %s, %s, %s)
-    """
-    
-    date_str = f"{event_details['date']} {current_year}"
-    time_str = event_details['time']
-    
-    try:
-        # Adjust the time format parsing to expect 24-hour format
-        start_time = datetime.datetime.strptime(f"{date_str} {time_str}", "%a %b %d %Y %I:%M %p")
-        
-        # Format the date as MM/DD/YYYY
-        formatted_date = start_time.strftime('%m/%d/%Y')
-        formatted_time = start_time.strftime('%H:%M')
-        
-        # Insert the event into the database
-        cursor.execute(insert_query, (
-            event_details['venue'],
-            event_details['name'],
-            formatted_date,
-            formatted_time,
-            event_details['support']
-        ))
-        conn.commit()
-        print(f"Inserted event: {event_details['name']} on {formatted_date} at {time_str}")
-    
-    except ValueError as e:
-        print(f"Skipping event due to date/time format issue: {event_details}. Error: {e}")
+# Check if the table exists; create it if not
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS "shows" (
+        venue TEXT,
+        headliner TEXT,
+        start TIMESTAMP,
+        support TEXT
+    );
+""")
 
-# Insert all extracted events into the database
-for event in events_data:
-    insert_event(event)
+# Counters for added and skipped events
+added_count = 0
+duplicate_count = 0
+
+# Insert events into the database with duplicate check
+for event_details in events_data:
+    if event_details['start'] is not None:
+        # Check for duplicates based on `name` and `start`
+        duplicate_check_query = """
+            SELECT 1 FROM "shows"
+            WHERE headliner = %s AND start = %s
+        """
+        cursor.execute(duplicate_check_query, (event_details['name'], event_details['start']))
+        
+        # If no duplicate found, insert the event
+        if cursor.fetchone() is None:
+            insert_query = """
+                INSERT INTO "shows" (venue, headliner, start, support)
+                VALUES (%s, %s, %s, %s)
+            """
+            cursor.execute(insert_query, (
+                event_details['venue'],
+                event_details['name'],
+                event_details['start'],
+                event_details['support']
+            ))
+            conn.commit()
+            added_count += 1
+            print(f"Inserted event: {event_details['name']} on {event_details['start']}")
+        else:
+            duplicate_count += 1
+            print(f"Duplicate event found: {event_details['name']} on {event_details['start']}, skipping insertion.")
+    else:
+        print(f"Event missing valid start datetime, skipping: {event_details}")
 
 # Close the database connection
 cursor.close()
 conn.close()
-print("All events processed and added to the database.")
+
+# Print summary of added and skipped events
+print(f"All events processed. Added: {added_count}, Duplicates skipped: {duplicate_count}.")
