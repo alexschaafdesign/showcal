@@ -10,5 +10,8 @@
     "react-datepicker": "^7.5.0",
     "react-dom": "^18.3.1",
     "react-scripts": "^5.0.1"
+  },
+  "devDependencies": {
+    "gh-pages": "^6.2.0"
   }
 }

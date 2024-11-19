@@ -106,15 +106,18 @@ function ShowsTable() {
                     <td>
                       {item.bands.split(', ').map((band, index) => (
                         <span key={index}>
-                          <a
-                            href="#"
-                            onClick={(e) => {
-                              e.preventDefault();
-                              handleBandClick(band);
+                          <button
+                            onClick={() => handleBandClick(band)}
+                            style={{
+                              background: 'none',
+                              border: 'none',
+                              color: 'blue',
+                              textDecoration: 'underline',
+                              cursor: 'pointer',
                             }}
                           >
                             {band}
-                          </a>
+                          </button>
                           {index < item.bands.split(', ').length - 1 ? ', ' : ''}
                         </span>
                       ))}
