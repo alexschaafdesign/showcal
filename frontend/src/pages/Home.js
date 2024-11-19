@@ -7,10 +7,10 @@ const Home = () => {
   return (
     <div>
       <h1>Welcome to the Home Page</h1>
-      <p>Click below to view the calendar:</p>
-      <Link to="/calendar">Go to Calendar</Link>
-      <p>Click below to view the bands table:</p>
-      <Link to="/bands">Go to Bands</Link>
+      <p>Click below to view the show table:</p>
+      <Link to="/showstable">Go to Shows Table</Link>
+      <p>Click below to view the Bands table:</p>
+      <Link to="/bandstable">Go to bands table</Link>
     </div>
   );
 };

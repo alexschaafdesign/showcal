@@ -6,31 +6,25 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
 import psycopg2
+from datetime import datetime
 
 # Database connection parameters
 DB_NAME = "tcup"
-DB_USER = "aschaaf"  # replace with your database username
-DB_PASSWORD = "notthesame"  # replace with your database password
-DB_HOST = "localhost"  # or use your database host if it's hosted remotely
+DB_USER = "aschaaf"
+DB_PASSWORD = "notthesame"
+DB_HOST = "localhost"
 
 # Initialize WebDriver
 driver = webdriver.Chrome()
-url = 'https://dice.fm/venue/zhora-darling-ql9y'
+url = 'https://www.zhoradarling.com/events'  # Replace with actual URL
 driver.get(url)
-
-# Click "See all upcoming events" button
-try:
-    WebDriverWait(driver, 10).until(
-        EC.element_to_be_clickable((By.CSS_SELECTOR, '.more_events a'))
-    ).click()
-except:
-    print("The 'See all upcoming events' button was not found or clickable.")
 
 # Wait for event cards to load
 try:
-    WebDriverWait(driver, 10).until(
-        EC.presence_of_all_elements_located((By.CLASS_NAME, 'event'))
+    WebDriverWait(driver, 20).until(
+        EC.presence_of_all_elements_located((By.CLASS_NAME, 'sc-88e0adda-0'))
     )
+    print("Event cards loaded successfully.")
 except:
     print("Event cards did not load in time.")
 
@@ -39,80 +33,64 @@ soup = BeautifulSoup(driver.page_source, 'html.parser')
 driver.quit()
 
 # Find all event cards
-events = soup.find_all("div", class_="event")
+events = soup.find_all("article", class_="sc-88e0adda-0")
 events_data = []
+band_names = set()
+
+# Function to split band names based on custom rules
+def split_band_names(band_string):
+    bands = re.split(r'\s*(?:,|w/|&)\s*', band_string)
+    return [b.strip() for b in bands if b.strip()]
 
 # Loop through each event block
 for event in events:
-    # Initialize a dictionary to store the event details for each event
     event_details = {}
 
-    # Find the event date within the top-level event class
-    date_tag = event.find("div", class_="event-date")
-    if date_tag:
-        month_text = date_tag.find("span", class_="month").get_text(strip=True)
-        day_text = date_tag.find("span", class_="date").get_text(strip=True)
+    # Set the venue name
+    event_details['venue'] = "Zhora Darling"
+
+    # Adjust date and time extraction
+    date_time_tag = event.find("time", class_="sc-88e0adda-1")
+    if date_time_tag:
+        date_time_text = date_time_tag.get_text(strip=True)
         
-        month_mapping = {
-            "Jan": "01", "Feb": "02", "Mar": "03", "Apr": "04", "May": "05",
-            "Jun": "06", "Jul": "07", "Aug": "08", "Sep": "09", "Oct": "10",
-            "Nov": "11", "Dec": "12"
-        }
-        month = month_mapping.get(month_text, "N/A")
-        year = "24" if month in ["11", "12"] else "25"
-        event_details['date'] = f"{month}/{day_text}/{year}"
+        # Handle different cases for date format
+        try:
+            # Case 1: Date without a year (assume year based on month)
+            if "―" in date_time_text and len(date_time_text.split()) == 5:
+                # Example format: "Mon 18 Nov ― 7:00pm"
+                date_part, time_part = date_time_text.split("―")
+                month = date_part.split()[2]
+                year = 2024 if month in ["Nov", "Dec"] else 2025  # Use 2024 for Nov/Dec, otherwise 2025
+                full_date_time = f"{date_part.strip()} {time_part.strip()} {year}"
+                start_datetime = datetime.strptime(full_date_time, "%a %d %b %I:%M%p %Y")
+            
+            # Case 2: Date with a year already included
+            elif "―" in date_time_text and len(date_time_text.split()) == 6:
+                # Example format: "Wed 15 Jan 2025 ― 6:30pm"
+                date_part, time_part = date_time_text.split("―")
+                full_date_time = f"{date_part.strip()} {time_part.strip()}"
+                start_datetime = datetime.strptime(full_date_time, "%a %d %b %Y %I:%M%p")
+            
+            event_details['start'] = start_datetime
+        except ValueError as e:
+            print(f"Error parsing date and time for event: {date_time_text}")
+            event_details['start'] = None
     else:
-        event_details['date'] = 'N/A'
+        event_details['start'] = None
 
-    # Set the venue for the event
-    event_details['venue'] = "331 Club"
+    # Extract bands and event link
+    title_tag = event.find("a", class_="sc-88e0adda-3 eijtNw dice_event-title")
+    if title_tag:
+        event_details['event_link'] = title_tag['href']
+        band_names_list = split_band_names(title_tag.get_text(strip=True))
+        event_details['bands'] = ", ".join(band_names_list)
+        band_names.update(band_names_list)
+    else:
+        event_details['event_link'] = "N/A"
+        event_details['bands'] = "N/A"
 
-    # Find the event-content div within each event
-    event_content = event.find("div", class_="event-content")
-    if not event_content:
-        continue  # Skip if no event-content is found
-
-    # Find the columns div within event-content
-    columns_div = event_content.find("div", class_="columns")
-    if not columns_div:
-        continue  # Skip if there are no event columns found
-
-    # Loop through each column in columns_div to get individual events
-    for column in columns_div.find_all("div", class_="column"):
-        # Extract main event name and supporting acts
-        p_tag = column.find("p")
-        if p_tag:
-            full_text = p_tag.get_text(separator="\n", strip=True).split("\n")
-
-            # The first line is the main event name
-            event_details['name'] = full_text[0].strip()
-
-            # Check if there's a time in the last line
-            time_match = re.search(r'(\d{1,2}(:\d{2})?\s?[ap]m)', full_text[-1], re.IGNORECASE)
-            if time_match:
-                event_time = time_match.group(0).lower()
-                if ':' not in event_time:
-                    event_time = event_time.replace("am", ":00 am").replace("pm", ":00 pm")
-                else:
-                    event_time = re.sub(r'(\d+:\d{2})\s?(am|pm)', r'\1 \2', event_time)
-                event_details['time'] = event_time
-                # Remove time from the last line if it's there
-                full_text[-1] = re.sub(r'(\d{1,2}(:\d{2})?\s?[ap]m)', '', full_text[-1], flags=re.IGNORECASE).strip()
-            else:
-                event_details['time'] = 'N/A'
-
-            # If there are additional lines, they are considered supporting acts
-            if len(full_text) > 1:
-                event_details['support'] = ', '.join(full_text[1:]).strip()
-            else:
-                event_details['support'] = 'N/A'
-        else:
-            event_details['name'] = "N/A"
-            event_details['time'] = "N/A"
-            event_details['support'] = "N/A"
-
-        # Append the event to events_data
-        events_data.append(event_details.copy())  # Use `.copy()` to avoid overwriting data in subsequent loops
+    events_data.append(event_details.copy())
 
 # Connect to the PostgreSQL database
 conn = psycopg2.connect(
@@ -123,53 +101,59 @@ conn = psycopg2.connect(
 )
 cursor = conn.cursor()
 
-# Check if the table exists; create it if not
+# Create tables if they don't exist
 cursor.execute("""
     CREATE TABLE IF NOT EXISTS shows (
+        id SERIAL PRIMARY KEY,
         venue TEXT,
-        name TEXT,
-        date TEXT,
-        time TEXT,
-        support TEXT
+        bands TEXT,
+        start TIMESTAMP,
+        event_link TEXT
+    );
+""")
+cursor.execute("""
+    CREATE TABLE IF NOT EXISTS bands (
+        id SERIAL PRIMARY KEY,
+        band TEXT UNIQUE
     );
 """)
 
 # Fetch existing events to avoid duplicates
-cursor.execute("SELECT name, date, time FROM shows")
+cursor.execute("SELECT bands, start FROM shows")
 existing_events = set(cursor.fetchall())
 
-# Update rows_to_add to include all columns
+# Insert new events into the 'shows' table
 rows_to_add = [
-    (
-        event['venue'],
-        event['name'],  # Assuming this is equivalent to 'headliner'
-        event['date'],
-        event['time'],
-        event['support'],
-        event.get('event_link', ''),  # Add a default empty string if key is missing
-        event.get('flyer_image', ''),
-        event.get('other_info', '')
-    )
+    (event['venue'], event['bands'], event['start'], event['event_link'])
     for event in events_data
-    if (event['name'], event['date'], event['time']) not in existing_events
+    if event['start'] and (event['bands'], event['start']) not in existing_events
 ]
 
-# Insert new events into the database
 if rows_to_add:
-    # Correct INSERT statement based on the columns in shows
     insert_query = """
-    INSERT INTO "shows" (venue, headliner, date, time, support, event_link, flyer_image, other_info)
-    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
-"""
+    INSERT INTO shows (venue, bands, start, event_link)
+    VALUES (%s, %s, %s, %s) ON CONFLICT DO NOTHING
+    """
     cursor.executemany(insert_query, rows_to_add)
     conn.commit()
-    print(f"{len(rows_to_add)} new events added to the database.")
+    print(f"{len(rows_to_add)} new events added to the shows table.")
 else:
-    print("No new events to add. All entries are duplicates.")
+    print("No new events to add to the shows table. All entries are duplicates.")
+
+# Insert unique bands into the 'bands' table
+cursor.execute("SELECT band FROM bands")
+existing_bands = set(row[0] for row in cursor.fetchall())
+bands_to_add = [(band,) for band in band_names if band not in existing_bands]
+
+if bands_to_add:
+    cursor.executemany("INSERT INTO bands (band) VALUES (%s)", bands_to_add)
+    conn.commit()
+    print(f"{len(bands_to_add)} new bands added to the bands table.")
+else:
+    print("No new bands to add to the bands table. All entries are duplicates.")
 
 # Close the database connection
 cursor.close()
 conn.close()
 
-# Show notification when done
-os.system('osascript -e \'display notification "331 Scrape finished!" with title "331 Scrape finished"\'')
+print("Events processed and added to the database.")

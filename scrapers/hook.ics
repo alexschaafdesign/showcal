@@ -1,0 +1,418 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//The Hook and Ladder - ECPv5.14.0.2//NONSGML v1.0//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:The Hook and Ladder
+X-ORIGINAL-URL:https://thehookmpls.com
+X-WR-CALDESC:Events for The Hook and Ladder
+REFRESH-INTERVAL;VALUE=DURATION:PT1H
+X-Robots-Tag:noindex
+X-PUBLISHED-TTL:PT1H
+BEGIN:VTIMEZONE
+TZID:America/Chicago
+BEGIN:DAYLIGHT
+TZOFFSETFROM:-0600
+TZOFFSETTO:-0500
+TZNAME:CDT
+DTSTART:20240310T080000
+END:DAYLIGHT
+BEGIN:STANDARD
+TZOFFSETFROM:-0500
+TZOFFSETTO:-0600
+TZNAME:CST
+DTSTART:20241103T070000
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+DTSTART;TZID=America/Chicago:20241101T193000
+DTEND;TZID=America/Chicago:20241101T233000
+DTSTAMP:20241117T195415
+CREATED:20240912T201407Z
+LAST-MODIFIED:20240912T201407Z
+UID:2916-1730489400-1730503800@thehookmpls.com
+SUMMARY:Angry At Numbers\, The Rockford Mules\, Whiskey Rock n Roll Club\, Modern Dads
+DESCRIPTION:EVENT DETAILS \n\n    RSVP ON FACEBOOK\n  \n\n\n	\n		\n\n	\n	\nThe Hook and Ladder Theater \n\nDoors 7:30pm :: Music 8:00pm \n\n21+ \n\nGA: $15 Advance  / $20  Day of Show\n\n\n    COVID-19 Policies\n  \n\n		\n					\n\n	\n\n	\n				\n			\n			\n EVENT DESCRIPTION \n\n	\n		\n\n	\n	\nAngry At Numbers\, The Rockford Mules\, Whiskey Rock n Roll Club\, & Modern Dads\n\n—–\n \n\nLive Music For The Day of The Dead!The Hook & Ladder is excited to present this guitar driven 4-band Rock & Roll bill in our cozy Mission Room\, featuring sets by; Angry At Numbers\, The Rockford Mules\, Whiskey Rock n Roll Club and Modern Dads! \n\n\n	\n		\n\n	\n	\n		\n					\n\n	\n\n\n\n	\n				\n			\n			\n\n	\n		\n\n	\n	\n\n\n	\n				\n			\n			\n	\n								\n									\n					\n								\n\n	\n	\n		\n					\n\n	\n\n	\n				\n			\n			\nThis activity is made possible by the voters of Minnesota through a Minnesota State Arts Board Operating Support grant\, thanks to a legislative appropriation from the arts and cultural heritage fund.
+URL:https://thehookmpls.com/event/angry-mules-rock-dads/
+LOCATION:Hook and Ladder Mission Room\, 3010 Minnehaha\, Minneapolis\, MN\, 55406\, United States
+CATEGORIES:Concerts,Mission Room
+ATTACH;FMTTYPE=image/jpeg:https://thehookmpls.com/wp-content/uploads/2024/09/image-40.jpeg
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Chicago:20241101T200000
+DTEND;TZID=America/Chicago:20241102T010000
+DTSTAMP:20241117T195415
+CREATED:20240911T001023Z
+LAST-MODIFIED:20241102T014651Z
+UID:2904-1730491200-1730509200@thehookmpls.com
+SUMMARY:NEW ORLEANS SUSPECTS with TWINE (FRIDAY)
+DESCRIPTION:EVENT DETAILS \n\n    RSVP ON FACEBOOK\n  \n\n\n	\n		\n\n	\n	\nThe Hook and Ladder Theater \n\nDoors 8:00pm :: Music 9:00pm \n\n21+ \n\nGA: $26 Advance  / $32  Day of Show\n\n\n    COVID-19 Policies\n  \n\n		\n					\n\n	\n\n	\n				\n			\n			\n EVENT DESCRIPTION \n\n	\n		\n\n	\n	\nNEW ORLEANS SUSPECTS\nwith special guests TWINE & Kung Fu Hippies \n======= \nIt’s official… The 39th Annual Krewe of DADs Masquerade Ball Weekend is upon us. The New Orleans Suspects will be coming to town on Friday\, November 1st and Saturday\, November 2nd to celebrate this long-standing tradition with us all!! \n======= \nNovember 1 & 2\, 2024\nThe Hook and Ladder Theater\n\n2-DAY PASS: $48 (Only Available Online – VERY LIMITED)\nFriday 11/1: $26 ADV / $32 DOS\nSaturday 11/2:: $32 ADV / $38 DOS\n\n=============== \nFriday\, November 1\nNEW ORLEANS SUSPECTS\nwith special guests TWINE\n\n8pm – Doors\n9pm – TWINE\n10:30pm – New Orleans Suspects\n\n=============== \nSaturday\, November 2\nNEW ORLEANS SUSPECTS\nwith special guests Kung Fu Hippies\n\n8pm – Doors\n9pm – Kung Fu Hippies\n10:30pm – New Orleans Suspects\n\n=============== \nNew Orleans Suspects began playing together in 2009 as a pick-up band at the Maple Leaf in New Orleans. Comprised of some of the most seasoned\, highly respected players in NOLA\, the group called themselves The Unusual Suspects. Over the next couple of years\, they became a local favorite and by the summer of 2011 they decided to tour full-time\, renaming the band New Orleans Suspects. They quickly began attracting large crowds from San Francisco to New York. They have currently released five full-length albums and are set to release their sixth album release in 2023. \n	\n		\n\n	\n	\n		\n					\n\n	\n\n\n\n	\n				\n			\n			\n\n	\n		\n\n	\n	\n\n\n	\n				\n			\n			\n	\n								\n									\n					\n								\n\n	\n	\n		\n					\n\n	\n\n	\n				\n			\n			\nThis activity is made possible by the voters of Minnesota through a Minnesota State Arts Board Operating Support grant\, thanks to a legislative appropriation from the arts and cultural heritage fund.
+URL:https://thehookmpls.com/event/fri-neworleanssuspects-twine/
+LOCATION:The Hook and Ladder Theater\, 3010 Minnehaha Ave\, Minneapolis\, MN\, 55406\, United States
+CATEGORIES:Concerts,Hook & Ladder Theater,Live Music
+ATTACH;FMTTYPE=image/jpeg:https://thehookmpls.com/wp-content/uploads/2024/09/241101-Hook-NOLS-2160x1080-Eventbrite-Website-Twitter.jpg
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Chicago:20241102T193000
+DTEND;TZID=America/Chicago:20241102T233000
+DTSTAMP:20241117T195415
+CREATED:20241010T175744Z
+LAST-MODIFIED:20241010T175744Z
+UID:2999-1730575800-1730590200@thehookmpls.com
+SUMMARY:Via Chisago + Bigfoot County
+DESCRIPTION:EVENT DETAILS \n\n    RSVP ON FACEBOOK\n  \n\n\n	\n		\n\n	\n	\nThe MISSION ROOM AT THE HOOK \n\nDoors 7:30pm\nMusic 8:00pm\n21+ \nGeneral Admission: $10 Advance / $15 Day of Show\n\n*Does not include feesNO REFUNDS \n\n    COVID-19 Policies\n  \n\n		\n					\n\n	\n\n	\n				\n			\n			\n EVENT DESCRIPTION \n\n	\n		\n\n	\n	\nVia Chisago + Bigfoot County\nTributes to Wilco and The Grateful Dead!\n\n \n\n	\n		\n\n	\n	\n		\n					\n\n	\n\n\n\n	\n				\n			\n			\n\n	\n		\n\n	\n	\n\n\n	\n				\n			\n			\n	\n								\n									\n					\n								\n\n	\n	\n		\n					\n\n	\n\n	\n				\n			\n			\nThis activity is made possible by the voters of Minnesota through a Minnesota State Arts Board Operating Support grant\, thanks to a legislative appropriation from the arts and cultural heritage fund.
+URL:https://thehookmpls.com/event/viachisago-bigfootcounty/
+LOCATION:The Hook and Ladder Theater\, 3010 Minnehaha Ave\, Minneapolis\, MN\, 55406\, United States
+CATEGORIES:Concerts,Mission Room
+ATTACH;FMTTYPE=image/png:https://thehookmpls.com/wp-content/uploads/2024/10/Screen-Shot-2024-10-10-at-12.30.36-PM.png
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Chicago:20241102T200000
+DTEND;TZID=America/Chicago:20241103T010000
+DTSTAMP:20241117T195415
+CREATED:20240911T001648Z
+LAST-MODIFIED:20241102T014744Z
+UID:2907-1730577600-1730595600@thehookmpls.com
+SUMMARY:NEW ORLEANS SUSPECTS with Kung Fu Hippies (SATURDAY)
+DESCRIPTION:EVENT DETAILS \n\n    RSVP ON FACEBOOK\n  \n\n\n	\n		\n\n	\n	\nThe Hook and Ladder Theater \n\nDoors 8:00pm :: Music 9:00pm \n\n21+ \n\nGA: $32 Advance  / $38  Day of Show\n\n\n    COVID-19 Policies\n  \n\n		\n					\n\n	\n\n	\n				\n			\n			\n EVENT DESCRIPTION \n\n	\n		\n\n	\n	\nNEW ORLEANS SUSPECTS\nwith special guests TWINE & Kung Fu Hippies \n======= \nIt’s official… The 39th Annual Krewe of DADs Masquerade Ball Weekend is upon us. The New Orleans Suspects will be coming to town on Friday\, November 1st and Saturday\, November 2nd to celebrate this long-standing tradition with us all!! \n======= \nNovember 1 & 2\, 2024\nThe Hook and Ladder Theater\n\n2-DAY PASS: $48 (Only Available Online – VERY LIMITED)\nFriday 11/1: $26 ADV / $32 DOS\nSaturday 11/2:: $32 ADV / $38 DOS\n\n=============== \nFriday\, November 1\nNEW ORLEANS SUSPECTS\nwith special guests TWINE\n\n8pm – Doors\n9pm – TWINE\n10:30pm – New Orleans Suspects\n\n=============== \nSaturday\, November 2\nNEW ORLEANS SUSPECTS\nwith special guests Kung Fu Hippies\n\n8pm – Doors\n9pm – Kung Fu Hippies\n10:30pm – New Orleans Suspects\n\n=============== \nNew Orleans Suspects began playing together in 2009 as a pick-up band at the Maple Leaf in New Orleans. Comprised of some of the most seasoned\, highly respected players in NOLA\, the group called themselves The Unusual Suspects. Over the next couple of years\, they became a local favorite and by the summer of 2011 they decided to tour full-time\, renaming the band New Orleans Suspects. They quickly began attracting large crowds from San Francisco to New York. They have currently released five full-length albums and are set to release their sixth album release in 2023. \n	\n		\n\n	\n	\n		\n					\n\n	\n\n\n\n	\n				\n			\n			\n\n	\n		\n\n	\n	\n\n\n	\n				\n			\n			\n	\n								\n									\n					\n								\n\n	\n	\n		\n					\n\n	\n\n	\n				\n			\n			\nThis activity is made possible by the voters of Minnesota through a Minnesota State Arts Board Operating Support grant\, thanks to a legislative appropriation from the arts and cultural heritage fund.
+URL:https://thehookmpls.com/event/sat-neworleanssuspects-kungfuhippies/
+LOCATION:The Hook and Ladder Theater\, 3010 Minnehaha Ave\, Minneapolis\, MN\, 55406\, United States
+CATEGORIES:Concerts,Hook & Ladder Theater,Live Music
+ATTACH;FMTTYPE=image/jpeg:https://thehookmpls.com/wp-content/uploads/2024/09/241101-Hook-NOLS-2160x1080-Eventbrite-Website-Twitter-1.jpg
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Chicago:20241103T170000
+DTEND;TZID=America/Chicago:20241103T220000
+DTSTAMP:20241117T195415
+CREATED:20241016T221452Z
+LAST-MODIFIED:20241020T200340Z
+UID:3020-1730653200-1730671200@thehookmpls.com
+SUMMARY:Hell or High Water - Hurricane Relief Show
+DESCRIPTION:EVENT DETAILS \n\n    RSVP ON FACEBOOK\n  \n\n\n	\n		\n\n	\n	\nThe Hook AND LADDER THEATER \n\nDoors 5:00pm :: Music 5:30pm \n\n18+\n\nGA: $10 ADV / $15 DOS\n\n\n    COVID-19 Policies\n  \n\n		\n					\n\n	\n\n	\n				\n			\n			\n EVENT DESCRIPTION \n\n	\n		\n\n	\n	\nHell or High Water – Hurricane Relief Show\nw/ Ghosting Merit\, Watches\, Doll Chaser\, Fend\, BlueDriver  \n———- \nA benefit show for relief and rebuilding efforts for Western NC communities impacted by recent catastrophic storms. Proceeds go to Pansy Collective\, a trans-aid group based out of Appalachia that for the foreseeable future has diverted all effort and funds into hurricane relief.\n	\n		\n\n	\n	\n		\n					\n\n	\n\n\n\n	\n				\n			\n			\n\n	\n		\n\n	\n	\n\n\n	\n				\n			\n			\n	\n								\n									\n					\n								\n\n	\n	\n		\n					\n\n	\n\n	\n				\n			\n			\nThis activity is made possible by the voters of Minnesota through a Minnesota State Arts Board Operating Support grant\, thanks to a legislative appropriation from the arts and cultural heritage fund.
+URL:https://thehookmpls.com/event/hellorhighwater/
+LOCATION:The Hook and Ladder Theater\, 3010 Minnehaha Ave\, Minneapolis\, MN\, 55406\, United States
+CATEGORIES:Concerts,Fundraiser,Hook & Ladder Theater
+ATTACH;FMTTYPE=image/jpeg:https://thehookmpls.com/wp-content/uploads/2024/10/Untitled-2160-x-1080-px.jpg
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Chicago:20241107T190000
+DTEND;TZID=America/Chicago:20241107T233000
+DTSTAMP:20241117T195415
+CREATED:20241010T162402Z
+LAST-MODIFIED:20241010T163242Z
+UID:2993-1731006000-1731022200@thehookmpls.com
+SUMMARY:ZEN Grass featuring Lake Monsters & Cousin Dad
+DESCRIPTION:RSVP ON FACEBOOK\n  \n\n EVENT DETAILS \n\n	\n		\n\n	\n	\nMission room / zen arcade \n\nDoors 7:00pm:: Music 7:30pm\n21+\n$12 Advance / $18 Day of Show\n\n  \n\n    COVID-19 Policies\n  \n\n		\n					\n\n	\n\n	\n				\n			\n			\n EVENT DESCRIPTION \n\n	\n		\n\n	\n	\nThe Zen Arcade & Nobool Presents\nZEN Grass\nfeaturing Lake Monsters & Cousin Dad\n\nA night of zenfully exciting bluegrass and old time music!\n\n\n—–\n \n\nThe Lake Monsters Bluegrass Band are friends from many bluegrass and other acoustic music bands from The Upper Midwest that got together for a monthly gig at Lake Monster Brewery in the summer of 2023. At the end of the summer they were having so much fun they decided to keep it going. The idea is simple\, straight ahead classic bluegrass – Songs we all know and play together when we’re just jamming and doing it just for the fun of it.\n \n\nCousin Dad is an acoustic\, eclectic\, bluegrass-based\, jam band. New & Traditional\n\n\n	\n		\n\n	\n	\n		\n					\n\n	\n\n\n\n	\n				\n			\n			\n\n	\n		\n\n	\n	\n\n\n	\n				\n			\n			\n	\n								\n									\n					\n								\n\n	\n	\n		\n					\n\n	\n\n	\n				\n			\n			\nThis activity is made possible by the voters of Minnesota through a Minnesota State Arts Board Operating Support grant\, thanks to a legislative appropriation from the arts and cultural heritage fund.
+URL:https://thehookmpls.com/event/zengrass-lakemonsters-cousindad/
+LOCATION:The Hook and Ladder Theater\, 3010 Minnehaha Ave\, Minneapolis\, MN\, 55406\, United States
+CATEGORIES:Concerts,Mission Room
+ATTACH;FMTTYPE=image/jpeg:https://thehookmpls.com/wp-content/uploads/2024/10/241107-ZenGrass-2160x1080-Eventbrite.jpg
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Chicago:20241108T190000
+DTEND;TZID=America/Chicago:20241108T233000
+DTSTAMP:20241117T195415
+CREATED:20240523T012422Z
+LAST-MODIFIED:20240523T012422Z
+UID:2636-1731092400-1731108600@thehookmpls.com
+SUMMARY:“The American Rock and Roll Experience” - A Tribute to Jimi Hendrix\, Janis Joplin\, The Eagles and beyond!
+DESCRIPTION:RSVP ON FACEBOOK\n  \n\n EVENT DETAILS \n\n	\n		\n\n	\n	\nThe Hook and Ladder Theater \n\nDoors 7:00pm :: Music 8:00pm \n\n21+ \n\nReserved Seats: $34 \nGA: $18 ADV / $24 DOS—2 Sets with 15 minute Break8pm – 9pm9:15 – 10:15pm + Encore\n\n\n    COVID-19 Policies\n  \n\n		\n					\n\n	\n\n	\n				\n			\n			\n EVENT DESCRIPTION \n\n	\n		\n\n	\n	\nJennifer Lyn and The Groove Revival presents \n“The American Rock and Roll Experience”\nA Tribute to Jimi Hendrix\, Janis Joplin\, The Eagles and beyond! \nStep into a time machine and let the electrifying sounds of “The American Rock and Roll Experience” transport you to an era of rebellion\, freedom\, and pure musical magic!\nPaying tribute to music from 60s and 70s American Rock and Roll\, this concert experience will surround you with like-minded souls\, swaying to the transcendental sounds of Jimi Hendrix\, Janis Joplin\, Jefferson Airplane\, The Eagles\, Bob Seger\, The Allman Brothers\, and so many more great bands and artists from this time.It’s not just a concert – it’s a journey back in time to a moment when music had the power to change the world. Whether you’re a die-hard fan or simply curious to experience the magic of this transformative era\, don’t miss your chance to be part of an unforgettable night of music paired with storytelling and anecdotes about the bands\, musicians\, and songs we all know and love. \n— \nJennifer Lyn and The Groove Revival launched their first official album release which was an EP titled ‘Nothing Holding Me Down’ earning them four Independent Blues Music Awards nominations including “Best Blues Rock Band” and “Best Blues Rock Album”. The bands second official release\, an EP titled “Gypsy Soul”\, which spent 16 weeks on the Roots Music Report charts\, peaking at the #2 Blues Rock spot. \n— \n“The vocals\, the guitars\, the keyboards\, the drums—all of jaw dropping excellence. This band could be dropped into any venue—6th Steet in Austin\, Greenwich Village\, Memphis\, Chicago\, St. Louis—and this would be the draw. The bar hosting them would be dealing with lines around the block.” Gary – Fargo\, ND \n“You just don’t hear live music like this very much anymore. Great show!” Rick – Bismarck\, ND“ \nExcellent show! Can’t wait for the next time you’re in town.” JT – Rapid City\, SD \n“Another stellar performance. This is the 3rd time I’ve seen you perform\, and you never disappoint.” Mike – Grand Forks\, ND“ \nWow is all I can say. “Great Show!!!!” Bob – Saint Paul\, MN \n	\n		\n\n	\n	\n		\n					\n\n	\n\n\n\n	\n				\n			\n			\n\n	\n		\n\n	\n	\n\n\n	\n				\n			\n			\n	\n								\n									\n					\n								\n\n	\n	\n		\n					\n\n	\n\n	\n				\n			\n			\nThis activity is made possible by the voters of Minnesota through a Minnesota State Arts Board Operating Support grant\, thanks to a legislative appropriation from the arts and cultural heritage fund.
+URL:https://thehookmpls.com/event/american-rockandroll-experience/
+LOCATION:The Hook and Ladder Theater\, 3010 Minnehaha Ave\, Minneapolis\, MN\, 55406\, United States
+CATEGORIES:Concerts,Hook & Ladder Theater
+ATTACH;FMTTYPE=image/jpeg:https://thehookmpls.com/wp-content/uploads/2024/05/11-8-24-Eventbrite_Hook-and-Ladder_JLyn-The-Groove-Revival.jpg
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Chicago:20241108T193000
+DTEND;TZID=America/Chicago:20241108T233000
+DTSTAMP:20241117T195415
+CREATED:20240928T175047Z
+LAST-MODIFIED:20240928T175047Z
+UID:2949-1731094200-1731108600@thehookmpls.com
+SUMMARY:Dustin James "PAPER STAR" Cassette Release Show w/ Cha Cha 9\, Canary Room\, & THE TRUE TWO
+DESCRIPTION:EVENT DETAILS \n\n    RSVP ON FACEBOOK\n  \n\n\n	\n		\n\n	\n	\nThe MISSION ROOM AT THE HOOK \n\nDoors 7:30pm\nMusic 8:00pm\n21+ \nGeneral Admission: $10 Advance / $15 Day of Show\n\n*Does not include feesNO REFUNDS \n\n    COVID-19 Policies\n  \n\n		\n					\n\n	\n\n	\n				\n			\n			\n EVENT DESCRIPTION \n\n	\n		\n\n	\n	\nDustin James “PAPER STAR” Cassette Release Show\nw/ Cha Cha 9\, Canary Room\, & THE TRUE TWO\nDustin James “PAPER STAR” cassette release party with sets from Dustin James with Nik Eskola and Dan Hornsby\, Cha Cha 9\, and a solo set from Canary Room along with THE TRUE TWO spinning records all night. \nDUSTIN JAMES \nPaper Star is the latest album from Minneapolis-based songwriter Dustin James of Green/Blue and Waveless. The sound of Paper Star combines the subtlety\, darkness\, and experimentation of these acts\, but is also a more intimate and contemplative departure from his previous projects. With the help of Nik Eskola of the Teenage Moods and Dan Hornsby of True Green\, He introduces these songs to the stage for the first time.PAPER STAR is out October 22 2024 on Manic Static. \nCHA CHA 9 is a collaboration between Veronica Torres (Pill\, Mexican Summer/Dull Tools; P.E.\, Wharf Cat Records) and Andrew Jansen (Loud Sun). Their sound exists on the retro-pop spectrum with experimental and proto-punk influences. Torres applies her playful word-smithing with a tad of grit to Jansen’s angular and nostalgic guitar. They are joined onstage with a rotating cast of diy peers to fill out the live sound. \nCANARY ROOM \n“I’d ask you to remember it if I saw you.” The opening line of folk rock group Canary Room’s eponymous debut is a microcosm of songwriter Maddy Heide’s favorite themes. Precious memories are held between loved ones\, straining to maintain connection despite vast distances of land and time. While influenced by the forward thinking work of Joni Mitchell and Adrianne Lenker\, these songs create worlds entirely their own. A group of friends before they were a band\, Heide’s ensemble intuitively colors outside the careful lines she has crafted. On “Lake Effect”\, amid the flawlessly sensitive arrangement\, Heide lets us know her goal: “I wanted to take it all and give it all away.” Canary Room has generously done exactly that\, and we are all better off for it.~ Joan Kelsey \nTHE TRUE TWO \nDR DISTANCE + ONLINE.HAN SPINNING SONGS SPANNING DECADES MADE BY AND FOR REAL LOVERS \n	\n		\n\n	\n	\n		\n					\n\n	\n\n\n\n	\n				\n			\n			\n\n	\n		\n\n	\n	\n\n\n	\n				\n			\n			\n	\n								\n									\n					\n								\n\n	\n	\n		\n					\n\n	\n\n	\n				\n			\n			\nThis activity is made possible by the voters of Minnesota through a Minnesota State Arts Board Operating Support grant\, thanks to a legislative appropriation from the arts and cultural heritage fund.
+URL:https://thehookmpls.com/event/dustin-james/
+LOCATION:Hook and Ladder Mission Room\, 3010 Minnehaha\, Minneapolis\, MN\, 55406\, United States
+CATEGORIES:Concerts,Mission Room
+ATTACH;FMTTYPE=image/jpeg:https://thehookmpls.com/wp-content/uploads/2024/09/IMG_6563.jpeg
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Chicago:20241109T190000
+DTEND;TZID=America/Chicago:20241109T233000
+DTSTAMP:20241117T195415
+CREATED:20240724T173308Z
+LAST-MODIFIED:20241022T165252Z
+UID:2804-1731178800-1731195000@thehookmpls.com
+SUMMARY:The Get Together\, Samantha Grimes\, Nicholas David & Demitrious Rallis
+DESCRIPTION:EVENT DETAILS \n\n    RSVP ON FACEBOOK\n  \n\n\n	\n		\n\n	\n	\nThe MISSION ROOM AT THE HOOK \n\nDoors 7:00pm\nMusic 7:30pm\n21+ \nGeneral Admission: $12 Advance / $18 Day of Show\n\n*Does not include feesNO REFUNDS \n\n    COVID-19 Policies\n  \n\n		\n					\n\n	\n\n	\n				\n			\n			\n EVENT DESCRIPTION \n\n	\n		\n\n	\n	\nThe Get Together\, Samantha Grimes\,\nNicholas David & Demitrious Rallis\n—-Want a one of a kind show!? Join us at the Hook and Ladder Mission Room for just that! This lineup is sure to dazzle you with incredible music. Kick back and relax to the Get together and their indie groove\, Or Samantha Grimes witty lyrics and strong vocals\, last but not least Greg Hall and the Wrecking Ball to push the envelope on boot stomping and captivating performances. This is truly a night for all music lovers! \n— \nNeo-psychedelic/Indie Rock \nThe Get Together began with the writings and recordings of producer Ethan Huffington. Surrounded by his plants and pedals in a wood panelled Minneapolis basement\, he set about crafting neo-psychedelic journeys through otherworldly dreamscapes. A get together necessarily involves more than one person however\, and via the serendipitous magic of the internet a band soon coalesced around his songs. Together\, they created a live act that showcases their combined creative energies\, while reinterpreting and expanding upon the recorded discography \n— \nSamantha Grimes Folk\, rock\, blues\, country and more combine to create the iconic sound of Americana grown in the Midwest. With hits like “Wendy Darling\,” “Wicked Mortals” and “Trainwreck\,” Samantha Grimes has shown her ability to captivate listeners in all genres. \n	\n		\n\n	\n	\n		\n					\n\n	\n\n\n\n	\n				\n			\n			\n\n	\n		\n\n	\n	\n\n\n	\n				\n			\n			\n	\n								\n									\n					\n								\n\n	\n	\n		\n					\n\n	\n\n	\n				\n			\n			\nThis activity is made possible by the voters of Minnesota through a Minnesota State Arts Board Operating Support grant\, thanks to a legislative appropriation from the arts and cultural heritage fund.
+URL:https://thehookmpls.com/event/together-grime-hall/
+LOCATION:Hook and Ladder Mission Room\, 3010 Minnehaha\, Minneapolis\, MN\, 55406\, United States
+CATEGORIES:Concerts,Live Music,Mission Room
+ATTACH;FMTTYPE=image/png:https://thehookmpls.com/wp-content/uploads/2024/07/THE-GET-TOGETHER-2160-x-1080-px.png
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Chicago:20241109T190000
+DTEND;TZID=America/Chicago:20241109T233000
+DTSTAMP:20241117T195415
+CREATED:20241001T200850Z
+LAST-MODIFIED:20241001T200850Z
+UID:2957-1731178800-1731195000@thehookmpls.com
+SUMMARY:The Shackletons\, Diet Lite\, Oceanographer
+DESCRIPTION:RSVP ON FACEBOOK\n  \n\n EVENT DETAILS \n\n	\n		\n\n	\n	\nThe Hook and Ladder Theater \n\n\nDoors 7:00pm :: Music 8:00pm :: 18+ \n\n\nGeneral Admission*: $15 ADV / $20 DOS\n\n\n  \n\n    COVID-19 Policies\n  \n\n		\n					\n\n	\n\n	\n				\n			\n			\n EVENT DESCRIPTION \n\n	\n		\n\n	\n	\n\nThe Shackletons\nWith special guests Diet Lite and Oceanographer\n\nJoin us as The Shackletons and their friends Diet Lite and Oceanographer team up for a rockin’ night at The Hook.\n \nThe Shackletons are a rock band from Minneapolis\, circa 2014\, composed of brothers Colin Campbell (guitar/vocals)\, Cameron Campbell (bass/backing vocals)\, and Evan Campbell(drums/misc screaming). They have been described as “Conor Oberst with a John Belushi attitude\, fronting The Hold Steady.”\n \nThe band puts on electrifying live performances pulling from their catalog of punk\, indie\, blues\, and whatever they’re feeling like playing at the moment. The Shackletons draw from a plethora of influences including The Replacements\, The Who\, Against Me!\, and Old 97s.\n \nWith multiple EPs and singles under their belt\, The Shackletons released their first full length album in December of 2021\, produced by John Fields. In the weeks following their self-titled release\, it became the #1 self-released album added to independent radio stations\, and the #12 most added overall\n \nShowcasing an eclectic garage rock style combining elements of everything from post-punk to alt-country\, Milwaukee’s rock ‘n’ roll mainstays Diet Lite specialize in blending catchy riffs\, creative songwriting\, and a brand of energy that could be canned and sold. It’s gritty\, feel-good rock ‘n’ roll at its finest. The group takes pride in melodically forward verses\, active bass lines\, and familiar yet fresh material.\n \n\nOceanographer is a four piece “Midwest Dreamo Pop” band based in Minneapolis. The members come from across the Midwest to share shimmery\, reverby songs about the queer experience in their small home towns. Val Lowry-Ortega sings lead vocal and writes the music\, Jim Deyoung slides on lead guitar\, Will Suit holds down on the bass\, and Noah Hoffman rocks the drums. They are releasing a three song EP come this fall.\n	\n		\n\n	\n	\n		\n					\n\n	\n\n\n\n	\n				\n			\n			\n\n	\n		\n\n	\n	\n\n\n	\n				\n			\n			\n	\n								\n									\n					\n								\n\n	\n	\n		\n					\n\n	\n\n	\n				\n			\n			\nThis activity is made possible by the voters of Minnesota through a Minnesota State Arts Board Operating Support grant\, thanks to a legislative appropriation from the arts and cultural heritage fund.
+URL:https://thehookmpls.com/event/shackletons-dietlite-oceanographer/
+LOCATION:The Hook and Ladder Theater\, 3010 Minnehaha Ave\, Minneapolis\, MN\, 55406\, United States
+CATEGORIES:Concerts,Hook & Ladder Theater
+ATTACH;FMTTYPE=image/jpeg:https://thehookmpls.com/wp-content/uploads/2024/10/Shax-Hook-11.9-Banner.jpg
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Chicago:20241113T190000
+DTEND;TZID=America/Chicago:20241113T210000
+DTSTAMP:20241117T195415
+CREATED:20241010T233159Z
+LAST-MODIFIED:20241010T233159Z
+UID:3003-1731524400-1731531600@thehookmpls.com
+SUMMARY:Space Between
+DESCRIPTION:EVENT DETAILS \n\n	\n		\n\n	\n	\nThe Hook and Ladder Theater  \n\n7:00pm – 9:00pm\nFree\n\n\n    COVID-19 Policies\n  \n\n		\n					\n\n	\n\n	\n				\n			\n			\n EVENT DESCRIPTION \n\n	\n		\n\n	\n	\n\nSpace Between\n\nNow on the 2nd Wednesdays monthly\, join us at Space Between\, a free peer-to-peer community support group for music industry professionals. Monthly conversations on topics we can all relate to. A communal space to share in the joys and pains of functioning within our music industry ecosphere.\nCollaborate with like minded industry folks! For anyone who makes the music possible: artists\, managers\, agents\, promoters\, engineers\, crew\, venue staff\, security\, and family.\n—\nMonthly at The Hook & Ladder Mission Room :: 7-9 pm6:45pm – Doors7:00pm – Social7:30pm – Topic Presentation8:00pm – Topic Collaboration8:45pm – NetworkingLed and organized by Mental Health Professional\, Mark Femling (LPCC)\n	\n		\n\n	\n	\n		\n					\n\n	\n\n\n\n	\n				\n			\n			\n\n	\n		\n\n	\n	\n\n\n	\n				\n			\n			\n	\n								\n									\n					\n								\n\n	\n	\n		\n					\n\n	\n\n	\n				\n			\n			\nThis activity is made possible by the voters of Minnesota through a Minnesota State Arts Board Operating Support grant\, thanks to a legislative appropriation from the arts and cultural heritage fund.
+URL:https://thehookmpls.com/event/241113-space-between/
+LOCATION:The Hook and Ladder Theater\, 3010 Minnehaha Ave\, Minneapolis\, MN\, 55406\, United States
+CATEGORIES:Discussions,Free Event,Mission Room
+ATTACH;FMTTYPE=image/png:https://thehookmpls.com/wp-content/uploads/2024/04/Screen-Shot-2024-04-24-at-10.56.56-AM.png
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Chicago:20241113T193000
+DTEND;TZID=America/Chicago:20241113T213000
+DTSTAMP:20241117T195415
+CREATED:20240917T203539Z
+LAST-MODIFIED:20241108T211217Z
+UID:2926-1731526200-1731533400@thehookmpls.com
+SUMMARY:Elder Voice Advocates Fundraiser
+DESCRIPTION:EVENT DETAILS \n\n    RSVP ON FACEBOOK\n  \n\n\n	\n		\n\n	\n	\nThe Hook and Ladder Theater \n\n6pm Cocktail Hour :: 7pm Music :: 21+ \nGeneral Admission: $20 ADV / $25 DOS\n\n\n    COVID-19 Policies\n  \n\n		\n					\n\n	\n\n	\n				\n			\n			\n EVENT DESCRIPTION \n\n	\n		\n\n	\n	\nElder Voice Advocates Fundraiser\n\nThe Hook & Ladder Theater is proud to partner with Elder Voice Advocates on their exciting inaugural live fundraiser event\, featuring music by Glycerin Tears\, raffles/prizes\, food trucks\, cash-bar and much more! \n \n\nElder Voice Advocates is a Minnesota non-profit that advocates for quality care for elders and adults with disabilities. Born out of devastating experiences by members’ loved ones in long term care settings\, their volunteer driven organization has strengthened and changed laws through education and advocacy for over 60\,000 Minnesotans. \n\nJoin us in listening to the fabulous 70’s band “Glycerin Tears” \, performing the best rock tunes recorded between 1970 and 1979! \n\n	\n		\n\n	\n	\n		\n					\n\n	\n\n\n\n	\n				\n			\n			\n\n	\n		\n\n	\n	\n\n\n	\n				\n			\n			\n	\n								\n									\n					\n								\n\n	\n	\n		\n					\n\n	\n\n	\n				\n			\n			\nThis activity is made possible by the voters of Minnesota through a Minnesota State Arts Board Operating Support grant\, thanks to a legislative appropriation from the arts and cultural heritage fund.
+URL:https://thehookmpls.com/event/eldervoiceadvocates-fundraiser/
+LOCATION:The Hook and Ladder Theater\, 3010 Minnehaha Ave\, Minneapolis\, MN\, 55406\, United States
+CATEGORIES:Concerts,Fundraiser,Hook & Ladder Theater
+ATTACH;FMTTYPE=image/jpeg:https://thehookmpls.com/wp-content/uploads/2024/09/image-44.jpeg
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Chicago:20241115T190000
+DTEND;TZID=America/Chicago:20241115T233000
+DTSTAMP:20241117T195415
+CREATED:20240711T154147Z
+LAST-MODIFIED:20240711T154147Z
+UID:2760-1731697200-1731713400@thehookmpls.com
+SUMMARY:MANGO JAM '35th Anniversary'
+DESCRIPTION:RSVP ON FACEBOOK\n  \n\n EVENT DETAILS \n\n	\n		\n\n	\n	\nThe Hook and Ladder Theater \n\nDoors 7pm:: Music 7:30pm\n21+\n$15 Advance / $20 Day of Show\n\n  \n\n    COVID-19 Policies\n  \n\n		\n					\n\n	\n\n	\n				\n			\n			\n EVENT DESCRIPTION \n\n	\n		\n\n	\n	\nAn Evening with\nMANGO JAM ’35th Anniversary’\nwith guest DUPLEX \nMANGO JAM is original pop rock jam fusion. A Twin Cities legendary jam band that formed in 1989\, and has played in 46 states. Mango Jam is still FRESH!\n \n\nThey have played in support of: Sheryl Crow\, Blues Traveler\, Big Head Todd and The Monsters\, The Why Store\, Freddy Jones Band\, Widespread Panic\, The Samples\, Rare Earth\, The Jayhawks\, Merle Saunders and the Rainforest Band\, The Greys\, Allgood Band\, Rusted Root\, Aquarium Rescue Unit\, Soul Asylum and an Earth Day rally with Steve Miller Band and Natalie Merchant.\n“Mango Jam Of Minneapolis Still Dedicated To It’s Original Sound” ~ Interview with Phil Nusbaum of Jazz 88\n	\n		\n\n	\n	\n		\n					\n\n	\n\n\n\n	\n				\n			\n			\n\n	\n		\n\n	\n	\n\n\n	\n				\n			\n			\n	\n								\n									\n					\n								\n\n	\n	\n		\n					\n\n	\n\n	\n				\n			\n			\nThis activity is made possible by the voters of Minnesota through a Minnesota State Arts Board Operating Support grant\, thanks to a legislative appropriation from the arts and cultural heritage fund.
+URL:https://thehookmpls.com/event/mangojam35/
+LOCATION:The Hook and Ladder Theater\, 3010 Minnehaha Ave\, Minneapolis\, MN\, 55406\, United States
+CATEGORIES:Concerts,Hook & Ladder Theater
+ATTACH;FMTTYPE=image/jpeg:https://thehookmpls.com/wp-content/uploads/2024/07/mangplexnov15_2160X1080.jpg
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Chicago:20241115T203000
+DTEND;TZID=America/Chicago:20241116T000000
+DTSTAMP:20241117T195415
+CREATED:20240724T005407Z
+LAST-MODIFIED:20240724T010527Z
+UID:2795-1731702600-1731715200@thehookmpls.com
+SUMMARY:Hipshaker MPLS | Heavy Funk & Rare Soul Dance Party
+DESCRIPTION:EVENT DETAILS \n\n    RSVP ON FACEBOOK\n  \n\n\n	\n		\n\n	\n	\nThe MISSION ROOM AT THE HOOK \n\nDoors 8:30pm\nMusic 8:30pm\n21+ \nGeneral Admission: $10 Advance / $15 Day of Show\n\n*Does not include feesNO REFUNDS \n\n    COVID-19 Policies\n  \n\n		\n					\n\n	\n\n	\n				\n			\n			\n EVENT DESCRIPTION \n\n	\n		\n\n	\n	\nHipshaker MPLS | Heavy Funk & Rare Soul Dance Party\nOriginal Vinyl 45s! DJs Brian Engel\, Greg Waletski\, George Rodriguez  \n\n\n \n\n  \n\n\n\n	\n		\n\n	\n	\n		\n					\n\n	\n\n\n\n	\n				\n			\n			\n\n	\n		\n\n	\n	\n\n\n	\n				\n			\n			\n	\n								\n									\n					\n								\n\n	\n	\n		\n					\n\n	\n\n	\n				\n			\n			\nThis activity is made possible by the voters of Minnesota through a Minnesota State Arts Board Operating Support grant\, thanks to a legislative appropriation from the arts and cultural heritage fund.
+URL:https://thehookmpls.com/event/241115-hipshaker/
+LOCATION:Hook and Ladder Mission Room\, 3010 Minnehaha\, Minneapolis\, MN\, 55406\, United States
+CATEGORIES:Dance,Dance Party,DJ
+ATTACH;FMTTYPE=image/jpeg:https://thehookmpls.com/wp-content/uploads/2024/07/Hipshaker-20242025-Banner.jpg
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Chicago:20241116T190000
+DTEND;TZID=America/Chicago:20241116T233000
+DTSTAMP:20241117T195415
+CREATED:20240808T175426Z
+LAST-MODIFIED:20240808T185959Z
+UID:2837-1731783600-1731799800@thehookmpls.com
+SUMMARY:Belfast Cowboys "Giving Thanks"
+DESCRIPTION:EVENT DETAILS \n\n    RSVP ON FACEBOOK\n  \n\n\n	\n		\n\n	\n	\nThe Hook and Ladder Theater \n\nDoors 7:00pm :: Music 7:30pm \n\n21+ \n\nGA: $20 Advance  / $25  Day of Show\n\n\n    COVID-19 Policies\n  \n\n		\n					\n\n	\n\n	\n				\n			\n			\n EVENT DESCRIPTION \n\n	\n		\n\n	\n	\nBelfast Cowboys “Giving Thanks”\n\n—–\n\nThe Belfast Cowboys are a nine-piece\, horn-driven band from Minneapolis that specializes in the music of Van Morrison – mixing rock\, blues\, roots and soul sounds.  They have become one of Minnesota’s (and The Hook & Ladder‘s) most popular bands.\n \nLed by veteran songwriter and guitarist Terry Walsh and powered by a four-piece horn section\, the Cowboys have flourished in the renowned Minnesota music scene\, and have consistently packed houses and wowed crowds since 2002.\n \nTerry Walsh got his start playing in various Twin Cities rock bands and toured as Slim Dunlap’s bass player in 1997\, opening for Son Volt. In 2001\, the idea to form a Van Morrison tribute band was formed\, and Terry spent the rest of the year learning Van songs and building an all-star band\, with Joe Loskota on keyboards and Vic Volare running the horn section. The band played their first show at the old 400 Bar on Saint Patrick’s Day 2002. \n\n \nMany musicians played with the band over the first few years\, and continue to do so today\, but the ‘A’ team was soon established: Dan Kowalke on guitar and backing vocals\, Joe Baumgart (bass)\, Dave Kirby and Dave Haugen (drums\, backing vocals)\, Joe Loskota(keyboards\, backing vocals)\, Paul Gronert (sax)\, Matt Hanzelka (trombone)\, Tim Martin (trumpet)\, Vic Volare (sax\, flute) and Terry Walsh (lead vocals\, guitar\, harmonica\, piano). \n\nThe band has expanded its content over the years to include rock and soul covers along with Terry’s own originals\, which have become fan favorites. Now a beloved staple in Minnesota\, the 9-piece Belfast Cowboys averaged over 120 shows a year before the pandemic. The bar-tested troubadours are known for playing epic sets at their weekly Minneapolis gigs and drawing large crowds to outdoor festivals. Occasionally they’ll venture beyond the Midwest to play Ireland\, Phoenix\, New York’s Times Square\, and once opened for the band Chicago in front of 15\,000 people.\n \n\n* A portion of the proceeds will be donated to Foothold Twin Cities\,  Over half a million people and children in Minnesota live below the official poverty line which often means that they are one surprise expense away from being homeless.  Foothold Twin Cities pays that expense for families who are referred by trusted sources.\n\n\n \n\n	\n		\n\n	\n	\n		\n					\n\n	\n\n\n\n	\n				\n			\n			\n\n	\n		\n\n	\n	\n\n\n	\n				\n			\n			\n	\n								\n									\n					\n								\n\n	\n	\n		\n					\n\n	\n\n	\n				\n			\n			\nThis activity is made possible by the voters of Minnesota through a Minnesota State Arts Board Operating Support grant\, thanks to a legislative appropriation from the arts and cultural heritage fund.
+URL:https://thehookmpls.com/event/belfast-cowboys-giving-thanks/
+LOCATION:The Hook and Ladder Theater\, 3010 Minnehaha Ave\, Minneapolis\, MN\, 55406\, United States
+CATEGORIES:Concerts,Hook & Ladder Theater
+ATTACH;FMTTYPE=image/jpeg:https://thehookmpls.com/wp-content/uploads/2024/08/241116-Hook-BelfastCowboys-2160x1080-Eventbrite-Website-Twitter-2.jpg
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;VALUE=DATE:20241117
+DTEND;VALUE=DATE:20241119
+DTSTAMP:20241117T195415
+CREATED:20241003T210739Z
+LAST-MODIFIED:20241003T210752Z
+UID:2977-1731805200-1731891599@thehookmpls.com
+SUMMARY:PRIVATE EVENT
+DESCRIPTION:OVERVIEW \n\n	\n		\n\n	\n	\nThe non-profit Hook and Ladder Theater is available to rent for your next event. In addition to providing accessible arts programming\, community events and ticketed concerts\, The Hook is also available for uniquely memorable private functions\, such as; weddings\, fundraisers\, anniversaries\, holiday\, memorial\, company and birthday parties. \n\n    BOOK THE HOOK\n  \n\n		\n					\n\n	\n\n	\n				\n			\n			\n RENTAL DETAILS \n\n	\n		\n\n	\n	\nPlan Your Next Event at The Hook\nWith our (2) unique performance spaces (our Theater/Lounge and our new Mission Room)\, (3) performance stages\, (2) sprung dance floors and full technical production capabilities\, The Hook & Ladder is perfect for small intimate gatherings or larger groups up to 500. The Hook & Ladder is ideally suited for reception events\, dinners with (80-100) seated guests\, passed apps and/or buffet with live entertainment. \nAs a multi-use performing arts space with a full-bar\, a large selection of local craft beverages and working relationships with a wide variety of local artists\, caterers and brewers\, The Hook can easily accommodate any taste and any lay-out\, host both ceremonies and receptions as well as power-point presentations and happy-hour events. \n	\n		\n\n	\n	\n		\n					\n\n	\n\n\n\n	\n				\n			\n			\n\n	\n		\n\n	\n	\n\n\n	\n				\n			\n			\n	\n								\n									\n					\n								\n\n	\n	\n		\n					\n\n	\n\n	\n				\n			\n			\nThis activity is made possible by the voters of Minnesota through a Minnesota State Arts Board Operating Support grant\, thanks to a legislative appropriation from the arts and cultural heritage fund.
+URL:https://thehookmpls.com/event/private-event-21/
+LOCATION:The Hook and Ladder Theater\, 3010 Minnehaha Ave\, Minneapolis\, MN\, 55406\, United States
+CATEGORIES:Hook & Ladder Theater,Private Event
+ATTACH;FMTTYPE=image/png:https://thehookmpls.com/wp-content/uploads/2024/07/Screen-Shot-2024-07-24-at-7.30.22-PM.png
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Chicago:20241121T183000
+DTEND;TZID=America/Chicago:20241121T230000
+DTSTAMP:20241117T195415
+CREATED:20241008T220503Z
+LAST-MODIFIED:20241008T220503Z
+UID:2989-1732213800-1732230000@thehookmpls.com
+SUMMARY:Give to the Maxi - Pad Fundraiser
+DESCRIPTION:RSVP ON FACEBOOK\n  \n\n EVENT DETAILS \n\n	\n		\n\n	\n	\nThe mission room  \n\nDoors 6:30pm:: Music 7:30pm\n21+\n$15 Advance / $20 Day of Show\n\n  \n\n    COVID-19 Policies\n  \n\n		\n					\n\n	\n\n	\n				\n			\n			\n EVENT DESCRIPTION \n\n	\n		\n\n	\n	\n\nGive to the Maxi – Pad Fundraiser\nA fundraiser for menstrual products to The Hewitt Family Foundation\nw/ Afters\, Charlie Boy\, Dani Erin & Katy TessmanFeat. WOMENS FOUNDATION OF MINNESOTA \n\nJOIN US FOR GIVE TO THE MAXI – PAD!A FUNDRAISER FOR MENSTRUAL PRODUCTS TO HELP THOSE IN NEED. WITH A STACKED LINEUP AT THE HOOK AND LADDER MISSION ROOM. LET’S ALL PITCH IN TO GIVE TO THE MAX!  —AFTERSafters is a concept. a time and place new and forgotten. it’s indie rock with surprising sensuality\, a dark edge with pop sensibilities\, a glimpse into the psyche of a young woman grappling with the human experience. it’s music for beginnings\, and music for the end of the world. \n \nCHARLIEBOYHonest and abstract\, therapeutic rock music.Based in La Crosse\, WI Cut throat intensity\, paired with the feeling of being a baby kitten\, being held.Vague lyricism meets Midwest nostalgia.Intricate\, spontaneous grooves. Feel provoking melodies.Compelling mix of indie rock\, jazz\, pop and prog.\n \n\nKaty Tessman \nWith a voice full of the wisdom she’s gained through breast cancer survival\, heartbreak\, and motherhood\, Katy Tessman is an optimistic and approachable songwriter who celebrates life’s stumbles and summits. Soaring to new heights with her eagerly awaited album\, “Fly” marks her return to the stage after a twenty-year hiatus. Hailing from Minneapolis\, Katy is also an award-winning children’s book author\, celebrated as a CHANGEMAKER by Minnesota Women’s Press.\n \nDani Erin (vocals) is an original retro pop duo accompanied by Nathaniel Gillen (guitar). The pair has been writing music for the past 4 years\, its an intricate play on everyday life and storytelling. Between Dani Erin’s smooth jazz vocals and Nathaniel’s intricate guitar styling\, their music has something for everyone.  When they aren’t performing as a full band they do a stripped down version of how their music originally began.  \n	\n		\n\n	\n	\n		\n					\n\n	\n\n\n\n	\n				\n			\n			\n\n	\n		\n\n	\n	\n\n\n	\n				\n			\n			\n	\n								\n									\n					\n								\n\n	\n	\n		\n					\n\n	\n\n	\n				\n			\n			\nThis activity is made possible by the voters of Minnesota through a Minnesota State Arts Board Operating Support grant\, thanks to a legislative appropriation from the arts and cultural heritage fund.
+URL:https://thehookmpls.com/event/givetothemaxi-pad/
+LOCATION:The Hook and Ladder Theater\, 3010 Minnehaha Ave\, Minneapolis\, MN\, 55406\, United States
+CATEGORIES:Concerts,Hook & Ladder Theater
+ATTACH;FMTTYPE=image/png:https://thehookmpls.com/wp-content/uploads/2024/10/Screen-Shot-2024-10-08-at-3.36.15-PM.png
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Chicago:20241121T190000
+DTEND;TZID=America/Chicago:20241121T230000
+DTSTAMP:20241117T195415
+CREATED:20241002T214719Z
+LAST-MODIFIED:20241002T214719Z
+UID:2970-1732215600-1732230000@thehookmpls.com
+SUMMARY:Sound on Screen Feat. Patti DeMay\, DGS\, The Johnny Sincerely Orchestra\, and Freaque
+DESCRIPTION:EVENT DETAILS \n\n    RSVP ON FACEBOOK\n  \n\n\n	\n		\n\n	\n	\nThe Hook AND LADDER THEATER \n\n\nDoors: 7:00PM | Show: 7:30PM \n\n\nAdvance $15 / Day of Show $20\n\n\n\n    COVID-19 Policies\n  \n\n		\n					\n\n	\n\n	\n				\n			\n			\n EVENT DESCRIPTION \n\n	\n		\n\n	\n	\nSound on Screen\nFeat. Patti DeMay\, DGS\, The Johnny Sincerely Orchestra\, and Freaque w/ Director Alyssa Stormes\n\n \nCome celebrate a night of world premieres and single releases from five Twin Cities artists!\n \nFeaturing performances from Patti DeMay\, DGS\, The Johnny Sincerely Orchestra\, and Freaque with accompanying music video premieres from local director Alyssa Stormes.  Come to support the bands you know and stay to find a new favorite. Alyssa Stormes is a fiscal year 2024 recipient of a Creative Individuals grant from the Minnesota State Arts Board. This activity is made possible by the voters of Minnesota through a grant from the Minnesota State Arts Board\, thanks to a legislative appropriation from the arts and cultural heritage fund.\n \nFreaque explores the underbelly of corporeal experience. Songs and stories about decay\, decomposition and death being juxtaposed with eroticism\, relationship and life. Through a dark\, dank\, and dirty artistic voice\, Freaque tells stories of life blooming in the shadows and those lives taking shape in a myriad of bodies. \n \nThe Johnny Sincerely Orchestra incorporates elements of vaudevillian theatricality into their live shows\, creating what they call “Carnival RocknRoll”. Combining elements of European folk and music hall with hard hitting rock n roll and the blues\, they have created a sound all their own. This ragtag crew of orchestral misfits can be found playing their hearts out at a dim lit bar near you.\n“Johnny Sincerely has elements of a vaudeville showman who seems as though he would fit right in as a carnival barker\, an old parisian cabaret host\, or as a swaggering lounge singer.”\n \nThe Johnny Sincerely Orchestra are:\nPiano/Vocals: Johnny Sincerely\nGuitar: Sean Cosgrove\nBass: Joe Clark\nViola: Linnea Brashears\nTrombone: John Baumgartner\nPercussion: Aaron Isakson\n \nDGS (pronouns: they/them/theirs) has studied and performed the violin with many artists in multiple genres\, though their heart has always been drawn to creating something for themselves.\nPerforming on a five stringed instrument\, DGS has both violin and viola at their fingertips\, and the addition of live effects expands their sound palette even further. With a tap on the body of the instrument\, the violin transforms into a kick drum. A synth pedal shifts the octaves down into bass territory. Pizzicato in their hands is performed more like a guitar or mandolin\, and ambient reverbs create synth textures uniquely voiced by the instrument’s timbre. All of these sounds are created and recorded live into a looper to transform this one person into a string quartet\, a live band\, and many shades and combinations in between. \n \nThey invoke similarities to artists like Lindsey Stirling\, Nils Frahm\, and Hans Zimmer; The reflective and pensive ability of instrumental and classical music combined with the pulse and staying power of a Top 40 hit is a combination that inspires them most. Instrumental riffs lay the foundation while dense symphonic strings collide with dance-worthy beats. Melodies soar over top with earworm-worthy hooks while the sub octave bass roots and grounds the bottom end. \nDGS has a way of speaking through their music that captivates any and all who stop to listen. \n \nHi! My name is Patti DeMay. I’m a lyricist and singer. Music to me is like an emotional immune system for my mental health. There are moments in my life that are so overwhelming\, I’m compelled to turn those experiences into songs in order to make sense of myself. My astrological signs are as follows: Cancer Sun\, Taurus Moon\, Scorpio Ascendant.\n \nShout-out to Tom and Adolfo who have worked with me since 2020 to create my first solo album. They are incredible musicians\, composers and auditory engineers who helped me to turn my acapella musings into tasty tunes.\n \nAlyssa Stormes is a filmmaker and visual artist based in Minneapolis. Described as an artist for artists\, she loves making visuals for musicians\, arts organizations\, events\, and personal celebrations. This past year she’s worked with the Science Museum of MN\, Muslim American Society of MN\, the Minnesota Zoo\, Star\, the Mall of America\, Nintendo\, and Moonplay Cinema. She is a 2024 grant receipient of a Creative Individuals Grant from the MN State Arts Board\, a current panelist for the Gig Fund by Arts Midwest\, and has had 3 designs commissioned for public art projects through the Bus Stop Beautifiation Program through Metro Transit in 2023 and 2024. She holds a degree in Cinema from the University of Iowa\, and has an extensive background in both music and theatre. She’s recently directed music videos for Julia Brennan\, Patti DeMay\, The Johnny Sincerely Orchestra\, DGS\, and Freaque.\n\n	\n		\n\n	\n	\n		\n					\n\n	\n\n\n\n	\n				\n			\n			\n\n	\n		\n\n	\n	\n\n\n	\n				\n			\n			\n	\n								\n									\n					\n								\n\n	\n	\n		\n					\n\n	\n\n	\n				\n			\n			\nThis activity is made possible by the voters of Minnesota through a Minnesota State Arts Board Operating Support grant\, thanks to a legislative appropriation from the arts and cultural heritage fund.
+URL:https://thehookmpls.com/event/soundonscreen/
+LOCATION:The Hook and Ladder Theater\, 3010 Minnehaha Ave\, Minneapolis\, MN\, 55406\, United States
+CATEGORIES:Concerts,Hook & Ladder Theater,Live Music
+ATTACH;FMTTYPE=image/png:https://thehookmpls.com/wp-content/uploads/2024/10/Screen-Shot-2024-10-02-at-3.59.38-PM.png
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Chicago:20241122T180000
+DTEND;TZID=America/Chicago:20241122T220000
+DTSTAMP:20241117T195415
+CREATED:20241022T205338Z
+LAST-MODIFIED:20241022T205338Z
+UID:3025-1732298400-1732312800@thehookmpls.com
+SUMMARY:***RESCHEDULED***An Evening with Shannon McNally
+DESCRIPTION:EVENT DETAILS \n\n    RSVP ON FACEBOOK\n  \n\n\n	\n		\n\n	\n	\nThe MISSION ROOM AT THE HOOK  \n\n    COVID-19 Policies\n  \n\n		\n					\n\n	\n\n	\n				\n			\n			\n EVENT DESCRIPTION \n\n	\n		\n\n	\n	\n***RESCHEDULED***\nAn Evening with Shannon McNally to March 22 (from Nov 22)\nFOLLOW LINK FOR MORE INFO ==> https://Shannon-McNally.eventbrite.com\n	\n		\n\n	\n	\n		\n					\n\n	\n\n\n\n	\n				\n			\n			\n\n	\n		\n\n	\n	\n\n\n	\n				\n			\n			\n	\n								\n									\n					\n								\n\n	\n	\n		\n					\n\n	\n\n	\n				\n			\n			\nThis activity is made possible by the voters of Minnesota through a Minnesota State Arts Board Operating Support grant\, thanks to a legislative appropriation from the arts and cultural heritage fund.
+URL:https://thehookmpls.com/event/rescheduledan-evening-with-shannon-mcnally/
+LOCATION:The Hook and Ladder Theater\, 3010 Minnehaha Ave\, Minneapolis\, MN\, 55406\, United States
+CATEGORIES:Hook & Ladder Theater
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Chicago:20241122T190000
+DTEND;TZID=America/Chicago:20241122T233000
+DTSTAMP:20241117T195415
+CREATED:20240724T181941Z
+LAST-MODIFIED:20240724T181941Z
+UID:2806-1732302000-1732318200@thehookmpls.com
+SUMMARY:Trent Romans Band\, JoJo Green\, Clay Fulton & The Lost Forty
+DESCRIPTION:EVENT DETAILS \n\n    RSVP ON FACEBOOK\n  \n\n\n	\n		\n\n	\n	\nThe MISSION ROOM AT THE HOOK \n\nDoors 7:00pm\nMusic 7:30pm\n21+ \nGeneral Admission: $12 Advance / $18 Day of Show\n\n*Does not include feesNO REFUNDS \n\n    COVID-19 Policies\n  \n\n		\n					\n\n	\n\n	\n				\n			\n			\n EVENT DESCRIPTION \n\n	\n		\n\n	\n	\nTrent Romans Band\, JoJo Green\, Clay Fulton & The Lost Forty\n—- \nGet ready for a night intertwined with blues and fusion. This three band lineup promises to bring high energy along with a soulful night\, in the one of a kind Mission Room at the Hook And Ladder. \n— \nTrent Romens Band is a Blues-Soul-Jam band hailing from the Twin Cities. Fronted by longtime local blues guitarist Trent Romens\, this band is a culmination of Trent’s ability to write songs and captivate an audience.—JoJo Green features rich\, agile\, and daring trios between their bodacious vocalist\, diva\, and band leader\, Sharisse Germain\, cheeky and fearless saxophonist\, Zach Miller\, and smooth\, suave guitarist\, Conner Allen\, braiding through each performance. The JoJo groove is driven by primal\, soulful rhythm provided by drummer Nancy Long and bassist/lead songwriter Scott Yonke \n— \nClay Fulton and the Lost FortyRoots Rock/Country \nClay Fulton is a singer-songwriter from Rochester\, Minnesota. His debut album When Trouble Comes has been a long time coming. Songs like “Walls Of St. Paul” and “When Trouble Comes” were written while studying at McNally Smith College of Music in St. Paul\, Minnesota. \n	\n		\n\n	\n	\n		\n					\n\n	\n\n\n\n	\n				\n			\n			\n\n	\n		\n\n	\n	\n\n\n	\n				\n			\n			\n	\n								\n									\n					\n								\n\n	\n	\n		\n					\n\n	\n\n	\n				\n			\n			\nThis activity is made possible by the voters of Minnesota through a Minnesota State Arts Board Operating Support grant\, thanks to a legislative appropriation from the arts and cultural heritage fund.
+URL:https://thehookmpls.com/event/romens-jojo-lost/
+LOCATION:Hook and Ladder Mission Room\, 3010 Minnehaha\, Minneapolis\, MN\, 55406\, United States
+CATEGORIES:Concerts,Live Stream,Mission Room
+ATTACH;FMTTYPE=image/png:https://thehookmpls.com/wp-content/uploads/2024/07/TRomens-JGreen-CFulton_1122-hookmission2160x1080.png
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Chicago:20241122T190000
+DTEND;TZID=America/Chicago:20241122T233000
+DTSTAMP:20241117T195415
+CREATED:20240920T191657Z
+LAST-MODIFIED:20241025T204257Z
+UID:2935-1732302000-1732318200@thehookmpls.com
+SUMMARY:The Current Presents: LAAMAR with The Holy North and Yonder
+DESCRIPTION:EVENT DETAILS \n\n    RSVP ON FACEBOOK\n  \n\n\n	\n		\n\n	\n	\nThe Hook and Ladder Theater \n\nDoors 7:00 pm / Music 8:00 pm / 21+\n$15 Advance / $20 Day of Show\n\n\n    COVID-19 Policies\n  \n\n		\n					\n\n	\n\n	\n				\n			\n			\n EVENT DESCRIPTION \n\n	\n		\n\n	\n	\nThe Current Presents: \nLAAMAR with The Holy North and Yonder\n\n—–\n\nLAAMAR is the latest project led by Minneapolis-based singer\, songwriter\, saxophonist\, and composer Geoffrey Lamar Wilson. Former frontman of Brooklyn-based Jus Post Bellum\, Wilson is also known for his multilayered looped saxophone performances and catchy podcast ditties (Terrible\, Thanks for Asking). On the band’s debut EP “Flowers\,” Wilson blends his idiomatic inspirations bridging folk\, soul\, R&B\, and country with a constant ear toward racial and social justice issues and the shared human experience. \n \n“In the EP’s deceptively sweet and warm title track\, he relays a memory of his mother ‘lighting candles and putting flowers on the boulevard’ in memory of another dead man of color. In the standout track getting airplay on the Current\, “Home to My Baby\,” he relays his personal fears of getting pulled over by police\,” writes Chris Riemenschneider of the Star Tribune. \n \nRecent acclaim for LAAMAR includes debut single “Home to My Baby” being named KAXE’s “Best Song” of 2023 and a nod as one of First Avenue’s Best New Bands. \n \n“With Flowers\,” writes Malachy Koons of KAXE\, “LAAMAR has crafted a stunning debut that does not shy away from difficult topics. The new EP features four instantly catchy songs\, with each taking a different approach to issues of racial and social justice.”\n \nThe band is working with Nat Harvie (Low\, Cole Pulice) on their debut full length\, tentatively planned for release this Fall. \nYonder is an emerging Minneapolis-based Alt-Americana band with a heavy edge. Leading ladies Hattie Peach (violin\, vocals) and Emma Jeanne (rhythm guitar\, vocals) began experimenting as co-writers in their Duluth dorm room years ago. Peach’s heartfelt folk storytelling and Jeanne’s punk rock sensibilities harmoniously blend in their writing. Joined by Oliver Gerber (Lapdogs) on lead guitar\, Dylan Hilliker (Greentop) on drums\, and Calvin Carrison (Big Delicious) on bass\, Yonder fuses influences from their previous local projects into a fresh\, eclectic sound. They’re set to soon release their debut EP\, Momento Mori. \nDrenched in the heartland spirit of Minnesota\, The Holy North is a musical force that blends the rootsy charm of Americana\, the soulful grooves of Blues Rock\, and the raw emotion of Alt-Country. The band is a tight-knit group of five musicians who share a passion for crafting music that resonates with the soul and speaks to the core of the American musical tradition. \n\nOnstage\, The Holy North is a powerhouse of energy\, captivating audiences with their infectious melodies and soul-stirring vocals\, and lyrics. The chemistry between the band members is palpable\, creating a dynamic live experience that leaves audiences yearning for more.\n\n\n	\n		\n\n	\n	\n		\n					\n\n	\n\n\n\n	\n				\n			\n			\n\n	\n		\n\n	\n	\n\n\n	\n				\n			\n			\n	\n								\n									\n					\n								\n\n	\n	\n		\n					\n\n	\n\n	\n				\n			\n			\nThis activity is made possible by the voters of Minnesota through a Minnesota State Arts Board Operating Support grant\, thanks to a legislative appropriation from the arts and cultural heritage fund.
+URL:https://thehookmpls.com/event/laamar/
+LOCATION:The Hook and Ladder Theater\, 3010 Minnehaha Ave\, Minneapolis\, MN\, 55406\, United States
+CATEGORIES:Concerts,Hook & Ladder Theater
+ATTACH;FMTTYPE=image/jpeg:https://thehookmpls.com/wp-content/uploads/2024/09/241122-Hook-LAAMAR-2160x1080-Eventbrite-Website-Twitter.jpg
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Chicago:20241123T190000
+DTEND;TZID=America/Chicago:20241123T233000
+DTSTAMP:20241117T195415
+CREATED:20241010T232253Z
+LAST-MODIFIED:20241010T232452Z
+UID:3001-1732388400-1732404600@thehookmpls.com
+SUMMARY:Gently\, Gently with Crush Scene & KYM and the Kick
+DESCRIPTION:EVENT DETAILS \n\n    RSVP ON FACEBOOK\n  \n\n\n	\n		\n\n	\n	\nThe MISSION ROOM AT THE HOOK \n\nDoors 7:00pm\nMusic 7:30pm\n21+ \nGeneral Admission: $12 Advance / $18 Day of Show\n\n*Does not include feesNO REFUNDS \n\n    COVID-19 Policies\n  \n\n		\n					\n\n	\n\n	\n				\n			\n			\n EVENT DESCRIPTION \n\n	\n		\n\n	\n	\n\n\nGently\, Gently\nwith Crush Scene\, KYM and the Kick \n— \nGet ready for a night intertwined with blues\, funk\, rock\, punk\, pop and femme Ya’llternative Barbie rock! \nGently\, Gently\nMinneapolis Rock Group Gently\, Gently creates and performs original songs that blend an array of genres including blues\, funk\, country\, and punk rock. Their gripping lyrics dive head-first into the themes and effects of sudden change\, self-discovery\, and what it means to look vastly different from the person you thought you would grow into. Join them for sensual melodies\, heartfelt emotions\, urgent rhythms\, and honest words meant to evoke the listener’s own sense of self. \nCrush Scene\nCrush Scene is a 4 piece femme Ya’llternative Barbie rock band. \nKYM and the Kick\nKYM and the Kick is a cheeky pop trio out of the Twin Cities\, Minnesota. If you like Chappell Roan\, Alanis Morissette\, Jade Bird…. you found the right place honey.KYM and the Kick released their EP\, “Not 4 U\,” under their solo name KYM in 2020 — six pop tracks with a hint of early 2000s rock. “Not 4 U” is the EP you reach for when your day was crap\, and you need to dance it out in your underwear in front of the mirror. They released their first single under the new band name in September 2024. “Soft on You” is an ode to the softness of love\, and the bravery it takes to open up. KYM and the Kick’s debut album\, “The Gift of Feeling\,” comes out in February 2025. \n\n\n	\n		\n\n	\n	\n		\n					\n\n	\n\n\n\n	\n				\n			\n			\n\n	\n		\n\n	\n	\n\n\n	\n				\n			\n			\n	\n								\n									\n					\n								\n\n	\n	\n		\n					\n\n	\n\n	\n				\n			\n			\nThis activity is made possible by the voters of Minnesota through a Minnesota State Arts Board Operating Support grant\, thanks to a legislative appropriation from the arts and cultural heritage fund.
+URL:https://thehookmpls.com/event/gentlygently-crushscene-kym-kick/
+LOCATION:Hook and Ladder Mission Room\, 3010 Minnehaha\, Minneapolis\, MN\, 55406\, United States
+CATEGORIES:Concerts,Mission Room
+ATTACH;FMTTYPE=image/jpeg:https://thehookmpls.com/wp-content/uploads/2024/10/241123-Mission-GentlyGently-2160x1080-Eventbrite.jpg
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Chicago:20241123T200000
+DTEND;TZID=America/Chicago:20241124T000000
+DTSTAMP:20241117T195415
+CREATED:20240730T150026Z
+LAST-MODIFIED:20240729T181942Z
+UID:2819-1732392000-1732406400@thehookmpls.com
+SUMMARY:Basement Apartment\, Denim Matriarch\, & Muun Bato
+DESCRIPTION:RSVP ON FACEBOOK\n  \n\n EVENT DETAILS \n\n	\n		\n\n	\n	\nThe Hook and Ladder Theater \n\nDoors 8pm:: Music 8:30pm\n21+\n$10 Advance / $15 Day of Show\n\n  \n\n    COVID-19 Policies\n  \n\n		\n					\n\n	\n\n	\n				\n			\n			\n EVENT DESCRIPTION \n\n	\n		\n\n	\n	\n\nBasement Apartment\, Denim Matriarch\, & Muun Bato\n\nThe Hook & Ladder Theater Presents: A night of Psych & Prog Rock straight outta Death Valley Junction. \nThree exciting bands; Basement Apartment\, Denim Matriarch\, & Muun Bato \n	\n		\n\n	\n	\n		\n					\n\n	\n\n\n\n	\n				\n			\n			\n\n	\n		\n\n	\n	\n\n\n	\n				\n			\n			\n	\n								\n									\n					\n								\n\n	\n	\n		\n					\n\n	\n\n	\n				\n			\n			\nThis activity is made possible by the voters of Minnesota through a Minnesota State Arts Board Operating Support grant\, thanks to a legislative appropriation from the arts and cultural heritage fund.
+URL:https://thehookmpls.com/event/basementapartment-denimmatriarch-muunbato/
+LOCATION:The Hook and Ladder Theater\, 3010 Minnehaha Ave\, Minneapolis\, MN\, 55406\, United States
+CATEGORIES:Concerts,Hook & Ladder Theater
+ATTACH;FMTTYPE=image/jpeg:https://thehookmpls.com/wp-content/uploads/2024/07/BA_HL_Banner_2160x1080-1.jpg
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Chicago:20241124T190000
+DTEND;TZID=America/Chicago:20241124T230000
+DTSTAMP:20241117T195415
+CREATED:20241029T211007Z
+LAST-MODIFIED:20241029T211007Z
+UID:3041-1732474800-1732489200@thehookmpls.com
+SUMMARY:Light 'em The Bong Show 2.0
+DESCRIPTION:EVENT DETAILS \n\n    RSVP ON FACEBOOK\n  \n\n\n	\n		\n\n	\n	\nThe Hook AND LADDER THEATER \n\n7pm Doors (Social Smoke Hour) :: 8pm Show :: 21+\nGA: $15 ADV / $20 DOS\n\n\n    COVID-19 Policies\n  \n\n		\n					\n\n	\n\n	\n				\n			\n			\n EVENT DESCRIPTION \n\n	\n		\n\n	\n	\nRetro Bakery presents\nLight ’em Up The BONG SHOW 2.0\n“20th Anniversary Tour”\nThe Hook hosts a unique and interactive comedy improv experience for Twin City comedy and cannabis fans!\n \nThe Hook is teaming up with local comic/host/producer Ira Ford\, our friends at Retro Bakery\, Zen Arcade\, Green Piece Minnesota and twelve very special Midwest comedians to present a live stand-up showcase/competition – Light ‘em Up\, The Bong Show!\n \n\nThis ‘highbred’ comedy event embraces MN cannabis culture by purposely blurring the lines between audience members and performers with an open pre-show smoke-out on the Twin Cities largest cannabis friendly patio at The Hook.  \nTwelve (12) ‘contender’ comics will compete telling prewritten and improvisational material.  Audience members will hold their lit phones up to judge the winners of each round. Join us in person to see how it all unfolds.\n	\n		\n\n	\n	\n		\n					\n\n	\n\n\n\n	\n				\n			\n			\n\n	\n		\n\n	\n	\n\n\n	\n				\n			\n			\n	\n								\n									\n					\n								\n\n	\n	\n		\n					\n\n	\n\n	\n				\n			\n			\nThis activity is made possible by the voters of Minnesota through a Minnesota State Arts Board Operating Support grant\, thanks to a legislative appropriation from the arts and cultural heritage fund.
+URL:https://thehookmpls.com/event/bongshow-2/
+LOCATION:The Hook and Ladder Theater\, 3010 Minnehaha Ave\, Minneapolis\, MN\, 55406\, United States
+CATEGORIES:Comedy,Hook & Ladder Theater
+ATTACH;FMTTYPE=image/png:https://thehookmpls.com/wp-content/uploads/2024/10/image-3.png
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Chicago:20241127T190000
+DTEND;TZID=America/Chicago:20241127T233000
+DTSTAMP:20241117T195415
+CREATED:20241029T213356Z
+LAST-MODIFIED:20241029T213535Z
+UID:3043-1732734000-1732750200@thehookmpls.com
+SUMMARY:Drinksgiving with ELnO + DJ TimeMachine
+DESCRIPTION:EVENT DETAILS \n\n    RSVP ON FACEBOOK\n  \n\n\n	\n		\n\n	\n	\nThe Hook AND LADDER THEATER \n\n\nDoors 7:00pm :: Music 7:30pm :: 21+\n\nReserved Seats (Limited): $40\nGeneral Admission*: $25 ADV / $32 DOS\nTickets On-Sale 11/1 @10am\n\n\n    COVID-19 Policies\n  \n\n		\n					\n\n	\n\n	\n				\n			\n			\n EVENT DESCRIPTION \n\n	\n		\n\n	\n	\nDrinksgiving with ELnO + DJ TimeMachine\nELnO Drinksgiving is that beloved annual tradition that takes place the night before “that other” beloved annual tradition. This year\, thanks to the magic of 23 & Me and the telephone line\, we’ve reconnected with long-lost Jeff Lynnes from all over the world. Don’t miss your chance to see the biggest round-up ever assembled on one stage. More Lynnes than you can shake a drumstick at! Count on maximum talent and mega wigs. And get ready to dance like no one is watching to the super 70’s sounds of DJ TimeMachine. Join us as we gather at the Hook & Ladder Theater to give thanks for a Jeff Lynne bounty beyond compare. One night only! \n	\n		\n\n	\n	\n		\n					\n\n	\n\n\n\n	\n				\n			\n			\n\n	\n		\n\n	\n	\n\n\n	\n				\n			\n			\n	\n								\n									\n					\n								\n\n	\n	\n		\n					\n\n	\n\n	\n				\n			\n			\nThis activity is made possible by the voters of Minnesota through a Minnesota State Arts Board Operating Support grant\, thanks to a legislative appropriation from the arts and cultural heritage fund.
+URL:https://thehookmpls.com/event/24-drinksgiving/
+LOCATION:The Hook and Ladder Theater\, 3010 Minnehaha Ave\, Minneapolis\, MN\, 55406\, United States
+CATEGORIES:Concerts,Hook & Ladder Theater
+ATTACH;FMTTYPE=image/jpeg:https://thehookmpls.com/wp-content/uploads/2024/10/DRINKSGIVING-24-BANNER-.jpg
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Chicago:20241129T190000
+DTEND;TZID=America/Chicago:20241129T233000
+DTSTAMP:20241117T195415
+CREATED:20241010T164250Z
+LAST-MODIFIED:20241010T164250Z
+UID:2995-1732906800-1732923000@thehookmpls.com
+SUMMARY:Decolonize Thanksgiving 3.0 with Annie Humphrey\, David Huckfelt and Special Guests
+DESCRIPTION:RSVP ON FACEBOOK\n  \n\n EVENT DETAILS \n\n	\n		\n\n	\n	\nThe Hook and Ladder Theater \n\nDoors 7:00pm:: Music 8:00pm\n21+\n$18 Advance / $23 Day of Show\n\n  \n\n    COVID-19 Policies\n  \n\n		\n					\n\n	\n\n	\n				\n			\n			\n EVENT DESCRIPTION \n\n	\n		\n\n	\n	\n\nFire In The Village Presents: \nDECOLONIZE THANKSGIVING 3.0\nwith Annie Humphrey\, David Huckfelt and Special Guests\nFeaturing “Found / Sustainable” Fashion Show * Woodblock Printing Station & more\n\n \nThe Hook & Ladder is proud to host “Decolonize Thanksgiving 3.0”\, a very special Indigenous concert and different perspective on the holiday.  New arts and cultural organizing collective\, Fire in the Village\, is pleased to announce the inaugural Fire in the Village: Art & Music Tour of the upper Midwest this September\, October & November. Evening concerts led by Village co-founders and touring songwriters Annie Humphrey & David Huckfelt (formerly of The Pines) will follow community art workshops led by Village artist and organizer Shanai Matteson. Concerts will open with a mini-fashion show featuring designs by Annie Humphrey and Terri “T- Bazz” Laduke. Music will be accompanied by videos & multimedia art activations\, the contributions of guitarist and producer Jeremy Ylvisaker and other guest artists. \n \n\nFire in the Village is a new arts collective led by Humphrey (Leech Lake Reservation)\, Huckfelt (Minneapolis\, and Matteson (rural Aitkin County). The goals of the group are to create art and culture experiences in small communities and cities to remind people that we are made of earth\, and we are power. These concerts and workshops center on themes of shared connection with land and water\, the importance of free thinking and creative expression\, and care for our communities in tumultuous times. “Our Fire in the village tour brings music\, storytelling\, visual art and an all-inclusive spirit. The purpose of this tour is to gather and create together\, so that we will recognize the very realpower that is within each of us.” said Village artist Annie Humphrey.  \n\nAnnie Humphrey\nGrowing up on the Leech Lake Indian Reservation in Northern Minnesota\, Annie lived in a home filled with voices made of thunder and nothing could stop it.  Her parents were brilliant people individually.  Her father\, a singer and musician and her mother an artist and poet.  Together they made sadness.  Each of her parents taught Annie the beautiful things they knew.  They showed her that she carried their gifts in her hands too.  This is how creating art and music came about for her.  This is  what saved her.  This is how she lives now.\n \nDavid Huckfelt \nDavid Huckfelt is a singer/ lyricist /activist and founding frontman of Minneapolis indie-folk cult favorites The Pines.  An Iowa native and former theology student\, Huckfelt attended the Iowa Writers Workshop before turning his attention to songwriting and performing.  With improvisational mastery\, Huckfelt’s shows and songs of no-spiritual-surrender have earned him a devoted following from small-town opera houses & theaters to national festival stages like Hardly Strictly Bluegrass\, Edmonton and Calgary Folk Fests\, and the legendary First Avenue mainroom\, sharing stages with Mavis Staples\, Emmylou Harris\, Bon Iver\, Calexico\, Trampled By Turtles & more.  An early encounter and collaboration with radical Native American poet John Trudell introduced Huckfelt as friend & partner to an array of Indigenous artists & activists including Winona LaDuke\, Louise Erdrich\, & Keith Secola\, working for climate justice and tribal sovereignty under the banner of music + resistance.  With roots in the same fertile Midwestern soil that produced legendary folk singers like John Prine and Greg Brown\, David’s new solo work preserves a rugged optimism that blasts through layers of dark in real time with songs that speak volumes\, soft & clear.\n	\n		\n\n	\n	\n		\n					\n\n	\n\n\n\n	\n				\n			\n			\n\n	\n		\n\n	\n	\n\n\n	\n				\n			\n			\n	\n								\n									\n					\n								\n\n	\n	\n		\n					\n\n	\n\n	\n				\n			\n			\nThis activity is made possible by the voters of Minnesota through a Minnesota State Arts Board Operating Support grant\, thanks to a legislative appropriation from the arts and cultural heritage fund.
+URL:https://thehookmpls.com/event/decolonizethanksgiving3/
+LOCATION:The Hook and Ladder Theater\, 3010 Minnehaha Ave\, Minneapolis\, MN\, 55406\, United States
+CATEGORIES:Concerts,Culture,Hook & Ladder Theater
+ATTACH;FMTTYPE=image/jpeg:https://thehookmpls.com/wp-content/uploads/2024/10/241129-Hook-DecolonizeThanksgiving3-2160x1080-Eventbrite-Website-Twitter.jpg
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Chicago:20241130T200000
+DTEND;TZID=America/Chicago:20241130T233000
+DTSTAMP:20241117T195415
+CREATED:20241001T203932Z
+LAST-MODIFIED:20241001T203932Z
+UID:2959-1732996800-1733009400@thehookmpls.com
+SUMMARY:Guante & Big Cats All Dressed Up\, No Funeral Release Show w/ special guest Lydia Liza
+DESCRIPTION:EVENT DETAILS \n\n    RSVP ON FACEBOOK\n  \n\n\n	\n		\n\n	\n	\nThe MISSION ROOM AT THE HOOK \n\nDoors 8:00pm\nMusic 8:30pm\n21+ \nGeneral Admission: $10 Advance / $15 Day of Show\n\n*Does not include feesNO REFUNDS \n\n    COVID-19 Policies\n  \n\n		\n					\n\n	\n\n	\n				\n			\n			\n EVENT DESCRIPTION \n\n	\n		\n\n	\n	\nGuante & Big Cats All Dressed Up\, No Funeral Release Show\nw/ special guest Lydia Liza \nAll Dressed Up\, No Funeral is a climate crisis concept album about finding hope in grief and collective action. \n\n\n \n\n  \n\n\n\n	\n		\n\n	\n	\n		\n					\n\n	\n\n\n\n	\n				\n			\n			\n\n	\n		\n\n	\n	\n\n\n	\n				\n			\n			\n	\n								\n									\n					\n								\n\n	\n	\n		\n					\n\n	\n\n	\n				\n			\n			\nThis activity is made possible by the voters of Minnesota through a Minnesota State Arts Board Operating Support grant\, thanks to a legislative appropriation from the arts and cultural heritage fund.
+URL:https://thehookmpls.com/event/guante/
+LOCATION:Hook and Ladder Mission Room\, 3010 Minnehaha\, Minneapolis\, MN\, 55406\, United States
+CATEGORIES:Concerts,Mission Room
+ATTACH;FMTTYPE=image/jpeg:https://thehookmpls.com/wp-content/uploads/2024/10/GBC-BANNER.jpg
+END:VEVENT
+BEGIN:VEVENT
+DTSTART;TZID=America/Chicago:20241130T200000
+DTEND;TZID=America/Chicago:20241201T000000
+DTSTAMP:20241117T195415
+CREATED:20241029T215859Z
+LAST-MODIFIED:20241029T220558Z
+UID:3045-1732996800-1733011200@thehookmpls.com
+SUMMARY:Danksgiving
+DESCRIPTION:EVENT DETAILS \n\n    RSVP ON FACEBOOK\n  \n\n\n	\n		\n\n	\n	\nThe Hook AND LADDER THEATER \n\n\nDoors/Music 8:00pm ’till Late Night \n\n\n21+\n\n\nGA: $30 ADV / $40 DOS\n\n\nVIP: $50 ADV / $60 DOS\n\n\nNO REFUNDS\n\nTickets On-Sale 11/1 @10am\n\n\n    COVID-19 Policies\n  \n\n		\n					\n\n	\n\n	\n				\n			\n			\n EVENT DESCRIPTION \n\n	\n		\n\n	\n	\nRetro Bakery presents\nDanksgiving\nJANTSENTYRO\nwith BUTTAH\, SMOKEY\, YE77A \n— \n\n\nThe LARGEST Dank Buffet In The Universe\nBring Your Own To The Largest Smoking Patio in Minneapolis!\nVIP Ticket includes Retro Bakery Gift Bag worth $200 For Pick-up at Doors!\nLive Glass Blowing by Legacy Glassworks\nGames & Tournaments inside Zen Arcade\nOn Point on Site!\nSKNY DUB\nLOW & High\n\n\n	\n		\n\n	\n	\n		\n					\n\n	\n\n\n\n	\n				\n			\n			\n\n	\n		\n\n	\n	\n\n\n	\n				\n			\n			\n	\n								\n									\n					\n								\n\n	\n	\n		\n					\n\n	\n\n	\n				\n			\n			\nThis activity is made possible by the voters of Minnesota through a Minnesota State Arts Board Operating Support grant\, thanks to a legislative appropriation from the arts and cultural heritage fund.
+URL:https://thehookmpls.com/event/24danksgiving/
+LOCATION:The Hook and Ladder Theater\, 3010 Minnehaha Ave\, Minneapolis\, MN\, 55406\, United States
+CATEGORIES:Concerts,Hook & Ladder Theater,Smoking
+ATTACH;FMTTYPE=image/png:https://thehookmpls.com/wp-content/uploads/2024/10/JANTSEN-BANNER-FINAL-COPY-NODOS.png
+END:VEVENT
+END:VCALENDAR
