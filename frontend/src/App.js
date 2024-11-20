@@ -1,7 +1,7 @@
 // src/App.js
 
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
+import { HashRouter as Router, Route, Routes, Navigate } from 'react-router-dom';
 import Calendar from './pages/Calendar.js';
 import Home from './pages/Home.js';
 import ShowsTable from './pages/ShowsTable.js';  // Capitalized to "Table"
