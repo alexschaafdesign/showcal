@@ -10,6 +10,7 @@ import BandProfile from './pages/BandProfile.js';  // Import the new BandProfile
 import './styles/App.css';
 import VenuesTable from './pages/VenuesTable.js';
 import VenueProfile from './pages/VenueProfile.js';
+import BandForm from './pages/BandForm.js';
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
         <Route path="/venuestable" element={<VenuesTable />} />  {/* Venues page */}
         <Route path="/bands/:band" element={<BandProfile />} />  {/* Dynamic band profile page */}
         <Route path="/venues/:venueName" element={<VenueProfile />} /> {/* Dynamic route */}
+        <Route path="/add-band" element={<BandForm />} />
         <Route path="*" element={<div>Page Not Found</div>} />  {/* Catch-all for invalid routes */}
       </Routes>
     </Router>

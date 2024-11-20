@@ -13,6 +13,7 @@ const Home = () => {
       <Link to="/bandstable">Go to bands table</Link>
       <p>Click below to view the Venues table:</p>
       <Link to="/venuestable">Go to venues table</Link>
+      <Link to="/add-band">Add a Band</Link>
     </div>
   );
 };
