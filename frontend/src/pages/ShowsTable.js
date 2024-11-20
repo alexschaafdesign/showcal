@@ -1,6 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import 'react-datepicker/dist/react-datepicker.css';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  TextField,
+  Select,
+  MenuItem,
+  Typography,
+  Button,
+} from '@mui/material';
 
 function ShowsTable() {
   const [data, setData] = useState([]);
@@ -69,113 +82,117 @@ function ShowsTable() {
 
   return (
     <div>
-      <h2>Shows List</h2>
+      <Typography variant="h4" gutterBottom>
+        Shows List
+      </Typography>
 
-      <input
-        type="text"
-        placeholder="Search by venue or band name"
+      {/* Search */}
+      <TextField
+        label="Search by venue or band name"
+        variant="outlined"
+        fullWidth
+        margin="normal"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
-        style={{ marginBottom: '20px', padding: '10px', width: '100%' }}
       />
 
-      <select 
+      {/* Venue Filter */}
+      <Select
         value={selectedVenue}
         onChange={(e) => setSelectedVenue(e.target.value)}
-        style={{ marginBottom: '20px', padding: '10px', width: '100%' }}
+        displayEmpty
+        fullWidth
+        style={{ marginBottom: '20px' }}
       >
-        <option value="">All Venues</option>
+        <MenuItem value="">All Venues</MenuItem>
         {[...new Set(data.map(item => item.venue))].map((venue, index) => (
-          <option key={index} value={venue}>
+          <MenuItem key={index} value={venue}>
             {venue}
-          </option>
+          </MenuItem>
         ))}
-      </select>
+      </Select>
 
-      <table>
-        <thead>
-          <tr>
-            <th>Venue</th>
-            <th>Bands</th>
-            <th>Start</th>
-            <th>Flyer</th>
-            <th>Event Link</th>
-          </tr>
-        </thead>
-        <tbody>
-          {sortedDates.length === 0 ? (
-            <tr><td colSpan={5}>No events found for the selected criteria.</td></tr>
-          ) : (
-            sortedDates.map(date => (
-              <React.Fragment key={date}>
-                <tr>
-                  <td colSpan={5} style={{ textAlign: 'center', fontWeight: 'bold' }}>
-                    {new Date(date).toLocaleDateString('en-US', {
-                      weekday: 'short',
-                      month: 'short',
-                      day: 'numeric',
-                      year: 'numeric',
-                    })}
-                  </td>
-                </tr>
-                {groupedData[date]
-                  .sort((a, b) => new Date(a.start) - new Date(b.start)) // Sort events by start time
-                  .map((item, idx) => (
-                    <tr key={idx}>
-                      <td>{item.venue}</td>
-                      <td>
-                        {item.bands.split(', ').map((band, index) => (
-                          <span key={index}>
-                            <button
-                              onClick={() => handleBandClick(band)}
-                              style={{
-                                background: 'none',
-                                border: 'none',
-                                color: 'blue',
-                                textDecoration: 'underline',
-                                cursor: 'pointer',
-                                fontSize: 'inherit',
-                                padding: 0,
-                              }}
-                            >
-                              {band}
-                            </button>
-                            {index < item.bands.split(', ').length - 1 ? ', ' : ''}
-                          </span>
-                        ))}
-                      </td>
-                      <td>{new Date(item.start).toLocaleString('en-US', {
-                        hour: 'numeric',
-                        minute: '2-digit',
-                        hour12: true,
-                      })}</td>
-                      <td>
-                        {item.flyerImage ? (
-                          <img
-                            src={item.flyerImage}
-                            alt="Flyer"
-                            style={{ maxWidth: '100px', maxHeight: '100px', borderRadius: '5px' }}
-                          />
-                        ) : (
-                          "No Flyer"
-                        )}
-                      </td>
-                      <td>
-                        {item.eventLink ? (
-                          <a href={item.eventLink} target="_blank" rel="noopener noreferrer">
-                            Event Link
-                          </a>
-                        ) : (
-                          "No Link Available"
-                        )}
-                      </td>
-                    </tr>
-                  ))}
-              </React.Fragment>
-            ))
-          )}
-        </tbody>
-      </table>
+      {/* Table */}
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Venue</TableCell>
+              <TableCell>Bands</TableCell>
+              <TableCell>Start</TableCell>
+              <TableCell>Flyer</TableCell>
+              <TableCell>Event Link</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {sortedDates.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={5}>No events found for the selected criteria.</TableCell>
+              </TableRow>
+            ) : (
+              sortedDates.map(date => (
+                <React.Fragment key={date}>
+                  <TableRow>
+                    <TableCell colSpan={5} style={{ textAlign: 'center', fontWeight: 'bold' }}>
+                      {new Date(date).toLocaleDateString('en-US', {
+                        weekday: 'short',
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })}
+                    </TableCell>
+                  </TableRow>
+                  {groupedData[date]
+                    .sort((a, b) => new Date(a.start) - new Date(b.start)) // Sort events by start time
+                    .map((item, idx) => (
+                      <TableRow key={idx}>
+                        <TableCell>{item.venue}</TableCell>
+                        <TableCell>
+                          {item.bands.split(', ').map((band, index) => (
+                            <span key={index}>
+                              <Button
+                                onClick={() => handleBandClick(band)}
+                                style={{ textTransform: 'none' }}
+                              >
+                                {band}
+                              </Button>
+                              {index < item.bands.split(', ').length - 1 ? ', ' : ''}
+                            </span>
+                          ))}
+                        </TableCell>
+                        <TableCell>{new Date(item.start).toLocaleString('en-US', {
+                          hour: 'numeric',
+                          minute: '2-digit',
+                          hour12: true,
+                        })}</TableCell>
+                        <TableCell>
+                          {item.flyerImage ? (
+                            <img
+                              src={item.flyerImage}
+                              alt="Flyer"
+                              style={{ maxWidth: '100px', maxHeight: '100px', borderRadius: '5px' }}
+                            />
+                          ) : (
+                            "No Flyer"
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          {item.eventLink ? (
+                            <a href={item.eventLink} target="_blank" rel="noopener noreferrer">
+                              Event Link
+                            </a>
+                          ) : (
+                            "No Link Available"
+                          )}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                </React.Fragment>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
     </div>
   );
 }
