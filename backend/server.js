@@ -154,11 +154,53 @@ app.get('/tcup', async (req, res) => {
 
 // Endpoint for band profile
 app.get('/tcup/bands/:band', async (req, res) => {
-  const { band } = req.params;
+  const band = decodeURIComponent(req.params.band); // Decode the band parameter
   const query = 'SELECT * FROM bands WHERE band = $1';
   try {
     const { rows } = await pool.query(query, [band]);
-    res.json(rows[0]);  // Assuming band names are unique
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Band Not Found" });
+    }
+
+    // Extract the band data
+    const bandData = rows[0];
+
+    // Parse social_links if it exists
+    let socialLinks = null;
+    if (bandData.social_links) {
+      try {
+        socialLinks = typeof bandData.social_links === 'string'
+          ? JSON.parse(bandData.social_links)
+          : bandData.social_links;
+          console.log("Parsed socialLinks for band:", socialLinks);
+      } catch (error) {
+        console.error(`Error parsing social links for band ${band}:`, error);
+      }
+    }
+
+    // Endpoint for all shows of a specific band
+app.get('/tcup/shows/:band', async (req, res) => {
+  const band = decodeURIComponent(req.params.band); // Decode the band name from the URL
+  const query = 'SELECT * FROM shows WHERE bands ILIKE $1';
+  const values = [`%${band}%`];
+
+  try {
+    const { rows } = await pool.query(query, values);
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "No shows found for this band" });
+    }
+    res.json(rows);
+  } catch (error) {
+    console.error('Error fetching shows for band:', error);
+    res.status(500).send('Error fetching shows for band');
+  }
+});
+
+    // Format response with parsed socialLinks
+    res.json({
+      band: bandData.band,
+      socialLinks: socialLinks
+    });
   } catch (error) {
     console.error('Error fetching band data:', error);
     res.status(500).send('Error fetching band data');
@@ -184,7 +226,7 @@ app.get('/tcup/venues/:venueName', (req, res) => {
 // Endpoint for past shows
 app.get('/tcup/shows', async (req, res) => {
   const { band, past } = req.query;
-  let query = 'SELECT * FROM shows WHERE bands LIKE $1';
+  let query = 'SELECT * FROM shows WHERE bands ILIKE $1';
   let values = [`%${band}%`];
 
   if (past) {

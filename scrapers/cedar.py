@@ -93,8 +93,9 @@ for event in events:
         if band_name.lower() not in ["listen", "about this show"]:
             band_names.append(band_name)
 
+    # Join all bands in a single string for 'shows' table and list for 'bands' table
     event_details['bands'] = ", ".join(band_names)
-    print(f"Parsed event details: {event_details}")
+    print(f"Parsed band names: {band_names}")
     events_data.append(event_details.copy())
 
 # Close the driver after scraping
@@ -121,7 +122,7 @@ cursor.execute("""
 """)
 cursor.execute("""
     CREATE TABLE IF NOT EXISTS bands (
-        band TEXT PRIMARY KEY
+        band TEXT UNIQUE
     );
 """)
 
@@ -158,11 +159,23 @@ if rows_to_add:
 else:
     print("No new events to add to the shows table.")
 
+# Prepare unique band names for the 'bands' table insertion
+for event in events_data:
+    if event.get('bands'):
+        for band in event['bands'].split(", "):
+            unique_bands.add(band.strip())
+
+# Log unique bands to verify
+print(f"Unique bands collected for insertion: {unique_bands}")
+
 # Insert unique bands into the 'bands' table
-for band in unique_bands:
-    cursor.execute("INSERT INTO bands (band) VALUES (%s) ON CONFLICT (band) DO NOTHING", (band,))
-conn.commit()
-print(f"{len(unique_bands)} unique bands added to the bands table.")
+if unique_bands:
+    for band in unique_bands:
+        cursor.execute("INSERT INTO bands (band) VALUES (%s) ON CONFLICT (band) DO NOTHING", (band,))
+    conn.commit()
+    print(f"{len(unique_bands)} unique bands added to the bands table.")
+else:
+    print("No bands to add to the bands table.")
 
 # Close the database connection
 cursor.close()

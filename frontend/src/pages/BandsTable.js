@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom'; // Import Link from react-router-dom
 
 function Bands() {
     const [bands, setBands] = useState([]);
@@ -38,7 +39,12 @@ function Bands() {
                     ) : (
                         bands.map((band, index) => (
                             <tr key={index}>
-                                <td>{band.bandName}</td>  {/* Adjusted to match the data structure */}
+                                <td>
+                                    {/* Wrap the band name in a Link to make it clickable */}
+                                    <Link to={`/bands/${encodeURIComponent(band.band)}`}>
+                                        {band.band}
+                                    </Link>
+                                </td>
                                 <td>
                                     {band.socialLinks ? (
                                         Object.entries(band.socialLinks).map(([platform, link], idx) => (

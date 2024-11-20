@@ -21,7 +21,7 @@ function App() {
         <Route path="/showstable" element={<ShowsTable />} />  {/* Shows table page */}
         <Route path="/bandstable" element={<BandsTable />} />  {/* Bands page */}
         <Route path="/venuestable" element={<VenuesTable />} />  {/* Venues page */}
-        <Route path="/bands/:bandName" element={<BandProfile />} />  {/* Dynamic band profile page */}
+        <Route path="/bands/:band" element={<BandProfile />} />  {/* Dynamic band profile page */}
         <Route path="/venues/:venueName" element={<VenueProfile />} /> {/* Dynamic route */}
         <Route path="*" element={<div>Page Not Found</div>} />  {/* Catch-all for invalid routes */}
       </Routes>
