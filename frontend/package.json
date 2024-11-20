@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "homepage": "https://alexschaafdesign.github.io/showcal/#/",
+  "homepage": "https://alexschaafdesign.github.io/showcal/",
   "dependencies": {
     "@fullcalendar/daygrid": "^6.1.15",
     "@fullcalendar/interaction": "^6.1.15",
