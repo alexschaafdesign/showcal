@@ -98,17 +98,18 @@ function ShowsTable() {
             <th>Venue</th>
             <th>Bands</th>
             <th>Start</th>
+            <th>Flyer</th>
             <th>Event Link</th>
           </tr>
         </thead>
         <tbody>
           {sortedDates.length === 0 ? (
-            <tr><td colSpan={4}>No events found for the selected criteria.</td></tr>
+            <tr><td colSpan={5}>No events found for the selected criteria.</td></tr>
           ) : (
             sortedDates.map(date => (
               <React.Fragment key={date}>
                 <tr>
-                  <td colSpan={4} style={{ textAlign: 'center', fontWeight: 'bold' }}>
+                  <td colSpan={5} style={{ textAlign: 'center', fontWeight: 'bold' }}>
                     {new Date(date).toLocaleDateString('en-US', {
                       weekday: 'short',
                       month: 'short',
@@ -148,6 +149,17 @@ function ShowsTable() {
                         minute: '2-digit',
                         hour12: true,
                       })}</td>
+                      <td>
+                        {item.flyerImage ? (
+                          <img
+                            src={item.flyerImage}
+                            alt="Flyer"
+                            style={{ maxWidth: '100px', maxHeight: '100px', borderRadius: '5px' }}
+                          />
+                        ) : (
+                          "No Flyer"
+                        )}
+                      </td>
                       <td>
                         {item.eventLink ? (
                           <a href={item.eventLink} target="_blank" rel="noopener noreferrer">
