@@ -69,9 +69,20 @@ const bandsQuery = `
     bands;
 `;
 
-// Single endpoint to fetch either bands or shows based on query parameter
+// Query to fetch all venues with their details
+const venuesQuery = `
+  SELECT 
+    venue,
+    location,
+    capacity
+  FROM 
+    venues;
+`;
+
+// Single endpoint to fetch either bands, shows, or venues based on query parameter
 app.get('/tcup', async (req, res) => {
   const { table } = req.query;
+  console.log("Received table parameter:", table);  // Add this line
 
   try {
     let result;
@@ -93,7 +104,7 @@ app.get('/tcup', async (req, res) => {
         }
 
         return {
-          bandName: band.band,
+          band: band.band,
           socialLinks: socialLinks
         };
       });
@@ -121,12 +132,71 @@ app.get('/tcup', async (req, res) => {
       console.log("Fetched shows data:", events);
       return res.json(events);
 
+    } else if (table === 'venues') {
+      console.log("Fetching venues data...");
+      result = await pool.query(venuesQuery);
+      const venues = result.rows.map(venue => ({
+        venue: venue.venue,
+        location: venue.location,
+        capacity: venue.capacity,
+      }));
+      console.log("Fetched venues data:", venues);
+      return res.json(venues);
+
     } else {
       return res.status(400).json({ error: "Invalid table parameter" });
     }
   } catch (err) {
     console.error(`Error fetching data for ${table}:`, err.message, err.stack);
     res.status(500).json({ error: `Error fetching ${table} data` });
+  }
+});
+
+// Endpoint for band profile
+app.get('/tcup/bands/:band', async (req, res) => {
+  const { band } = req.params;
+  const query = 'SELECT * FROM bands WHERE band = $1';
+  try {
+    const { rows } = await pool.query(query, [band]);
+    res.json(rows[0]);  // Assuming band names are unique
+  } catch (error) {
+    console.error('Error fetching band data:', error);
+    res.status(500).send('Error fetching band data');
+  }
+});
+
+// Endpoint for individual venue profile
+app.get('/tcup/venues/:venueName', (req, res) => {
+  const venueName = req.params.venueName;
+  // Query your database to find the venue by name
+  const query = `SELECT * FROM venues WHERE venue = $1`;
+  pool.query(query, [venueName], (error, result) => {
+      if (error) {
+          res.status(500).json({ error: "Database error" });
+      } else if (result.rows.length === 0) {
+          res.status(404).json({ error: "Venue Not Found" });
+      } else {
+          res.json(result.rows[0]);
+      }
+  });
+});
+
+// Endpoint for past shows
+app.get('/tcup/shows', async (req, res) => {
+  const { band, past } = req.query;
+  let query = 'SELECT * FROM shows WHERE bands LIKE $1';
+  let values = [`%${band}%`];
+
+  if (past) {
+    query += ' AND start < NOW()';
+  }
+
+  try {
+    const { rows } = await pool.query(query, values);
+    res.json(rows);
+  } catch (error) {
+    console.error('Error fetching past shows:', error);
+    res.status(500).send('Error fetching past shows');
   }
 });
 

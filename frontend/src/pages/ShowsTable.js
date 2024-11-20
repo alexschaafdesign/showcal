@@ -12,7 +12,7 @@ function ShowsTable() {
     fetch('http://localhost:3001/tcup?table=shows')
       .then(response => response.json())
       .then(data => {
-        console.log("Fetched show data:", data); // Debug log for fetched data
+        console.log("Fetched show data:", data);
         if (Array.isArray(data)) {
           setData(data);
         } else {
@@ -28,8 +28,25 @@ function ShowsTable() {
     return data.filter(item => item.start && new Date(item.start) >= today);
   };
 
+  const filterEvents = (data) => {
+    let filteredData = filterFutureEvents(data);
+
+    if (selectedVenue) {
+      filteredData = filteredData.filter(item => item.venue.toLowerCase().includes(selectedVenue.toLowerCase()));
+    }
+
+    if (searchTerm) {
+      filteredData = filteredData.filter(item =>
+        item.venue.toLowerCase().includes(searchTerm) ||
+        item.bands.toLowerCase().includes(searchTerm)
+      );
+    }
+
+    return filteredData;
+  };
+
   const groupByDate = (data) => {
-    const filteredData = filterFutureEvents(data);
+    const filteredData = filterEvents(data);
     const grouped = {};
     filteredData.forEach(item => {
       if (item.start) {
@@ -56,7 +73,7 @@ function ShowsTable() {
 
       <input
         type="text"
-        placeholder="Search by venue or name"
+        placeholder="Search by venue or band name"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
         style={{ marginBottom: '20px', padding: '10px', width: '100%' }}
@@ -100,44 +117,48 @@ function ShowsTable() {
                     })}
                   </td>
                 </tr>
-                {groupedData[date].map((item, idx) => (
-                  <tr key={idx}>
-                    <td>{item.venue}</td>
-                    <td>
-                      {item.bands.split(', ').map((band, index) => (
-                        <span key={index}>
-                          <button
-                            onClick={() => handleBandClick(band)}
-                            style={{
-                              background: 'none',
-                              border: 'none',
-                              color: 'blue',
-                              textDecoration: 'underline',
-                              cursor: 'pointer',
-                            }}
-                          >
-                            {band}
-                          </button>
-                          {index < item.bands.split(', ').length - 1 ? ', ' : ''}
-                        </span>
-                      ))}
-                    </td>
-                    <td>{new Date(item.start).toLocaleString('en-US', {
-                      hour: 'numeric',
-                      minute: '2-digit',
-                      hour12: true,
-                    })}</td>
-                    <td>
-                      {item.eventLink ? (
-                        <a href={item.eventLink} target="_blank" rel="noopener noreferrer">
-                          Event Link
-                        </a>
-                      ) : (
-                        "No Link Available"
-                      )}
-                    </td>
-                  </tr>
-                ))}
+                {groupedData[date]
+                  .sort((a, b) => new Date(a.start) - new Date(b.start)) // Sort events by start time
+                  .map((item, idx) => (
+                    <tr key={idx}>
+                      <td>{item.venue}</td>
+                      <td>
+                        {item.bands.split(', ').map((band, index) => (
+                          <span key={index}>
+                            <button
+                              onClick={() => handleBandClick(band)}
+                              style={{
+                                background: 'none',
+                                border: 'none',
+                                color: 'blue',
+                                textDecoration: 'underline',
+                                cursor: 'pointer',
+                                fontSize: 'inherit',
+                                padding: 0,
+                              }}
+                            >
+                              {band}
+                            </button>
+                            {index < item.bands.split(', ').length - 1 ? ', ' : ''}
+                          </span>
+                        ))}
+                      </td>
+                      <td>{new Date(item.start).toLocaleString('en-US', {
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true,
+                      })}</td>
+                      <td>
+                        {item.eventLink ? (
+                          <a href={item.eventLink} target="_blank" rel="noopener noreferrer">
+                            Event Link
+                          </a>
+                        ) : (
+                          "No Link Available"
+                        )}
+                      </td>
+                    </tr>
+                  ))}
               </React.Fragment>
             ))
           )}

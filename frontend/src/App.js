@@ -8,6 +8,8 @@ import ShowsTable from './pages/ShowsTable.js';  // Capitalized to "Table"
 import BandsTable from './pages/BandsTable.js';  // Capitalized to "Bands"
 import BandProfile from './pages/BandProfile.js';  // Import the new BandProfile component
 import './styles/App.css';
+import VenuesTable from './pages/VenuesTable.js';
+import VenueProfile from './pages/VenueProfile.js';
 
 function App() {
   return (
@@ -18,7 +20,9 @@ function App() {
         <Route path="/calendar" element={<Calendar />} />  {/* Calendar page */}
         <Route path="/showstable" element={<ShowsTable />} />  {/* Shows table page */}
         <Route path="/bandstable" element={<BandsTable />} />  {/* Bands page */}
+        <Route path="/venuestable" element={<VenuesTable />} />  {/* Venues page */}
         <Route path="/bands/:bandName" element={<BandProfile />} />  {/* Dynamic band profile page */}
+        <Route path="/venues/:venueName" element={<VenueProfile />} /> {/* Dynamic route */}
         <Route path="*" element={<div>Page Not Found</div>} />  {/* Catch-all for invalid routes */}
       </Routes>
     </Router>
