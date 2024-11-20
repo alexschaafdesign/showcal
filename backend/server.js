@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import path from 'path';
 
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -240,6 +241,29 @@ app.get('/tcup/shows', async (req, res) => {
     console.error('Error fetching past shows:', error);
     res.status(500).send('Error fetching past shows');
   }
+});
+
+app.post('/tcup/add-band', (req, res) => {
+  const { band, socialLinks } = req.body;
+
+  // Convert socialLinks to a string format if necessary
+  // For example, "twitter: http://twitter.com/username, facebook: http://facebook.com/username"
+  const socialLinksString = Object.entries(socialLinks)
+  .filter(([_, value]) => value) // Only include non-empty values
+  .map(([key, value]) => `${key}: ${value}`)
+  .join(', ');
+
+  const query = 'INSERT INTO bands (band, socialLinks) VALUES ($1, $2) RETURNING *';
+  const values = [band, socialLinksString];
+
+  db.query(query, values, (error, result) => {
+      if (error) {
+          console.error('Error adding band:', error);
+          res.status(500).send('Error adding band');
+      } else {
+          res.status(201).json({ message: 'Band added successfully!', band: result.rows[0] });
+      }
+  });
 });
 
 app.listen(PORT, () => {
