@@ -3,12 +3,23 @@ import ReactDOM from 'react-dom/client';
 import './styles/index.css';
 import App from './App.js';
 import reportWebVitals from './reportWebVitals.js';
+import { HashRouter as Router } from 'react-router-dom';
+
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
     <App />
   </React.StrictMode>
+);
+
+
+// Replace BrowserRouter with HashRouter
+ReactDOM.render(
+  <Router>
+    <App />
+  </Router>,
+  document.getElementById('root')
 );
 
 // If you want to start measuring performance in your app, pass a function
