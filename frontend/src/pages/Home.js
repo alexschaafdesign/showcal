@@ -2,19 +2,51 @@
 
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Box, Button, Typography } from '@mui/material';
 
 const Home = () => {
   return (
-    <div>
-      <h1>Welcome to the Home Page</h1>
-      <p>Click below to view the show table:</p>
-      <Link to="/showstable">Go to Shows Table</Link>
-      <p>Click below to view the Bands table:</p>
-      <Link to="/bandstable">Go to bands table</Link>
-      <p>Click below to view the Venues table:</p>
-      <Link to="/venuestable">Go to venues table</Link>
-      <Link to="/add-band">Add a Band</Link>
-    </div>
+    <Box sx={{ padding: 3 }}>
+      <Typography variant="h2" gutterBottom>
+        Welcome to TCUP's SHOW PORTAL
+      </Typography>
+      
+      <Typography variant="body1" paragraph>
+        Click below to view the show table:
+      </Typography>
+      <Link to="/showstable">
+        <Button variant="contained" color="primary" sx={{ marginBottom: 2 }}>
+          Go to Shows Table
+        </Button>
+      </Link>
+
+      <Typography variant="body1" paragraph>
+        Click below to view the Bands table:
+      </Typography>
+      <Link to="/bandstable">
+        <Button variant="contained" color="primary" sx={{ marginBottom: 2 }}>
+          Go to Bands Table
+        </Button>
+      </Link>
+
+      <Typography variant="body1" paragraph>
+        Click below to view the Venues table:
+      </Typography>
+      <Link to="/venuestable">
+        <Button variant="contained" color="primary" sx={{ marginBottom: 2 }}>
+          Go to Venues Table
+        </Button>
+      </Link>
+
+      <Typography variant="body1" paragraph>
+        Click below to add a Band:
+      </Typography>
+      <Link to="/add-band">
+        <Button variant="contained" color="secondary">
+          Add a Band
+        </Button>
+      </Link>
+    </Box>
   );
 };
 

@@ -14,6 +14,11 @@ import {
   Typography,
   Button,
 } from '@mui/material';
+import Box from '@mui/material/Box';
+import FormControl from '@mui/material/FormControl';
+import InputLabel from '@mui/material/InputLabel';
+import InputAdornment from '@mui/material/InputAdornment';
+import FormHelperText from '@mui/material/FormHelperText';
 
 function ShowsTable() {
   const [data, setData] = useState([]);
@@ -88,13 +93,14 @@ function ShowsTable() {
 
       {/* Search */}
       <TextField
-        label="Search by venue or band name"
-        variant="outlined"
-        fullWidth
-        margin="normal"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
-      />
+      id="outlined-search"
+      label="Search by venue or band name"
+      type="search"
+      fullWidth
+      margin="normal"
+      value={searchTerm}
+      onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
+    />
 
       {/* Venue Filter */}
       <Select

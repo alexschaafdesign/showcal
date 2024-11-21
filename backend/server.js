@@ -41,6 +41,14 @@ pool.connect((err, client, release) => {
   release();
 });
 
+// Serve static files from the 'assets/images/venuecoverimages' folder
+app.use('/images', express.static(path.join(__dirname, '../assets/images/venuecoverimages')));
+
+// Endpoint to serve other content (if needed)
+app.get('/', (req, res) => {
+  res.send('Welcome to the venue image server');
+});
+
 // Unified query for events with venue details
 const unifiedQuery = `
   SELECT 
@@ -75,7 +83,8 @@ const venuesQuery = `
   SELECT 
     venue,
     location,
-    capacity
+    capacity,
+    cover_image
   FROM 
     venues;
 `;
@@ -140,6 +149,7 @@ app.get('/tcup', async (req, res) => {
         venue: venue.venue,
         location: venue.location,
         capacity: venue.capacity,
+        cover_image: venue.cover_image, // Include cover_image in the response
       }));
       console.log("Fetched venues data:", venues);
       return res.json(venues);

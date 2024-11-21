@@ -1,5 +1,15 @@
-// src/pages/VenuesTable.js
 import React, { useState, useEffect } from 'react';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Paper,
+  Typography,
+  Box,
+} from '@mui/material';
 import { Link } from 'react-router-dom';
 
 const VenuesTable = () => {
@@ -14,30 +24,60 @@ const VenuesTable = () => {
     fetchVenues();
   }, []);
 
+  // Sort venues alphabetically by the venue name
+  const sortedVenues = [...venues].sort((a, b) => {
+    if (a.venue < b.venue) return -1;
+    if (a.venue > b.venue) return 1;
+    return 0;
+  });
+
   return (
-    <div>
-      <h1>Venues</h1>
-      <table>
-        <thead>
-          <tr>
-            <th>Venue</th>
-            <th>Location</th>
-            <th>Capacity</th>
-          </tr>
-        </thead>
-        <tbody>
-          {venues.map((venue) => (
-            <tr key={venue.venue}>
-              <td>
-                <Link to={`/venues/${encodeURIComponent(venue.venue)}`}>{venue.venue}</Link>
-              </td>
-              <td>{venue.location}</td>
-              <td>{venue.capacity}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <Box sx={{ padding: 3 }}>
+      <Typography variant="h4" gutterBottom>
+        Venues List
+      </Typography>
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Venue</TableCell>
+              <TableCell>Location</TableCell>
+              <TableCell>Capacity</TableCell>
+              <TableCell>Cover Image</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {sortedVenues.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={4}>No venues found.</TableCell>
+              </TableRow>
+            ) : (
+              sortedVenues.map((venue) => (
+                <TableRow key={venue.id}>
+                  <TableCell>
+                    <Link to={`/venues/${encodeURIComponent(venue.venue)}`}>{venue.venue}</Link>
+                  </TableCell>
+                  <TableCell>{venue.location}</TableCell>
+                  <TableCell>{venue.capacity}</TableCell>
+                  <TableCell>
+                    {venue.cover_image ? (
+                      <img
+                        src={`http://localhost:3001/images/${venue.cover_image}`} 
+                        alt={`${venue.venue} cover`}
+                        style={{ maxWidth: '150px', maxHeight: '100px', objectFit: 'cover' }}
+                      />
+                    ) : (
+                      'No Image'
+                    )}
+                    {console.log(venue.cover_image)}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Box>
   );
 };
 
