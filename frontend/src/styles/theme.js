@@ -73,15 +73,22 @@ const theme = createTheme({
           backgroundColor: blue[500], // Contained buttons use primary color
           color: '#fff',
           '&:hover': {
-            backgroundColor: blue[700],
+            backgroundColor: blue[600],
           },
         },
         outlined: {
           borderColor: blue[500],
           '&:hover': {
-            borderColor: blue[700],
+            borderColor: blue[100],
           },
         },
+        text: {
+            borderColor: blue[500],
+            '&:hover': {
+                backgroundColor: '#ffffff', // Light hover effect for text button
+              },
+            padding: '4px 4px',
+          },
       },
     },
     MuiTextField: {
@@ -158,12 +165,21 @@ const theme = createTheme({
         root: {
           padding: '16px', // Add padding to table cells
         },
+        head: {
+            color: '#FFFFFF',
+            fontWeight: '700',
+            fontSize: '1.5rem',
+        date: {
+            textTransform: 'capitalize',
+            color: '#f4f4f4',
+        }
+        },
       },
     },
     MuiTableHead: {
       styleOverrides: {
         root: {
-          backgroundColor: blue[50], // Light blue background for table headers
+          textTransform: 'uppercase',
         },
       },
     },
@@ -174,6 +190,18 @@ const theme = createTheme({
             backgroundColor: '#f5f5f5', // Light hover effect for rows
           },
         },
+        head: {
+            backgroundColor: '#9454cf', // Light purple background for table headers
+            '&:hover': {
+              backgroundColor: '#c873e6',
+            },
+        },
+        date: {
+            backgroundColor: '#9454cf', // Light purple background for table headers
+            '&:hover': {
+              backgroundColor: '#c873e6', 
+        }
+        }
       },
     },
     MuiIconButton: {

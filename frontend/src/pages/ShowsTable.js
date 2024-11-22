@@ -13,17 +13,21 @@ import {
   MenuItem,
   Typography,
   Button,
+  Tabs,
+  Tab,
+  Box,
 } from '@mui/material';
-import Box from '@mui/material/Box';
 import FormControl from '@mui/material/FormControl';
 import InputLabel from '@mui/material/InputLabel';
 import InputAdornment from '@mui/material/InputAdornment';
 import FormHelperText from '@mui/material/FormHelperText';
 
+
 function ShowsTable() {
   const [data, setData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedVenue, setSelectedVenue] = useState("");
+  const [activeTab, setActiveTab] = useState(0); // State for active tab
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -85,10 +89,33 @@ function ShowsTable() {
     navigate(`/bands/${encodeURIComponent(bandName)}`);
   };
 
+  const handleVenueClick = (venueName) => {
+    navigate(`/venues/${encodeURIComponent(venueName)}`);
+  };
+
+  const handleTabChange = (event, newValue) => {
+    setActiveTab(newValue);
+  };
+
   return (
     <div>
-      <Typography variant="h4" gutterBottom>
-        Shows List
+      {/* Tabs */}
+      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
+        <Tabs value={activeTab} onChange={handleTabChange} centered>
+          <Tab label="Shows" />
+          <Tab label="Venues" onClick={() => navigate('/venuestable')} />
+          <Tab label="Bands" onClick={() => navigate('/bandstable')} />
+        </Tabs>
+      </Box>
+
+      {activeTab === 0 && (
+        <>
+      <Typography variant="h1" gutterBottom textAlign={'center'}>
+        TWIN CITIES SHOW LIST
+      </Typography>
+
+      <Typography variant="h4" gutterBottom textAlign={'center'}>
+        brought to you by <a href="https://www.tcupboard.org">TCUP</a>
       </Typography>
 
       {/* Search */}
@@ -96,7 +123,7 @@ function ShowsTable() {
       id="outlined-search"
       label="Search by venue or band name"
       type="search"
-      fullWidth
+      fullWidth="false"
       margin="normal"
       value={searchTerm}
       onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
@@ -139,9 +166,9 @@ function ShowsTable() {
               sortedDates.map(date => (
                 <React.Fragment key={date}>
                   <TableRow>
-                    <TableCell colSpan={5} style={{ textAlign: 'center', fontWeight: 'bold' }}>
+                    <TableCell colSpan={5} style={{ textAlign: 'center', fontWeight: '900', textTransform: 'uppercase', background: '#d8d8d8' }}>
                       {new Date(date).toLocaleDateString('en-US', {
-                        weekday: 'short',
+                        weekday: 'long',
                         month: 'short',
                         day: 'numeric',
                         year: 'numeric',
@@ -152,13 +179,14 @@ function ShowsTable() {
                     .sort((a, b) => new Date(a.start) - new Date(b.start)) // Sort events by start time
                     .map((item, idx) => (
                       <TableRow key={idx}>
-                        <TableCell>{item.venue}</TableCell>
+                              <TableCell style={{ textTransform: 'uppercase', fontWeight: '400', fontSize: '1.1rem' }}>{item.venue}</TableCell>
                         <TableCell>
                           {item.bands.split(', ').map((band, index) => (
                             <span key={index}>
                               <Button
                                 onClick={() => handleBandClick(band)}
-                                style={{ textTransform: 'none' }}
+                                style={{ textTransform: 'none', fontSize: '1rem' }}
+                                variant="text"
                               >
                                 {band}
                               </Button>
@@ -199,6 +227,8 @@ function ShowsTable() {
           </TableBody>
         </Table>
       </TableContainer>
+    </>
+      )}
     </div>
   );
 }

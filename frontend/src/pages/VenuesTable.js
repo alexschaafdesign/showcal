@@ -34,7 +34,7 @@ const VenuesTable = () => {
   return (
     <Box sx={{ padding: 3 }}>
       <Typography variant="h4" gutterBottom>
-        Venues List
+        Twin Cities Venue Database
       </Typography>
       <TableContainer component={Paper}>
         <Table>

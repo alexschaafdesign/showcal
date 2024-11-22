@@ -254,25 +254,25 @@ app.get('/tcup/shows', async (req, res) => {
 });
 
 app.post('/tcup/add-band', (req, res) => {
+  console.log('Received data:', req.body); // Log the incoming data
   const { band, socialLinks } = req.body;
 
-  // Convert socialLinks to a string format if necessary
-  // For example, "twitter: http://twitter.com/username, facebook: http://facebook.com/username"
-  const socialLinksString = Object.entries(socialLinks)
-  .filter(([_, value]) => value) // Only include non-empty values
-  .map(([key, value]) => `${key}: ${value}`)
-  .join(', ');
+  // Construct proper JSON object for socialLinks
+  const socialLinksJson = Object.entries(socialLinks || {})
+    .filter(([_, value]) => value) // Only include non-empty values
+    .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {}); // Create JSON object
 
-  const query = 'INSERT INTO bands (band, socialLinks) VALUES ($1, $2) RETURNING *';
-  const values = [band, socialLinksString];
+  const query = 'INSERT INTO bands (band, social_links) VALUES ($1, $2) RETURNING *';
+  const values = [band, socialLinksJson];
 
-  db.query(query, values, (error, result) => {
-      if (error) {
-          console.error('Error adding band:', error);
-          res.status(500).send('Error adding band');
-      } else {
-          res.status(201).json({ message: 'Band added successfully!', band: result.rows[0] });
-      }
+  pool.query(query, values, (error, result) => {
+    if (error) {
+      console.error('Error adding band:', error);
+      res.status(500).send('Error adding band');
+    } else {
+      console.log('Band added:', result.rows[0]); // Log the inserted band
+      res.status(201).json({ message: 'Band added successfully!', band: result.rows[0] });
+    }
   });
 });
 
