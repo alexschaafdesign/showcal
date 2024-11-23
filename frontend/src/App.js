@@ -26,9 +26,10 @@ function App() {
         <Route path="/venues" element={<Home />} /> {/* Venues/Home page */}
         <Route path="/calendar" element={<Calendar />} /> {/* Calendar page */}
         <Route path="/showstable" element={<ShowsTable />} /> {/* Shows table page */}
-        <Route path="/bandstable" element={<BandsTable />} /> {/* Bands page */}
+        <Route path="/bands" element={<BandsTable />} /> {/* Bands page */}
         <Route path="/venuestable" element={<VenuesTable />} /> {/* Venues page */}
-        <Route path="/bands/:band" element={<BandProfile />} /> {/* Dynamic band profile page */}
+        <Route path="/bands/:id/view" element={<BandProfile />} /> {/* View dynamic band profile page */}
+        <Route path="/bands/:id/edit" element={<BandForm />} /> {/* Edit band profile page */}
         <Route path="/venues/:venueName" element={<VenueProfile />} /> {/* Dynamic route */}
         <Route path="/add-band" element={<BandForm />} />
         <Route path="*" element={<div>Page Not Found</div>} /> {/* Catch-all for invalid routes */}

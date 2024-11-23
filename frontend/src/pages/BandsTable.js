@@ -1,116 +1,179 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
+  Box,
+  Tabs,
+  Tab,
   Table,
-  TableBody,
-  TableCell,
-  TableContainer,
   TableHead,
   TableRow,
+  TableCell,
+  TableBody,
   Paper,
   Typography,
-  Button,
-  Box,
-  TextField
+  TextField,
 } from '@mui/material';
 
-function Bands() {
+const BandTable = () => {
   const [bands, setBands] = useState([]);
+  const [filteredBands, setFilteredBands] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
-  const [searchTerm, setSearchTerm] = useState(''); // State for search term
+  const [error, setError] = useState(null);
+  const [activeTab, setActiveTab] = useState(2); // Active tab index, assuming "Bands" is the third tab
+  const navigate = useNavigate();
+  const location = useLocation(); // Access the state passed from navigate
+  const [successMessage, setSuccessMessage] = useState('');
 
-  // Fetch the band data when the component mounts
+  // Fetch bands on load
   useEffect(() => {
-    fetch('http://localhost:3001/tcup?table=bands')  // Updated URL to include query parameter
-      .then(response => response.json())
-      .then(data => {
+    const fetchBands = async () => {
+      try {
+        const response = await fetch('http://localhost:3001/tcup?table=bands');
+        if (!response.ok) {
+          throw new Error('Failed to fetch bands');
+        }
+        const data = await response.json();
         setBands(data);
-        setLoading(false); // Data is loaded, stop the loading spinner
-      })
-      .catch(error => {
-        console.error('Error fetching bands:', error);
-        setLoading(false); // Stop loading on error
-      });
+        setFilteredBands(data); // Initialize filteredBands with all bands
+        setLoading(false);
+      } catch (err) {
+        setError(err.message);
+        setLoading(false);
+      }
+    };
+    fetchBands();
   }, []);
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
+  // Check for success message from navigate state
+  useEffect(() => {
+    if (location.state?.successMessage) {
+      setSuccessMessage(location.state.successMessage);
 
-  // Filter bands based on search term
-  const filteredBands = bands.filter((band) => 
-    band.band.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+      // Clear the message after a few seconds
+      const timer = setTimeout(() => {
+        setSuccessMessage('');
+      }, 3000);
 
-  // Sort bands alphabetically
-  const sortedBands = filteredBands.sort((a, b) => a.band.localeCompare(b.band));
+      return () => clearTimeout(timer); // Cleanup the timer
+    }
+  }, [location.state]);
+
+  const handleTabChange = (event, newValue) => {
+    setActiveTab(newValue);
+    if (newValue === 0) navigate('/showstable'); // Navigate to Shows table
+    if (newValue === 1) navigate('/venuestable'); // Navigate to Venues table
+  };
+
+  const handleSearch = (event) => {
+    const query = event.target.value.toLowerCase();
+    setSearchQuery(query);
+
+    // Filter bands based on the search query
+    const filtered = bands.filter((band) =>
+      band.band.toLowerCase().includes(query)
+    );
+    setFilteredBands(filtered);
+  };
+
+  const handleBandClick = (bandId) => {
+    navigate(`/bands/${bandId}/view`); // Navigate to BandProfile with band ID
+  };
+
+  if (loading) return <Typography>Loading...</Typography>;
+  if (error) return <Typography>Error: {error}</Typography>;
 
   return (
-    <Box sx={{ padding: 3 }}>
-      <Typography variant="h4" gutterBottom>
+    <Box sx={{ padding: 0 }}>
+      {/* Success Message */}
+      {successMessage && (
+        <Typography variant="h3" color="success" sx={{ mb: 2 }}>
+          {successMessage}
+        </Typography>
+      )}
+
+      {/* Tabs */}
+      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
+        <Tabs value={activeTab} onChange={handleTabChange} centered>
+          <Tab label="Shows" />
+          <Tab label="Venues" />
+          <Tab label="Bands" />
+        </Tabs>
+      </Box>
+
+      <Typography variant="h1" gutterBottom textAlign={'center'}>
+        TWIN CITIES BAND LIST
+      </Typography>
+
+      <Typography variant="h4" gutterBottom textAlign={'center'}>
+        brought to you by <a href="https://www.tcupboard.org">TCUP</a>
+      </Typography>
+
+      {/* Search Bar */}
+      <Box sx={{ mb: 2 }}>
+        <TextField
+          label="Search Bands"
+          variant="outlined"
+          value={searchQuery}
+          onChange={handleSearch}
+          fullWidth
+        />
+      </Box>
+
+      {/* Bands Table */}
+      <Typography variant="h5" gutterBottom>
         Bands
       </Typography>
-
-      {/* Search field */}
-      <TextField
-        variant="outlined"
-        label="Search Bands"
-        fullWidth
-        margin="normal"
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)} // Update search term state
-      />
-
-      {/* Display the number of bands in the table */}
-      <Typography variant="body1" gutterBottom>
-        There are currently {filteredBands.length} {filteredBands.length === 1 ? 'band' : 'bands'} in this table.
-      </Typography>
-
-      <TableContainer component={Paper}>
+      <Paper elevation={3}>
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Band Name</TableCell>
-              <TableCell>Social Links</TableCell>
+              <TableCell><strong>Band Name</strong></TableCell>
+              <TableCell><strong>Social Links</strong></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {sortedBands.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={2} align="center">No bands found.</TableCell>
+            {filteredBands.map((band) => (
+              <TableRow key={band.id}>
+                <TableCell
+                  onClick={() => handleBandClick(band.id)}
+                  style={{
+                    textDecoration: 'none',
+                    color: 'inherit',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <Typography variant="body1">{band.band}</Typography>
+                </TableCell>
+                <TableCell>
+                  {band.social_links && typeof band.social_links === 'object' ? (
+                    Object.entries(band.social_links).map(([platform, link]) => {
+                      if (link) {
+                        return (
+                          <Typography key={platform} variant="body2">
+                            <a
+                              href={link.startsWith('http') ? link : `https://${link}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              {platform.charAt(0).toUpperCase() + platform.slice(1)}
+                            </a>
+                          </Typography>
+                        );
+                      }
+                      return null;
+                    })
+                  ) : (
+                    <Typography variant="body2">No Links</Typography>
+                  )}
+                </TableCell>
               </TableRow>
-            ) : (
-              sortedBands.map((band, index) => (
-                <TableRow key={index}>
-                  <TableCell>
-                    {/* Wrap the band name in a Link to make it clickable */}
-                    <Link to={`/bands/${encodeURIComponent(band.band)}`}>
-                      <Button variant="text">{band.band}</Button>
-                    </Link>
-                  </TableCell>
-                  <TableCell>
-                    {band.socialLinks ? (
-                      Object.entries(band.socialLinks).map(([platform, link], idx) => (
-                        <Box key={idx} mb={1}>
-                          <a href={link} target="_blank" rel="noopener noreferrer">
-                            <Button variant="contained" color="primary">
-                              {platform}
-                            </Button>
-                          </a>
-                        </Box>
-                      ))
-                    ) : (
-                      <Typography variant="body2">No social links available</Typography>
-                    )}
-                  </TableCell>
-                </TableRow>
-              ))
-            )}
+            ))}
           </TableBody>
         </Table>
-      </TableContainer>
+      </Paper>
     </Box>
   );
-}
+};
 
-export default Bands;
+export default BandTable;

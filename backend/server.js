@@ -5,17 +5,10 @@ import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import path from 'path';
 
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 dotenv.config({ path: path.resolve(__dirname, '../.env') });
-
-// Log environment variables to confirm they are loaded
-console.log("DB_USER:", process.env.DB_USER);
-console.log("DB_NAME:", process.env.DB_NAME); // Should output 'tcup'
-console.log("DB_HOST:", process.env.DB_HOST);
-console.log("DB_PORT:", process.env.DB_PORT);
 
 const { Pool } = pkg;
 const app = express();
@@ -23,8 +16,8 @@ const PORT = process.env.PORT || 3001;
 
 const pool = new Pool({
   user: process.env.DB_USER,
-  host: process.env.DB_HOST || 'localhost', // defaults to localhost if DB_HOST is not defined
-  database: process.env.DB_NAME, // Now uses DB_NAME from .env
+  host: process.env.DB_HOST || 'localhost',
+  database: process.env.DB_NAME,
   password: process.env.DB_PASSWORD,
   port: process.env.DB_PORT,
 });
@@ -41,13 +34,8 @@ pool.connect((err, client, release) => {
   release();
 });
 
-// Serve static files from the 'assets/images/venuecoverimages' folder
+// Serve static files
 app.use('/images', express.static(path.join(__dirname, '../assets/images/venuecoverimages')));
-
-// Endpoint to serve other content (if needed)
-app.get('/', (req, res) => {
-  res.send('Welcome to the venue image server');
-});
 
 // Unified query for events with venue details
 const unifiedQuery = `
@@ -69,16 +57,17 @@ const unifiedQuery = `
     sc.venue = vt.venue;
 `;
 
-// Query to fetch all band names and social media links from the bands table
+// Query for bands
 const bandsQuery = `
   SELECT 
+    id,
     band,
     social_links
   FROM 
     bands;
 `;
 
-// Query to fetch all venues with their details
+// Query for venues
 const venuesQuery = `
   SELECT 
     venue,
@@ -89,13 +78,13 @@ const venuesQuery = `
     venues;
 `;
 
-// Single endpoint to fetch either bands, shows, or venues based on query parameter
+// Unified endpoint for fetching data from any table
 app.get('/tcup', async (req, res) => {
   const { table } = req.query;
-  console.log("Received table parameter:", table);  // Add this line
 
   try {
     let result;
+
     if (table === 'bands') {
       console.log("Fetching bands data...");
       result = await pool.query(bandsQuery);
@@ -114,33 +103,28 @@ app.get('/tcup', async (req, res) => {
         }
 
         return {
+          id: band.id,
           band: band.band,
-          socialLinks: socialLinks
+          socialLinks,
         };
       });
-      console.log("Fetched bands data:", bands);
       return res.json(bands);
 
     } else if (table === 'shows') {
       console.log("Fetching shows data...");
       result = await pool.query(unifiedQuery);
-      const events = result.rows.map(event => {
-        const startDate = new Date(event.start);
-
-        return {
-          id: event.id,
-          eventLink: event.event_link,
-          flyerImage: event.flyer_image,
-          otherInfo: event.other_info,
-          venue: event.venue,
-          bands: event.bands,
-          start: !isNaN(startDate.getTime()) ? startDate.toISOString() : null,
-          location: event.location,
-          capacity: event.capacity
-        };
-      });
-      console.log("Fetched shows data:", events);
-      return res.json(events);
+      const shows = result.rows.map(show => ({
+        id: show.id,
+        eventLink: show.event_link,
+        flyerImage: show.flyer_image,
+        otherInfo: show.other_info,
+        venue: show.venue,
+        bands: show.bands,
+        start: new Date(show.start).toISOString(),
+        location: show.location,
+        capacity: show.capacity,
+      }));
+      return res.json(shows);
 
     } else if (table === 'venues') {
       console.log("Fetching venues data...");
@@ -149,57 +133,57 @@ app.get('/tcup', async (req, res) => {
         venue: venue.venue,
         location: venue.location,
         capacity: venue.capacity,
-        cover_image: venue.cover_image, // Include cover_image in the response
+        coverImage: venue.cover_image,
       }));
-      console.log("Fetched venues data:", venues);
       return res.json(venues);
 
     } else {
       return res.status(400).json({ error: "Invalid table parameter" });
     }
   } catch (err) {
-    console.error(`Error fetching data for ${table}:`, err.message, err.stack);
+    console.error(`Error fetching ${table} data:`, err.message);
     res.status(500).json({ error: `Error fetching ${table} data` });
   }
 });
 
-// Endpoint for band profile
-app.get('/tcup/bands/:band', async (req, res) => {
-  const band = decodeURIComponent(req.params.band); // Decode the band parameter
-  const query = 'SELECT * FROM bands WHERE band = $1';
+// Endpoint to fetch a band by ID
+app.get('/tcup/bands/:id', async (req, res) => {
+  const bandId = req.params.id;
+
   try {
-    const { rows } = await pool.query(query, [band]);
+    const { rows } = await pool.query('SELECT * FROM bands WHERE id = $1', [bandId]);
     if (rows.length === 0) {
-      return res.status(404).json({ error: "Band Not Found" });
+      return res.status(404).json({ error: 'Band not found' });
     }
 
-    // Extract the band data
-    const bandData = rows[0];
-
-    // Parse social_links if it exists
-    let socialLinks = null;
-    if (bandData.social_links) {
+    // Parse social_links JSON if necessary
+    let band = rows[0];
+    if (band.social_links) {
       try {
-        socialLinks = typeof bandData.social_links === 'string'
-          ? JSON.parse(bandData.social_links)
-          : bandData.social_links;
-          console.log("Parsed socialLinks for band:", socialLinks);
-      } catch (error) {
-        console.error(`Error parsing social links for band ${band}:`, error);
+        band.social_links = JSON.parse(band.social_links);
+      } catch (err) {
+        console.error(`Error parsing social_links for band ID ${bandId}:`, err);
       }
     }
 
-    // Endpoint for all shows of a specific band
-app.get('/tcup/shows/:band', async (req, res) => {
-  const band = decodeURIComponent(req.params.band); // Decode the band name from the URL
-  const query = 'SELECT * FROM shows WHERE bands ILIKE $1';
-  const values = [`%${band}%`];
+    res.status(200).json(band);
+  } catch (error) {
+    console.error('Error fetching band:', error);
+    res.status(500).json({ error: 'Failed to fetch band' });
+  }
+});
+
+// Endpoint to fetch shows for a specific band
+app.get('/tcup/shows/:id', async (req, res) => {
+  const bandId = req.params.id;
 
   try {
-    const { rows } = await pool.query(query, values);
+    const { rows } = await pool.query('SELECT * FROM shows WHERE bands ILIKE $1', [`%${bandId}%`]);
+
     if (rows.length === 0) {
       return res.status(404).json({ error: "No shows found for this band" });
     }
+
     res.json(rows);
   } catch (error) {
     console.error('Error fetching shows for band:', error);
@@ -207,75 +191,84 @@ app.get('/tcup/shows/:band', async (req, res) => {
   }
 });
 
-    // Format response with parsed socialLinks
-    res.json({
-      band: bandData.band,
-      socialLinks: socialLinks
-    });
+
+// Endpoint to edit a band's profile
+app.put('/tcup/bands/:id/edit', async (req, res) => {
+  const { id } = req.params;
+  const { band, social_links, genre, contact, open_to_requests, band_size_options } = req.body;
+
+  try {
+    const query = `
+      UPDATE bands
+      SET 
+        band = $1, 
+        social_links = $2, 
+        genre = $3, 
+        contact = $4, 
+        open_to_requests = $5, 
+        band_size = $6
+      WHERE id = $7
+      RETURNING *;
+    `;
+    const values = [
+      band,
+      social_links,
+      genre,
+      contact,
+      open_to_requests,
+      band_size_options,
+      id,
+    ];
+
+    const result = await pool.query(query, values);
+
+    console.log('Received PUT request:', { id, body: req.body });
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ message: 'Band not found' });
+    }
+
+    res.status(200).json({ message: 'Band updated successfully!', band: result.rows[0] });
   } catch (error) {
-    console.error('Error fetching band data:', error);
-    res.status(500).send('Error fetching band data');
+    console.error('Error updating band:', error);
+    res.status(500).json({ message: 'Internal Server Error' });
   }
 });
 
-// Endpoint for individual venue profile
+// Endpoint to fetch a specific venue's details
 app.get('/tcup/venues/:venueName', (req, res) => {
   const venueName = req.params.venueName;
-  // Query your database to find the venue by name
-  const query = `SELECT * FROM venues WHERE venue = $1`;
-  pool.query(query, [venueName], (error, result) => {
-      if (error) {
-          res.status(500).json({ error: "Database error" });
-      } else if (result.rows.length === 0) {
-          res.status(404).json({ error: "Venue Not Found" });
-      } else {
-          res.json(result.rows[0]);
-      }
+
+  pool.query('SELECT * FROM venues WHERE venue = $1', [venueName], (error, result) => {
+    if (error) {
+      console.error('Error fetching venue data:', error);
+      res.status(500).json({ error: "Database error" });
+    } else if (result.rows.length === 0) {
+      res.status(404).json({ error: "Venue Not Found" });
+    } else {
+      res.json(result.rows[0]);
+    }
   });
 });
 
-// Endpoint for past shows
-app.get('/tcup/shows', async (req, res) => {
-  const { band, past } = req.query;
-  let query = 'SELECT * FROM shows WHERE bands ILIKE $1';
-  let values = [`%${band}%`];
-
-  if (past) {
-    query += ' AND start < NOW()';
-  }
-
-  try {
-    const { rows } = await pool.query(query, values);
-    res.json(rows);
-  } catch (error) {
-    console.error('Error fetching past shows:', error);
-    res.status(500).send('Error fetching past shows');
-  }
-});
-
+// Endpoint to add a new band
 app.post('/tcup/add-band', (req, res) => {
-  console.log('Received data:', req.body); // Log the incoming data
   const { band, socialLinks } = req.body;
 
-  // Construct proper JSON object for socialLinks
-  const socialLinksJson = Object.entries(socialLinks || {})
-    .filter(([_, value]) => value) // Only include non-empty values
-    .reduce((acc, [key, value]) => ({ ...acc, [key]: value }), {}); // Create JSON object
-
   const query = 'INSERT INTO bands (band, social_links) VALUES ($1, $2) RETURNING *';
-  const values = [band, socialLinksJson];
+  const values = [band, JSON.stringify(socialLinks)];
 
   pool.query(query, values, (error, result) => {
     if (error) {
       console.error('Error adding band:', error);
       res.status(500).send('Error adding band');
     } else {
-      console.log('Band added:', result.rows[0]); // Log the inserted band
       res.status(201).json({ message: 'Band added successfully!', band: result.rows[0] });
     }
   });
 });
 
+// Start the server
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });

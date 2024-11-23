@@ -204,6 +204,32 @@ const theme = createTheme({
         }
       },
     },
+    MuiTabs: {
+        styleOverrides: {
+          root: {
+            backgroundColor: '#f4f4f4', // Background color of the tabs container
+            color: '#333', // Default text color
+          },
+          indicator: {
+            backgroundColor: '#1976d2', // Color of the active tab underline
+          },
+        },
+      },
+      MuiTab: {
+        styleOverrides: {
+          root: {
+            color: 'black',
+            backgroundColor: 'white', // Default background for inactive tabs
+            '&.Mui-selected': {
+              color: 'blue', // Selected tab color
+              backgroundColor: 'lightblue', // Background for selected tab
+            },
+            '&:hover': {
+              backgroundColor: 'lightgray', // Background on hover for inactive tabs
+            },
+          },
+        },
+      },
     MuiIconButton: {
       styleOverrides: {
         root: {

@@ -1,22 +1,34 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
+import {
+  Box,
+  Typography,
+  Button,
+  Table,
+  TableHead,
+  TableRow,
+  TableCell,
+  TableBody,
+  Paper,
+} from '@mui/material';
 
 function BandProfile() {
-  const { band } = useParams();
+  const { id } = useParams(); // Use "id" to match the route parameter
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [bandData, setBandData] = useState(null);
   const [error, setError] = useState(null);
-  const [shows, setShows] = useState([]);  // State to store shows
+  const [shows, setShows] = useState([]);
 
   useEffect(() => {
     const fetchBandData = async () => {
       try {
-        const response = await fetch(`http://localhost:3001/tcup/bands/${encodeURIComponent(band)}`);
+        const response = await fetch(`http://localhost:3001/tcup/bands/${id}`);
         if (!response.ok) throw new Error('Network response was not ok');
         const data = await response.json();
         setBandData(data || {});
       } catch (error) {
-        setError("An error occurred while fetching the band data.");
+        setError('An error occurred while fetching the band data.');
       } finally {
         setLoading(false);
       }
@@ -24,66 +36,92 @@ function BandProfile() {
 
     const fetchShows = async () => {
       try {
-        const response = await fetch(`http://localhost:3001/tcup/shows/${encodeURIComponent(band)}`);
+        const response = await fetch(`http://localhost:3001/tcup/shows/${id}`);
         if (!response.ok) throw new Error('Network response was not ok');
         const showsData = await response.json();
         setShows(showsData);
       } catch (error) {
-        console.error("Failed to fetch shows for the band:", error);
+        console.error('Failed to fetch shows for the band:', error);
       }
     };
 
     fetchBandData();
     fetchShows();
-  }, [band]);
+  }, [id]);
 
-  if (loading) return <div>Loading...</div>;
-  if (error) return <div>{error}</div>;
-  if (!bandData) return <div>Band data not found</div>;
+  const handleEdit = () => {
+    navigate(`/bands/${bandData.id}/edit`); // For editing  
+    console.log('Band Data:', bandData);
+  };
+
+  if (loading) return <Typography>Loading...</Typography>;
+  if (error) return <Typography color="error">{error}</Typography>;
+  if (!bandData) return <Typography>Band data not found</Typography>;
 
   return (
-    <div>
-      <h1>{bandData.band}</h1>
-      {bandData.socialLinks && (
-        <div>
-          <h3>Social Links</h3>
-          <ul>
-            {Object.entries(bandData.socialLinks).map(([platform, url], index) => (
-              <li key={index}>
-                <a href={url} target="_blank" rel="noopener noreferrer">
-                  {platform.charAt(0).toUpperCase() + platform.slice(1)}
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
+    <Box sx={{ padding: 3 }}>
+      <Typography variant="h4" gutterBottom>
+        {bandData.band}
+      </Typography>
+
+      {/* Edit Button */}
+      <Box sx={{ mb: 3 }}>
+        <Button variant="contained" color="primary" onClick={handleEdit}>
+          Edit Band
+        </Button>
+      </Box>
+
+      {/* Social Links */}
+      {bandData.social_links && (
+        <Box sx={{ mb: 4 }}>
+          <Typography variant="h6" gutterBottom>
+            Social Links
+          </Typography>
+          <Paper elevation={2} sx={{ padding: 2 }}>
+            <ul>
+              {Object.entries(bandData.social_links).map(([platform, url], index) => (
+                <li key={index}>
+                  <Typography variant="body1">
+                    <a href={url} target="_blank" rel="noopener noreferrer">
+                      {platform.charAt(0).toUpperCase() + platform.slice(1)}
+                    </a>
+                  </Typography>
+                </li>
+              ))}
+            </ul>
+          </Paper>
+        </Box>
       )}
 
-      {/* Display shows if available */}
+      {/* Shows Table */}
       {shows.length > 0 && (
-        <div>
-          <h3>Past and future shows</h3>
-          <table>
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>Venue</th>
-                <th>Start Time</th>
-              </tr>
-            </thead>
-            <tbody>
-              {shows.map((show, index) => (
-                <tr key={index}>
-                  <td>{new Date(show.start).toLocaleDateString()}</td>
-                  <td>{show.venue}</td>
-                  <td>{new Date(show.start).toLocaleTimeString()}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <Box>
+          <Typography variant="h6" gutterBottom>
+            Past and Future Shows
+          </Typography>
+          <Paper elevation={3} sx={{ overflowX: 'auto' }}>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell><strong>Date</strong></TableCell>
+                  <TableCell><strong>Venue</strong></TableCell>
+                  <TableCell><strong>Start Time</strong></TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {shows.map((show, index) => (
+                  <TableRow key={index}>
+                    <TableCell>{new Date(show.start).toLocaleDateString()}</TableCell>
+                    <TableCell>{show.venue}</TableCell>
+                    <TableCell>{new Date(show.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </Paper>
+        </Box>
       )}
-    </div>
+    </Box>
   );
 }
 

@@ -1,53 +1,55 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { Box, Button, TextField, Typography, Checkbox, FormControlLabel } from '@mui/material';
 
-function BandForm() {
+const BandForm = () => {
+  const { id } = useParams(); // Get the band ID from the URL
+  const navigate = useNavigate();
+
+  // State for form fields
   const [band, setBand] = useState('');
-  const [socialLinks, setSocialLinks] = useState({ twitter: '', facebook: '', instagram: '', website: '' });
-  const [message, setMessage] = useState('');
+  const [socialLinks, setSocialLinks] = useState({ instagram: '', website: '' });
+  const [genre, setGenre] = useState('');
+  const [contact, setContact] = useState('');
+  const [openToRequests, setOpenToRequests] = useState(false);
+  const [bandSize, setBandSize] = useState('');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [message, setMessage] = useState(''); // State for success/error messages
 
-  // Helper function to sanitize URLs
-  const sanitizeUrl = (url) => {
-    if (!url) return ''; // Return empty if the URL is empty
-    if (!/^https?:\/\//i.test(url)) {
-      // Add https:// if missing
-      return `https://${url}`;
+  useEffect(() => {
+    if (id) {
+      // Fetch band data for editing
+      const fetchBand = async () => {
+        try {
+          const response = await fetch(`http://localhost:3001/tcup/bands/${id}`);
+          if (!response.ok) {
+            throw new Error('Failed to fetch band data');
+          }
+          const data = await response.json();
+
+          // Populate form fields with fetched data
+          setBand(data.band || '');
+          setSocialLinks(data.social_links || { instagram: '', website: '' });
+          setGenre(data.genre || '');
+          setContact(data.contact || '');
+          setOpenToRequests(data.open_to_requests || false);
+          setBandSize(data.band_size || '');
+        } catch (err) {
+          console.error('Error fetching band data:', err);
+          setError('Failed to load band data.');
+        } finally {
+          setLoading(false);
+        }
+      };
+
+      fetchBand();
+    } else {
+      setLoading(false); // For adding a new band
     }
-    return url;
-  };
+  }, [id]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    // Sanitize social links before sending
-    const sanitizedLinks = Object.entries(socialLinks).reduce((acc, [key, value]) => {
-      acc[key] = sanitizeUrl(value);
-      return acc;
-    }, {});
-
-    try {
-      const response = await fetch('http://localhost:3001/tcup/add-band', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ band, socialLinks: sanitizedLinks }),
-      });
-
-      if (response.ok) {
-        setMessage('Band added successfully!');
-        setBand('');
-        setSocialLinks({ twitter: '', facebook: '', instagram: '', website: '' });
-      } else {
-        const errorData = await response.json();
-        setMessage(`Error adding band: ${errorData.error || 'Unknown error'}`);
-      }
-    } catch (error) {
-      console.error('Error:', error);
-      setMessage('Error adding band. Please try again later.');
-    }
-  };
-
-  const handleChange = (e) => {
+  const handleSocialLinksChange = (e) => {
     const { name, value } = e.target;
     setSocialLinks((prevLinks) => ({
       ...prevLinks,
@@ -55,76 +57,131 @@ function BandForm() {
     }));
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+  
+    const updatedBandData = {
+      band,
+      social_links: socialLinks,
+      genre,
+      contact,
+      open_to_requests: openToRequests, // Ensure this matches your backend field name
+      band_size: bandSize, // Ensure this matches your backend field name
+    };
+  
+    try {
+      const response = await fetch(`http://localhost:3001/tcup/bands/${id ? `${id}/edit` : 'add-band'}`, {
+        method: id ? 'PUT' : 'POST', // PUT for editing, POST for adding
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updatedBandData),
+      });
+  
+      if (response.ok) {
+        const successMessage = id ? 'Band updated successfully!' : 'Band added successfully!';
+        navigate('/bands', { state: { successMessage } }); // Pass success message
+      } else {
+        const errorData = await response.json();
+        setMessage(errorData.message || 'Failed to save band.');
+      }
+    } catch (error) {
+      console.error('Error saving band:', error);
+      setMessage('Error saving band.');
+    }
+  };
+
+  if (loading) return <Typography>Loading...</Typography>;
+  if (error) return <Typography color="error">{error}</Typography>;
+
   return (
-    <div>
-      <h2>Add a New Band</h2>
-      {message && <p>{message}</p>}
+    <Box sx={{ maxWidth: '600px', margin: '0 auto', padding: '20px' }}>
+      <Typography variant="h4" gutterBottom>
+        {id ? 'Edit Band' : 'Add Band'}
+      </Typography>
+      {message && <Typography color="error">{message}</Typography>}
       <form onSubmit={handleSubmit}>
-        <div>
-          <label>
-            Band Name:
-            <input
-              type="text"
-              value={band}
-              onChange={(e) => setBand(e.target.value)}
-              required // This makes the band name field required
+        <TextField
+          variant="outlined"
+          label="Band Name"
+          value={band}
+          onChange={(e) => setBand(e.target.value)}
+          placeholder="Enter the band name"
+          fullWidth
+          margin="normal"
+          required
+        />
+        <TextField
+          variant="outlined"
+          label="Instagram Username"
+          name="instagram"
+          value={socialLinks.instagram}
+          onChange={handleSocialLinksChange}
+          placeholder="Enter Instagram username"
+          fullWidth
+          margin="normal"
+        />
+        <TextField
+          variant="outlined"
+          label="Website"
+          name="website"
+          value={socialLinks.website}
+          onChange={handleSocialLinksChange}
+          placeholder="Enter website (e.g., bandsite.com)"
+          fullWidth
+          margin="normal"
+        />
+        <TextField
+          variant="outlined"
+          label="Genre"
+          value={genre}
+          onChange={(e) => setGenre(e.target.value)}
+          placeholder="Enter the band's genre"
+          fullWidth
+          margin="normal"
+        />
+        <TextField
+          variant="outlined"
+          label="Contact"
+          value={contact}
+          onChange={(e) => setContact(e.target.value)}
+          placeholder="Enter contact info"
+          fullWidth
+          margin="normal"
+        />
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={openToRequests}
+              onChange={(e) => setOpenToRequests(e.target.checked)}
             />
-          </label>
-        </div>
-        <div>
-          <label>
-            Twitter:
-            <input
-              type="text"
-              name="twitter"
-              value={socialLinks.twitter}
-              onChange={handleChange}
-              placeholder="e.g., twitter.com/bandname"
-            />
-          </label>
-        </div>
-        <div>
-          <label>
-            Facebook:
-            <input
-              type="text"
-              name="facebook"
-              value={socialLinks.facebook}
-              onChange={handleChange}
-              placeholder="e.g., facebook.com/bandname"
-            />
-          </label>
-        </div>
-        <div>
-          <label>
-            Instagram:
-            <input
-              type="text"
-              name="instagram"
-              value={socialLinks.instagram}
-              onChange={handleChange}
-              placeholder="e.g., instagram.com/bandname"
-            />
-          </label>
-        </div>
-        <div>
-          <label>
-            Website:
-            <input
-              type="text"
-              name="website"
-              value={socialLinks.website}
-              onChange={handleChange}
-              placeholder="e.g., www.bandwebsite.com"
-            />
-          </label>
-        </div>
-        <div>
-          <button type="submit">Add Band</button>
-        </div>
+          }
+          label="Open to Show Requests?"
+        />
+        <TextField
+          variant="outlined"
+          label="Band Size"
+          value={bandSize}
+          onChange={(e) => setBandSize(e.target.value)}
+          placeholder="Enter the band's size options"
+          fullWidth
+          margin="normal"
+        />
+        <Box sx={{ mt: 3 }}>
+          <Button type="submit" variant="contained" color="primary" sx={{ mr: 2 }}>
+            {id ? 'Save Changes' : 'Add Band'}
+          </Button>
+          <Button
+            variant="outlined"
+            color="secondary"
+            onClick={() => navigate('/bands')}
+          >
+            Cancel
+          </Button>
+        </Box>
       </form>
-    </div>
+    </Box>
   );
-}
+};
 
 export default BandForm;

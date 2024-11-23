@@ -85,8 +85,8 @@ function ShowsTable() {
   const groupedData = groupByDate(data);
   const sortedDates = Object.keys(groupedData).sort((a, b) => new Date(a) - new Date(b));
 
-  const handleBandClick = (bandName) => {
-    navigate(`/bands/${encodeURIComponent(bandName)}`);
+  const handleBandClick = (bandId) => {
+    navigate(`/bands/${encodeURIComponent(bandId)}/view`);
   };
 
   const handleVenueClick = (venueName) => {
@@ -104,7 +104,7 @@ function ShowsTable() {
         <Tabs value={activeTab} onChange={handleTabChange} centered>
           <Tab label="Shows" />
           <Tab label="Venues" onClick={() => navigate('/venuestable')} />
-          <Tab label="Bands" onClick={() => navigate('/bandstable')} />
+          <Tab label="Bands" onClick={() => navigate('/bands')} />
         </Tabs>
       </Box>
 
@@ -123,7 +123,7 @@ function ShowsTable() {
       id="outlined-search"
       label="Search by venue or band name"
       type="search"
-      fullWidth="false"
+      fullWidth
       margin="normal"
       value={searchTerm}
       onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
