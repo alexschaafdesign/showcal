@@ -14,7 +14,7 @@ const Home = () => {
       <Typography variant="body1" paragraph>
         Click below to view the show table:
       </Typography>
-      <Link to="/showstable">
+      <Link to="/shows">
         <Button variant="contained" color="primary" sx={{ marginBottom: 2 }}>
           Go to Shows Table
         </Button>
@@ -23,7 +23,7 @@ const Home = () => {
       <Typography variant="body1" paragraph>
         Click below to view the Bands table:
       </Typography>
-      <Link to="/bandstable">
+      <Link to="/bands">
         <Button variant="contained" color="primary" sx={{ marginBottom: 2 }}>
           Go to Bands Table
         </Button>
@@ -32,7 +32,7 @@ const Home = () => {
       <Typography variant="body1" paragraph>
         Click below to view the Venues table:
       </Typography>
-      <Link to="/venuestable">
+      <Link to="/venues">
         <Button variant="contained" color="primary" sx={{ marginBottom: 2 }}>
           Go to Venues Table
         </Button>

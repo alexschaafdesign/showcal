@@ -29,8 +29,13 @@ const VenuesTable = () => {
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
-    if (newValue === 0) navigate('/showstable'); // Navigate to Shows table
+    if (newValue === 0) navigate('/shows'); // Navigate to Shows table
     if (newValue === 2) navigate('/bands'); // Navigate to Bands table
+  };
+
+  const handleVenueClick = (id) => {
+    console.log(`Navigating to venue with id: ${id}`);
+    navigate(`/venues/${id}`); // Navigate to the VenueProfile using the venue ID
   };
 
   if (loading) return <Typography>Loading...</Typography>;
@@ -71,8 +76,13 @@ const VenuesTable = () => {
           </TableHead>
           <TableBody>
             {venues.map((venue) => (
-              <TableRow key={venue.venue}>
-                <TableCell>{venue.venue}</TableCell>
+              <TableRow key={venue.id}>
+                <TableCell
+                  onClick={() => handleVenueClick(venue.id)}
+                  style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
+                >
+                  {venue.venue}
+                </TableCell>
                 <TableCell>{venue.location}</TableCell>
                 <TableCell>{venue.capacity}</TableCell>
                 <TableCell>

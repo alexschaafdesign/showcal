@@ -61,8 +61,8 @@ const BandTable = () => {
 
   const handleTabChange = (event, newValue) => {
     setActiveTab(newValue);
-    if (newValue === 0) navigate('/showstable'); // Navigate to Shows table
-    if (newValue === 1) navigate('/venuestable'); // Navigate to Venues table
+    if (newValue === 0) navigate('/shows'); // Navigate to Shows table
+    if (newValue === 1) navigate('/venues'); // Navigate to Venues table
   };
 
   const handleSearch = (event) => {
