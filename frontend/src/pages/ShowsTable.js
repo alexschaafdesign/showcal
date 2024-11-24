@@ -157,10 +157,10 @@ function ShowsTable() {
             <Table>
               <TableHead>
                 <TableRow>
+                  <TableCell>Flyer</TableCell>
                   <TableCell>Venue</TableCell>
                   <TableCell>Bands</TableCell>
                   <TableCell>Start</TableCell>
-                  <TableCell>Flyer</TableCell>
                   <TableCell>Event Link</TableCell>
                 </TableRow>
               </TableHead>
@@ -194,6 +194,21 @@ function ShowsTable() {
                         .sort((a, b) => new Date(a.start) - new Date(b.start)) // Sort events by start time
                         .map((item, idx) => (
                           <TableRow key={idx}>
+                            <TableCell>
+                              {item.flyer_image ? (
+                                <img
+                                  src={item.flyer_image}
+                                  alt="Flyer"
+                                  style={{
+                                    maxWidth: '150px',
+                                    maxHeight: '150px',
+                                    borderRadius: '10px',
+                                  }}
+                                />
+                              ) : (
+                                'No Flyer'
+                              )}
+                            </TableCell>
                             <TableCell
                               style={{
                                 textTransform: 'uppercase',
@@ -207,7 +222,7 @@ function ShowsTable() {
                             </TableCell>
                             <TableCell>
                               {item.bands.split(', ').map((band, index) => (
-                                <span key={index}>
+                                <div key={index}>
                                   <Button
                                     onClick={() => handleBandClick(band)}
                                     style={{ textTransform: 'none', fontSize: '1rem' }}
@@ -215,8 +230,7 @@ function ShowsTable() {
                                   >
                                     {band}
                                   </Button>
-                                  {index < item.bands.split(', ').length - 1 ? ', ' : ''}
-                                </span>
+                                </div>
                               ))}
                             </TableCell>
                             <TableCell>
@@ -225,21 +239,6 @@ function ShowsTable() {
                                 minute: '2-digit',
                                 hour12: true,
                               })}
-                            </TableCell>
-                            <TableCell>
-                              {item.flyer_image ? (
-                                <img
-                                  src={item.flyer_image}
-                                  alt="Flyer"
-                                  style={{
-                                    maxWidth: '100px',
-                                    maxHeight: '100px',
-                                    borderRadius: '5px',
-                                  }}
-                                />
-                              ) : (
-                                'No Flyer'
-                              )}
                             </TableCell>
                             <TableCell>
                               {item.event_link ? (
