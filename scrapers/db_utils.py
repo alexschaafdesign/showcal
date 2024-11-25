@@ -24,31 +24,6 @@ def get_venue_id(cursor, venue_name):
         raise ValueError(f"Venue '{venue_name}' not found in the venues table.")
     return venue_row[0]
 
-def insert_show(cursor, venue_id, bands, start, event_link, flyer_image):
-    """Insert a show into the database or return the ID of an existing show."""
-    # Attempt to insert the show
-    cursor.execute("""
-        INSERT INTO shows (venue_id, bands, start, event_link, flyer_image)
-        VALUES (%s, %s, %s, %s, %s)
-        ON CONFLICT ON CONSTRAINT unique_show DO NOTHING
-        RETURNING id;
-    """, (venue_id, bands, start, event_link, flyer_image))
-    show_id = cursor.fetchone()
-
-    if show_id:  # New show was inserted
-        return show_id[0], True
-
-    # If no ID is returned, fetch the existing show_id
-    cursor.execute("""
-        SELECT id FROM shows WHERE venue_id = %s AND start = %s;
-    """, (venue_id, start))
-    show_id = cursor.fetchone()
-
-    if not show_id:
-        raise ValueError(f"Failed to find or insert show: venue_id={venue_id}, start={start}")
-
-    return show_id[0], False  # Existing show was found
-
 def insert_show(cursor, venue_id, bands, start, event_link, flyer_image, allow_update=False):
     """Insert or update a show in the database."""
     try:
@@ -60,11 +35,12 @@ def insert_show(cursor, venue_id, bands, start, event_link, flyer_image, allow_u
             RETURNING id;
         """
         cursor.execute(insert_query, (venue_id, bands, start, event_link, flyer_image))
-        show_id = cursor.fetchone()
+        result = cursor.fetchone()
 
-        if show_id:  # New show was inserted
-            print(f"Inserted show with ID: {show_id[0]}")
-            return show_id[0], True
+        if result:  # New show was inserted
+            show_id = result[0]
+            print(f"Inserted show with ID: {show_id}")
+            return show_id, True
 
         # If no ID is returned, check for an existing show
         cursor.execute("""
@@ -109,7 +85,7 @@ def insert_band(cursor, band_name, social_links=None):
         band_name (str): Name of the band.
         social_links (dict): Social media links for the band (optional).
     Returns:
-        int: The ID of the band.
+        tuple: (int, bool) The ID of the band and whether it was newly inserted.
     """
     try:
         # Check if the band already exists
@@ -119,7 +95,7 @@ def insert_band(cursor, band_name, social_links=None):
 
         if result:
             print(f"Band already exists with ID: {result[0]}")
-            return result[0]  # Return the existing band's ID
+            return result[0], False  # Return the existing band's ID and False for was_inserted
 
         # Insert the new band
         insert_query = """
@@ -130,7 +106,7 @@ def insert_band(cursor, band_name, social_links=None):
         cursor.execute(insert_query, (band_name, json.dumps(social_links) if social_links else None))
         band_id = cursor.fetchone()[0]
         print(f"Inserted band: {band_name} with ID: {band_id}")
-        return band_id
+        return band_id, True  # Return the new band's ID and True for was_inserted
     except Exception as e:
         print(f"Error inserting band {band_name}: {e}")
         raise

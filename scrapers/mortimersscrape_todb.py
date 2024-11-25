@@ -1,19 +1,13 @@
 import time
 import re
-import os
+import json
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
-import psycopg2
 from datetime import datetime
-
-# Database connection parameters
-DB_NAME = "tcup"
-DB_USER = "aschaaf"
-DB_PASSWORD = "notthesame"
-DB_HOST = "localhost"
+from db_utils import connect_to_db, insert_show, insert_band, link_band_to_show, get_venue_id
 
 # Initialize WebDriver
 driver = webdriver.Chrome()
@@ -23,7 +17,8 @@ driver.get(url)
 # Wait for the main event list to load
 try:
     WebDriverWait(driver, 10).until(
-        EC.presence_of_all_elements_located((By.CSS_SELECTOR, 'li[data-hook="event-list-item"]'))    )
+        EC.presence_of_all_elements_located((By.CSS_SELECTOR, 'li[data-hook="event-list-item"]'))
+    )
     print("Event cards loaded successfully.")
 except:
     print("Event cards did not load in time.")
@@ -34,16 +29,21 @@ events = soup.find_all("li", {"data-hook": "event-list-item"})
 events_data = []
 band_names = set()
 
+# Counters
+shows_added = 0
+shows_skipped = 0
+bands_added = 0
+bands_skipped = 0
+
 # Function to split band names based on custom rules
 def split_band_names(band_string):
-    # Add `+` as an additional separator
     bands = re.split(r'\s*(?:,|w/|&|\+)\s*', band_string)
     return [b.strip() for b in bands if b.strip()]
 
 # Loop through each event item to click and extract details from individual event pages
 for event in events:
-    # Click on the "Details" button to go to the event's page
     try:
+        # Click on the "Details" button to go to the event's page
         details_button = event.find("a", {"data-hook": "ev-rsvp-button"})
         event_link = details_button['href']
         driver.get(event_link)
@@ -54,14 +54,14 @@ for event in events:
         event_details = {}
 
         # Set the venue name
-        event_details['venue'] = "Mortimer's"  # Replace with the actual venue name if known
+        event_details['venue'] = "Mortimer's"
 
         # Extract bands
         band_tag = event_soup.find("h1", class_="lEpN4c q198bJ fKdwAf")
         if band_tag:
             band_names_list = split_band_names(band_tag.get_text(strip=True))
-            event_details['bands'] = ", ".join(band_names_list)  # Join as comma-separated for 'shows' table
-            band_names.update(band_names_list)  # Collect unique band names for 'bands' table
+            event_details['bands'] = ", ".join(band_names_list)
+            band_names.update(band_names_list)
         else:
             event_details['bands'] = "N/A"
 
@@ -78,6 +78,34 @@ for event in events:
         else:
             event_details['start'] = None
 
+        # Extract show flyer using `data-hook="event-image"`
+        flyer_img_tag = event_soup.find("div", {"data-hook": "event-image"})
+        if flyer_img_tag:
+            # Check for the highest resolution image
+            wow_image_tag = flyer_img_tag.find("wow-image")
+            if wow_image_tag and "data-image-info" in wow_image_tag.attrs:
+                image_info = json.loads(wow_image_tag["data-image-info"])
+                if "imageData" in image_info and "uri" in image_info["imageData"]:
+                    # Construct the full URL
+                    base_url = "https://static.wixstatic.com/media/"
+                    flyer_file_name = image_info["imageData"]["uri"]
+                    event_details['flyer_image'] = f"{base_url}{flyer_file_name}"
+                    print(f"Found high-res show flyer: {event_details['flyer_image']}")
+                else:
+                    print("Could not find a high-res flyer URI in imageData.")
+                    event_details['flyer_image'] = None
+            else:
+                img_tag = flyer_img_tag.find("img")
+                if img_tag and "src" in img_tag.attrs:
+                    event_details['flyer_image'] = img_tag["src"]
+                    print(f"Found standard flyer: {event_details['flyer_image']}")
+                else:
+                    print("No flyer image found for this event.")
+                    event_details['flyer_image'] = None
+        else:
+            event_details['flyer_image'] = None
+            print("No flyer image section found for this event.")
+
         # Save event link
         event_details['event_link'] = event_link
 
@@ -86,7 +114,7 @@ for event in events:
 
         # Go back to the main event list page
         driver.back()
-        time.sleep(2)  # Adjust sleep as needed for page load
+        time.sleep(2)
 
     except Exception as e:
         print("Failed to expand event details or retrieve event link:", e)
@@ -96,66 +124,50 @@ for event in events:
 driver.quit()
 
 # Connect to the PostgreSQL database
-conn = psycopg2.connect(
-    dbname=DB_NAME,
-    user=DB_USER,
-    password=DB_PASSWORD,
-    host=DB_HOST
-)
+conn = connect_to_db()
 cursor = conn.cursor()
 
-# Create tables if they don't exist
-cursor.execute("""
-    CREATE TABLE IF NOT EXISTS shows (
-        venue TEXT,
-        bands TEXT,
-        start TIMESTAMP,
-        event_link TEXT
-    );
-""")
-cursor.execute("""
-    CREATE TABLE IF NOT EXISTS bands (
-        band TEXT PRIMARY KEY
-    );
-""")
+# Get venue ID for Mortimer's
+venue_id = get_venue_id(cursor, "Mortimer's")
 
-# Fetch existing events to avoid duplicates
-cursor.execute("SELECT bands, start FROM shows")
-existing_events = set(cursor.fetchall())
+# Process each event
+for event_details in events_data:
+    try:
+        # Insert or update the show
+        show_id, was_inserted = insert_show(
+            cursor,
+            venue_id=venue_id,
+            bands=event_details['bands'],
+            start=event_details['start'],
+            event_link=event_details['event_link'],
+            flyer_image=event_details['flyer_image'],
+            allow_update=True  # Allow updates to existing records
+        )
+        if was_inserted:
+            shows_added += 1
+            print(f"Inserted new show with ID: {show_id}")
+        else:
+            shows_skipped += 1
+            print(f"Updated existing show with ID: {show_id}")
 
-# Insert new events into the 'shows' table
-rows_to_add = [
-    (event['venue'], event['bands'], event['start'], event['event_link'])
-    for event in events_data
-    if event['start'] and (event['bands'], event['start']) not in existing_events
-]
+        # Process each band
+        for band_name in split_band_names(event_details['bands']):
+            band_id, band_inserted = insert_band(cursor, band_name)
+            if band_inserted:
+                bands_added += 1
+            else:
+                bands_skipped += 1
+            link_band_to_show(cursor, band_id, show_id)
 
-if rows_to_add:
-    insert_query = """
-    INSERT INTO shows (venue, bands, start, event_link)
-    VALUES (%s, %s, %s, %s)
-    """
-    cursor.executemany(insert_query, rows_to_add)
-    conn.commit()
-    print(f"{len(rows_to_add)} new events added to the shows table.")
-else:
-    print("No new events to add to the shows table. All entries are duplicates.")
+    except Exception as e:
+        print(f"Error processing event: {event_details['bands']}. Error: {e}")
+        conn.rollback()
 
-# Fetch existing bands to avoid duplicates
-cursor.execute("SELECT band FROM bands")
-existing_bands = set(row[0] for row in cursor.fetchall())
-
-# Insert unique bands into the 'bands' table
-bands_to_add = [(band,) for band in band_names if band not in existing_bands]
-if bands_to_add:
-    cursor.executemany("INSERT INTO bands (band) VALUES (%s)", bands_to_add)
-    conn.commit()
-    print(f"{len(bands_to_add)} new bands added to the bands table.")
-else:
-    print("No new bands to add to the bands table. All entries are duplicates.")
-
-# Close the database connection
+# Commit all changes and close the connection
+conn.commit()
 cursor.close()
 conn.close()
 
-print("Events processed and added to the database.")
+# Print summary
+print(f"Events processed. Added: {shows_added}, Updated: {shows_skipped}.")
+print(f"Bands processed. Added: {bands_added}, Skipped (duplicates): {bands_skipped}.")

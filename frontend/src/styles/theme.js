@@ -92,28 +92,58 @@ const theme = createTheme({
       },
     },
     MuiTextField: {
-        styleOverrides: {
-          root: {
-            marginBottom: '16px', // Add margin bottom to text fields
-          },
-          input: {
-            paddingTop: '16px',  // Adjust padding for the text input area
-            paddingBottom: '8px', // Optional: Add more padding to the bottom of the input
-          },
+      defaultProps: {
+        variant: 'outlined', // Default variant
+        fullWidth: true, // Full width by default
+      },
+      styleOverrides: {
+        root: {
+          marginBottom: '16px', // Consistent margin for spacing
         },
-        defaultProps: {
-          InputLabelProps: {
-          },
-          InputProps: {
-            style: {
-              borderColor: blue[500], // Optional: Change the border color of the input box
-              borderRadius: '4px', // Optional: Add rounded corners to the input box
-              paddingLeft: '12px', // Optional: Add padding to the left inside the input field
-              paddingRight: '12px', // Optional: Add padding to the right inside the input field
+      },
+    },
+    MuiInputLabel: {
+      styleOverrides: {
+        root: {
+          color: 'rgba(0, 0, 0, 0.6)', // Default label color
+        },
+        shrink: {
+          transform: 'translate(14px, -6px) scale(0.75)', // Adjust position for floating
+          color: blue[500], // Color when floating
+        },
+      },
+    },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        root: {
+          borderRadius: '4px', // Rounded corners
+        },
+        notchedOutline: {
+          borderColor: blue[500], // Custom border color
+        },
+        input: {
+          padding: '16.5px 14px', // Padding for input area
             },
           },
         },
-     },
+
+        MuiFormLabel: {
+          styleOverrides: {
+            root: {
+              backgroundColor: 'white', // Optional: Add background color to avoid overlap
+              padding: '0 4px', // Padding to ensure the text fits inside the notch
+              transform: 'translate(14px, -6px) scale(0.75)', // Proper floating label position
+            },
+          },
+        },
+        MuiSelect: {
+          styleOverrides: {
+            icon: {
+              color: 'rgba(0, 0, 0, 0.54)', // Optional: Customize dropdown
+            },
+          },
+        },     
+
     MuiAppBar: {
       styleOverrides: {
         root: {
@@ -129,6 +159,27 @@ const theme = createTheme({
         },
       },
     },
+
+    MuiCheckbox: {
+      styleOverrides: {
+        root: {
+          color: '#1976d2', // Default unchecked color (use your preferred color)
+          '&.Mui-checked': {
+            color: '#0d47a1', // Checked color
+          },
+          '&:hover': {
+            backgroundColor: 'rgba(25, 118, 210, 0.08)', // Hover effect
+          },
+          '&.Mui-disabled': {
+            color: 'rgba(0, 0, 0, 0.26)', // Disabled state color
+          },
+        },
+      },
+      defaultProps: {
+        disableRipple: true, // Disable ripple effect for cleaner UI
+      },
+    },
+
     MuiCard: {
       styleOverrides: {
         root: {

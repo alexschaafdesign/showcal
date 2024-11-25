@@ -13,6 +13,9 @@ import {
   Typography,
   TextField,
 } from '@mui/material';
+import BandSocialLinks from './BandSocialLinks';
+
+
 
 const BandTable = () => {
   const [bands, setBands] = useState([]);
@@ -146,26 +149,7 @@ const BandTable = () => {
                   <Typography variant="body1">{band.band}</Typography>
                 </TableCell>
                 <TableCell>
-                  {band.social_links && typeof band.social_links === 'object' ? (
-                    Object.entries(band.social_links).map(([platform, link]) => {
-                      if (link) {
-                        return (
-                          <Typography key={platform} variant="body2">
-                            <a
-                              href={link.startsWith('http') ? link : `https://${link}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                            >
-                              {platform.charAt(0).toUpperCase() + platform.slice(1)}
-                            </a>
-                          </Typography>
-                        );
-                      }
-                      return null;
-                    })
-                  ) : (
-                    <Typography variant="body2">No Links</Typography>
-                  )}
+                <BandSocialLinks links={band.social_links} />
                 </TableCell>
               </TableRow>
             ))}

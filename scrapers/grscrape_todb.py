@@ -55,13 +55,25 @@ for card in event_cards:
     name_tag = card.find(class_='vp-event-name')
     date_tag = card.find(class_='vp-date')
     time_tag = card.find(class_='vp-time')
-    support_tag = card.find(class_='vp-support')
     
     event_name = name_tag.get_text(strip=True) if name_tag else "N/A"
     event_date = date_tag.get_text(strip=True) if date_tag else "N/A"
     event_time = time_tag.get_text(strip=True) if time_tag else "N/A"
-    support = support_tag.get_text(strip=True) if support_tag else None
 
+    # Extract event link
+    event_link = None
+    link_tag = card.find('a', class_='vp-event-link', href=True)  # Look for <a> with class 'vp-event-link'
+    if link_tag:
+        partial_href = link_tag['href']
+        if partial_href.startswith('#'):  # Check if it's a relative link
+            event_link = f"https://www.greenroommn.com{partial_href}"  # Construct full URL
+        else:
+            event_link = partial_href  # Use the full URL if already provided
+    print(f"Found event link: {event_link}")  # Print the event link
+
+    # All bands combined into a single field
+    bands = event_name  # Use the event name as the band(s) name
+    
     # Extracting the show flyer
     flyer_image = None
     flyer_div = card.find(class_='vp-cover-img')  # Locate the div
@@ -88,7 +100,7 @@ for card in event_cards:
 
     # Process the show
     try:
-        show_id, was_inserted = insert_show(cursor, venue_id, None, start_datetime, None, flyer_image, allow_update=True)
+        show_id, was_inserted = insert_show(cursor, venue_id, bands, start_datetime, event_link, flyer_image, allow_update=True)
         if was_inserted:
             added_count += 1
             print(f"Inserted event: {event_name} on {start_datetime}")
@@ -100,12 +112,15 @@ for card in event_cards:
                 duplicate_count += 1
                 print(f"Duplicate event found (no update needed): {event_name} on {start_datetime}")
 
-        # Process support bands if present
-        if support:
-            support_bands = [band.strip() for band in re.split(r',|&|with', support) if band.strip()]
-            for band_name in support_bands:
-                band_id = insert_band(cursor, band_name)
-                link_band_to_show(cursor, band_id, show_id)
+        # Link bands to the show
+        band_list = [band.strip() for band in re.split(r',|&|with', bands) if band.strip()]
+        for band_name in band_list:
+            try:
+                band_id, _ = insert_band(cursor, band_name)  # Unpack to get band_id
+                link_band_to_show(cursor, band_id, show_id)  # Pass only band_id
+            except Exception as e:
+                print(f"Error linking band '{band_name}' to show ID {show_id}: {e}")
+                conn.rollback()  # Rollback on error to maintain consistency
 
     except Exception as e:
         print(f"Error processing event: {event_name}. Error: {e}")

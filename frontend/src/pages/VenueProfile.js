@@ -1,17 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
   Typography,
-  Button,
   Box,
 } from '@mui/material';
+import ShowsTableCore from './ShowsTableCore'; // Import your reusable ShowsTableCore
 
 const VenueProfile = () => {
   const { id } = useParams(); // Get the venue ID from the URL
@@ -20,7 +13,7 @@ const VenueProfile = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-const navigate = useNavigate();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchVenue = async () => {
@@ -66,6 +59,10 @@ const navigate = useNavigate();
     navigate(`/bands/${encodeURIComponent(bandId)}/view`);
   };
 
+  const handleVenueClick = () => {
+    console.log('Venue clicked'); // You can add specific logic for venue click if needed
+  };
+
   if (loading) return <p>Loading...</p>;
   if (error) return <p>Error: {error}</p>;
 
@@ -80,7 +77,7 @@ const navigate = useNavigate();
       {venue.cover_image && (
         <Box sx={{ mb: 3 }}>
           <img
-            src={`http://localhost:3001/images/${venue.cover_image}`} // Assumes images are served here
+            src={`http://localhost:3001/images/venuecoverimages/${venue.cover_image}`} // Assumes images are served here
             alt={`${venue.venue} cover`}
             style={{
               width: '50%', // Responsive to container width
@@ -104,97 +101,11 @@ const navigate = useNavigate();
         <Typography variant="h5" gutterBottom>
           Upcoming Shows
         </Typography>
-        {shows.length > 0 ? (
-          <Paper elevation={3}>
-            <TableContainer>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell>Flyer</TableCell>
-                  <TableCell>Date</TableCell> {/* New Date Column */}
-                  <TableCell>Bands</TableCell>
-                  <TableCell>Start</TableCell>
-                  <TableCell>Event Link</TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {shows.map((show) => (
-                  <TableRow key={show.id}>
-                    {/* Flyer Column */}
-                    <TableCell>
-                      {show.flyer_image ? (
-                        <img
-                          src={show.flyer_image}
-                          alt="Flyer"
-                          style={{
-                            maxWidth: '150px', // Increased size for better visibility
-                            maxHeight: '150px',
-                            borderRadius: '5px',
-                          }}
-                        />
-                      ) : (
-                        'No Flyer'
-                      )}
-                    </TableCell>
-
-                    {/* Date Column */}
-                    <TableCell>
-                      {new Date(show.start).toLocaleDateString('en-US', {
-                        weekday: 'long',
-                        month: 'short',
-                        day: 'numeric',
-                        year: 'numeric',
-                      })}
-                    </TableCell>
-
-                    {/* Bands Column */}
-                    <TableCell>
-                      {show.band_list.map((band, index) => (
-                        <Button
-                          key={index}
-                          onClick={() => handleBandClick(band.id)} // Use band.id here
-                          style={{
-                            display: 'block', // Makes each band name appear on a new line
-                            textTransform: 'none', // Preserve original case
-                            fontSize: '1rem', // Consistent font size
-                            padding: 0, // Removes padding for compact layout
-                            margin: '4px 0', // Adds vertical spacing between buttons
-                          }}
-                          variant="text"
-                        >
-                          {band.name}
-                        </Button>
-                      ))}
-                    </TableCell>  
-
-                    {/* Start Time Column */}
-                    <TableCell>
-                      {new Date(show.start).toLocaleString('en-US', {
-                        hour: 'numeric',
-                        minute: '2-digit',
-                        hour12: true,
-                      })}
-                    </TableCell>
-
-                    {/* Event Link Column */}
-                    <TableCell>
-                      {show.event_link ? (
-                        <a href={show.event_link} target="_blank" rel="noopener noreferrer">
-                          Event Link
-                        </a>
-                      ) : (
-                        'No Link Available'
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-            </TableContainer>
-          </Paper>
-        ) : (
-          <Typography variant="body2">No upcoming shows for this venue.</Typography>
-        )}
+        <ShowsTableCore
+          data={shows} // Pass the filtered shows data
+          onBandClick={handleBandClick} // Reuse the band click handler
+          onVenueClick={handleVenueClick} // Optional venue click handler
+        />
       </Box>
     </Box>
   );

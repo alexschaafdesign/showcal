@@ -8,8 +8,11 @@ import BandProfile from './pages/BandProfile.js';
 import './styles/App.css';
 import VenuesTable from './pages/VenuesTable.js';
 import VenueProfile from './pages/VenueProfile.js';
-import BandForm from './pages/BandForm.js';
 import { Box } from '@mui/material';
+import TCUPBandForm from './pages/TCUPBandForm.js';
+import TCUPBandsTable from './pages/TCUPBandsTable.js';
+import TCUPBandProfile from './pages/TCUPBandProfile.js';
+
 
 function App() {
   return (
@@ -25,11 +28,14 @@ function App() {
         <Route path="/" element={<Home />} /> {/* Home page */}
         <Route path="/shows" element={<ShowsTable />} /> {/* Shows table page */}
         <Route path="/bands" element={<BandsTable />} /> {/* Bands page */}
+        <Route path="/tcupbands" element={<TCUPBandsTable />} /> {/* Bands page */}
         <Route path="/venues" element={<VenuesTable />} /> {/* Venues page */}
         <Route path="/bands/:id/view" element={<BandProfile />} /> {/* View dynamic band profile page */}
-        <Route path="/bands/:id/edit" element={<BandForm />} /> {/* Edit band profile page */}
+        <Route path="/tcupbands/:id/view" element={<TCUPBandProfile />} /> {/* View dynamic band profile page */}
+        <Route path="/tcupbands/:id/edit" element={<TCUPBandForm />} /> {/* Edit band profile page */}
         <Route path="/venues/:id" element={<VenueProfile />} /> {/* Dynamic route */}
-        <Route path="/add-band" element={<BandForm />} />
+        <Route path="/tcupbands/add" element={<TCUPBandForm />} />
+        <Route path="/calendar" element={<Calendar />} />
         <Route path="*" element={<div>Page Not Found</div>} /> {/* Catch-all for invalid routes */}
       </Routes>
     </Box>

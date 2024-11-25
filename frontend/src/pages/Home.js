@@ -46,6 +46,16 @@ const Home = () => {
           Add a Band
         </Button>
       </Link>
+
+      <Typography variant="body1" paragraph>
+        Click below for the TCUP Bands table:
+      </Typography>
+      <Link to="/tcupbands">
+        <Button variant="contained" color="secondary">
+          TCUP Bands table
+        </Button>
+      </Link>
+
     </Box>
   );
 };

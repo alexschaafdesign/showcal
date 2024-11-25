@@ -4,13 +4,12 @@ import {
   Box,
   Typography,
   Button,
-  Table,
-  TableHead,
-  TableRow,
-  TableCell,
-  TableBody,
   Paper,
 } from '@mui/material';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faFacebook, faTwitter, faInstagram, faYoutube, faSpotify, faBandcamp } from '@fortawesome/free-brands-svg-icons';
+import { faGlobe } from '@fortawesome/free-solid-svg-icons';
+import ShowsTableCore from './ShowsTableCore'; // Import the reusable ShowsTableCore
 
 function BandProfile() {
   const { id } = useParams(); // Use "id" to match the route parameter
@@ -43,6 +42,17 @@ function BandProfile() {
     navigate(`/bands/${bandData.id}/edit`);
   };
 
+  // Map platform names to FontAwesome icons
+  const socialIconMap = {
+    facebook: faFacebook,
+    twitter: faTwitter,
+    instagram: faInstagram,
+    youtube: faYoutube,
+    spotify: faSpotify,
+    bandcamp: faBandcamp,
+    website: faGlobe, // Use 'website' as a fallback key for generic links
+  };
+
   if (loading) return <Typography>Loading...</Typography>;
   if (error) return <Typography color="error">{error}</Typography>;
   if (!bandData) return <Typography>Band data not found</Typography>;
@@ -68,11 +78,15 @@ function BandProfile() {
             Social Links
           </Typography>
           <Paper elevation={2} sx={{ padding: 2 }}>
-            <ul>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
               {Object.entries(bandData.social_links).map(([platform, url], index) => (
-                <li key={index}>
+                <li key={index} style={{ display: 'flex', alignItems: 'center', marginBottom: '8px' }}>
+                  <FontAwesomeIcon 
+                    icon={socialIconMap[platform.toLowerCase()] || faGlobe} 
+                    style={{ marginRight: '8px', fontSize: '1.2rem' }} 
+                  />
                   <Typography variant="body1">
-                    <a href={url} target="_blank" rel="noopener noreferrer">
+                    <a href={url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit' }}>
                       {platform.charAt(0).toUpperCase() + platform.slice(1)}
                     </a>
                   </Typography>
@@ -89,45 +103,11 @@ function BandProfile() {
           <Typography variant="h6" gutterBottom>
             Past and Future Shows
           </Typography>
-          <Paper elevation={3} sx={{ overflowX: 'auto' }}>
-            <Table>
-              <TableHead>
-                <TableRow>
-                  <TableCell><strong>Date</strong></TableCell>
-                  <TableCell><strong>Venue</strong></TableCell>
-                  <TableCell><strong>Start Time</strong></TableCell>
-                  <TableCell><strong>Event Link</strong></TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {shows.map((show, index) => (
-                  <TableRow key={index}>
-                    <TableCell>{new Date(show.start).toLocaleDateString()}</TableCell>
-                    <TableCell>{show.venue_name || 'Unknown Venue'}</TableCell>
-                    <TableCell>
-                      {new Date(show.start).toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                      })}
-                    </TableCell>
-                    <TableCell>
-                      {show.event_link ? (
-                        <a
-                          href={show.event_link}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          Event Link
-                        </a>
-                      ) : (
-                        'No Link Available'
-                      )}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </Paper>
+          <ShowsTableCore
+            data={shows} // Pass the shows data
+            onBandClick={() => {}} // No band clicks on band profile
+            onVenueClick={(venueId) => navigate(`/venues/${venueId}/view`)} // Navigate to the venue's profile
+          />
         </Box>
       )}
     </Box>
