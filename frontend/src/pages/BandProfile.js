@@ -24,34 +24,23 @@ function BandProfile() {
     const fetchBandData = async () => {
       try {
         const response = await fetch(`http://localhost:3001/tcup/bands/${id}`);
-        if (!response.ok) throw new Error('Network response was not ok');
+        if (!response.ok) throw new Error('Failed to fetch band data');
         const data = await response.json();
-        setBandData(data || {});
+        setBandData(data.band || {}); // Adjust to match backend response structure
+        setShows(data.shows || []);  // Shows are now included in the band API response
       } catch (error) {
+        console.error('Error fetching band data:', error);
         setError('An error occurred while fetching the band data.');
       } finally {
         setLoading(false);
       }
     };
 
-    const fetchShows = async () => {
-      try {
-        const response = await fetch(`http://localhost:3001/tcup/shows/${id}`);
-        if (!response.ok) throw new Error('Network response was not ok');
-        const showsData = await response.json();
-        setShows(showsData);
-      } catch (error) {
-        console.error('Failed to fetch shows for the band:', error);
-      }
-    };
-
     fetchBandData();
-    fetchShows();
   }, [id]);
 
   const handleEdit = () => {
-    navigate(`/bands/${bandData.id}/edit`); // For editing  
-    console.log('Band Data:', bandData);
+    navigate(`/bands/${bandData.id}/edit`);
   };
 
   if (loading) return <Typography>Loading...</Typography>;
@@ -60,6 +49,7 @@ function BandProfile() {
 
   return (
     <Box sx={{ padding: 3 }}>
+      {/* Band Name */}
       <Typography variant="h4" gutterBottom>
         {bandData.band}
       </Typography>
@@ -106,14 +96,33 @@ function BandProfile() {
                   <TableCell><strong>Date</strong></TableCell>
                   <TableCell><strong>Venue</strong></TableCell>
                   <TableCell><strong>Start Time</strong></TableCell>
+                  <TableCell><strong>Event Link</strong></TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
                 {shows.map((show, index) => (
                   <TableRow key={index}>
                     <TableCell>{new Date(show.start).toLocaleDateString()}</TableCell>
-                    <TableCell>{show.venue}</TableCell>
-                    <TableCell>{new Date(show.start).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</TableCell>
+                    <TableCell>{show.venue_name || 'Unknown Venue'}</TableCell>
+                    <TableCell>
+                      {new Date(show.start).toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                      })}
+                    </TableCell>
+                    <TableCell>
+                      {show.event_link ? (
+                        <a
+                          href={show.event_link}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          Event Link
+                        </a>
+                      ) : (
+                        'No Link Available'
+                      )}
+                    </TableCell>
                   </TableRow>
                 ))}
               </TableBody>

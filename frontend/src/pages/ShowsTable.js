@@ -221,14 +221,14 @@ function ShowsTable() {
                               {item.venue_name || "Unknown Venue"}
                             </TableCell>
                             <TableCell>
-                              {item.bands.split(', ').map((band, index) => (
+                              {item.band_list.map((band, index) => (
                                 <div key={index}>
                                   <Button
-                                    onClick={() => handleBandClick(band)}
+                                    onClick={() => handleBandClick(band.id)} // Use band.id here
                                     style={{ textTransform: 'none', fontSize: '1rem' }}
                                     variant="text"
                                   >
-                                    {band}
+                                    {band.name}
                                   </Button>
                                 </div>
                               ))}

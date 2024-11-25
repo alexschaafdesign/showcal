@@ -57,7 +57,7 @@ const showsWithVenuesQuery = `
     venues.venue AS venue_name,
     venues.location,
     venues.capacity,
-    array_agg(bands.band) AS band_names
+    array_agg(json_build_object('id', bands.id, 'name', bands.band)) AS band_list
   FROM 
     shows
   JOIN 
@@ -106,49 +106,114 @@ app.get('/tcup', async (req, res) => {
   }
 });
 
-// Get specific band by id
+// Get specific band by ID
 app.get('/tcup/bands/:id', async (req, res) => {
   const bandId = req.params.id;
 
-  if (!bandId) {
-    return res.status(400).json({ error: 'Invalid band ID' });
-  }
-
   try {
-    const query = 'SELECT * FROM bands WHERE id = $1 OR band ILIKE $1';
-    const { rows } = await pool.query(query, [bandId]);
+    // Fetch band details
+    const bandQuery = `
+      SELECT id, band, social_links 
+      FROM bands 
+      WHERE id = $1
+    `;
+    const bandResult = await pool.query(bandQuery, [bandId]);
 
-    if (rows.length === 0) {
+    if (bandResult.rows.length === 0) {
       return res.status(404).json({ error: 'Band not found' });
     }
 
-    res.json(rows[0]);
+    const band = bandResult.rows[0];
+
+    // Fetch shows for this band
+    const showsQuery = `
+      SELECT 
+        shows.id AS show_id,
+        shows.start,
+        shows.flyer_image,
+        shows.event_link,
+        venues.venue AS venue_name,
+        venues.id AS venue_id
+      FROM 
+        shows
+      JOIN 
+        show_bands
+      ON 
+        shows.id = show_bands.show_id
+      JOIN 
+        venues
+      ON 
+        shows.venue_id = venues.id
+      WHERE 
+        show_bands.band_id = $1
+      ORDER BY 
+        shows.start ASC;
+    `;
+    const showsResult = await pool.query(showsQuery, [bandId]);
+
+    res.json({
+      band,
+      shows: showsResult.rows,
+    });
   } catch (error) {
-    console.error('Error fetching band:', error);
-    res.status(500).json({ error: 'Failed to fetch band' });
+    console.error('Error fetching band details:', error.message);
+    res.status(500).json({ error: 'Failed to fetch band details' });
   }
 });
 
 // Fetch shows filtered by venue ID
 app.get('/tcup/shows', async (req, res) => {
-  const { venue } = req.query;
+  const { venue } = req.query; // Extract venue ID from query params
 
   try {
-    let query = showsWithVenuesQuery;
-    const values = [];
+    // Query to fetch shows with venue and band details
+    const query = `
+      SELECT 
+        shows.id AS show_id,
+        shows.bands,
+        shows.flyer_image,
+        shows.event_link,
+        shows.start,
+        shows.venue_id,
+        venues.venue AS venue_name,
+        venues.location,
+        venues.capacity,
+        array_agg(json_build_object('id', bands.id, 'name', bands.band)) AS band_list
+      FROM 
+        shows
+      JOIN 
+        venues 
+      ON 
+        shows.venue_id = venues.id
+      LEFT JOIN 
+        show_bands
+      ON 
+        shows.id = show_bands.show_id
+      LEFT JOIN 
+        bands
+      ON 
+        show_bands.band_id = bands.id
+      WHERE ($1::integer IS NULL OR shows.venue_id = $1)
+      GROUP BY 
+        shows.id, venues.id
+      ORDER BY 
+        shows.start ASC;
+    `;
 
-    if (venue) {
-      query += ' WHERE shows.venue_id = $1';
-      values.push(venue);
-    }
-
+    // If `venue` is provided, filter by `venue_id`, otherwise fetch all shows
+    const values = [venue || null];
     const { rows } = await pool.query(query, values);
+
+    // Handle case when no results are found
     if (rows.length === 0) {
       return res.status(404).json({ error: 'No shows found for this venue' });
     }
+
+    // Return fetched shows
     res.json(rows);
   } catch (error) {
-    console.error('Error fetching shows:', error);
+    // Log error for debugging and return a generic error message
+    console.error('Error fetching shows:', error.message);
     res.status(500).json({ error: 'Failed to fetch shows' });
   }
 });
@@ -170,6 +235,7 @@ app.get('/tcup/venues/:id', async (req, res) => {
   }
 });
 
+// Add a band
 app.post('/tcup/bands', async (req, res) => {
   const { band, social_links } = req.body;
 
@@ -189,6 +255,7 @@ app.post('/tcup/bands', async (req, res) => {
   }
 });
 
+//Add a show
 app.post('/tcup/shows', async (req, res) => {
   const { venue_id, bands, flyer_image, event_link, start } = req.body;
 
@@ -205,6 +272,43 @@ app.post('/tcup/shows', async (req, res) => {
   } catch (error) {
     console.error('Error adding show:', error);
     res.status(500).json({ error: 'Failed to add show' });
+  }
+});
+
+// Get a specific show by ID
+app.get('/tcup/shows/:id', async (req, res) => {
+  const showId = req.params.id;
+
+  try {
+    const query = `
+      SELECT 
+        shows.id AS show_id,
+        shows.bands,
+        shows.flyer_image,
+        shows.event_link,
+        shows.start,
+        venues.venue AS venue_name,
+        venues.location,
+        venues.capacity
+      FROM 
+        shows
+      JOIN 
+        venues 
+      ON 
+        shows.venue_id = venues.id
+      WHERE 
+        shows.id = $1;
+    `;
+    const { rows } = await pool.query(query, [showId]);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Show not found' });
+    }
+
+    res.json(rows[0]);
+  } catch (error) {
+    console.error('Error fetching show:', error.message);
+    res.status(500).json({ error: 'Failed to fetch show' });
   }
 });
 

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   Table,
   TableBody,
@@ -19,6 +19,8 @@ const VenueProfile = () => {
   const [shows, setShows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+
+const navigate = useNavigate();
 
   useEffect(() => {
     const fetchVenue = async () => {
@@ -55,9 +57,13 @@ const VenueProfile = () => {
     fetchShows();
   }, [id]);
 
-  const handleBandClick = (band) => {
-    console.log(`Navigating to band: ${band}`);
-    // Implement band profile navigation
+  const handleBandClick = (bandId) => {
+    console.log('Band ID clicked:', bandId); // Check if bandId is correct
+    if (!bandId) {
+      console.error('Invalid band ID:', bandId);
+      return;
+    }
+    navigate(`/bands/${encodeURIComponent(bandId)}/view`);
   };
 
   if (loading) return <p>Loading...</p>;
@@ -101,69 +107,89 @@ const VenueProfile = () => {
         {shows.length > 0 ? (
           <Paper elevation={3}>
             <TableContainer>
-              <Table>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Venue</TableCell>
-                    <TableCell>Bands</TableCell>
-                    <TableCell>Start</TableCell>
-                    <TableCell>Flyer</TableCell>
-                    <TableCell>Event Link</TableCell>
+            <Table>
+              <TableHead>
+                <TableRow>
+                  <TableCell>Flyer</TableCell>
+                  <TableCell>Date</TableCell> {/* New Date Column */}
+                  <TableCell>Bands</TableCell>
+                  <TableCell>Start</TableCell>
+                  <TableCell>Event Link</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {shows.map((show) => (
+                  <TableRow key={show.id}>
+                    {/* Flyer Column */}
+                    <TableCell>
+                      {show.flyer_image ? (
+                        <img
+                          src={show.flyer_image}
+                          alt="Flyer"
+                          style={{
+                            maxWidth: '150px', // Increased size for better visibility
+                            maxHeight: '150px',
+                            borderRadius: '5px',
+                          }}
+                        />
+                      ) : (
+                        'No Flyer'
+                      )}
+                    </TableCell>
+
+                    {/* Date Column */}
+                    <TableCell>
+                      {new Date(show.start).toLocaleDateString('en-US', {
+                        weekday: 'long',
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                      })}
+                    </TableCell>
+
+                    {/* Bands Column */}
+                    <TableCell>
+                      {show.band_list.map((band, index) => (
+                        <Button
+                          key={index}
+                          onClick={() => handleBandClick(band.id)} // Use band.id here
+                          style={{
+                            display: 'block', // Makes each band name appear on a new line
+                            textTransform: 'none', // Preserve original case
+                            fontSize: '1rem', // Consistent font size
+                            padding: 0, // Removes padding for compact layout
+                            margin: '4px 0', // Adds vertical spacing between buttons
+                          }}
+                          variant="text"
+                        >
+                          {band.name}
+                        </Button>
+                      ))}
+                    </TableCell>  
+
+                    {/* Start Time Column */}
+                    <TableCell>
+                      {new Date(show.start).toLocaleString('en-US', {
+                        hour: 'numeric',
+                        minute: '2-digit',
+                        hour12: true,
+                      })}
+                    </TableCell>
+
+                    {/* Event Link Column */}
+                    <TableCell>
+                      {show.event_link ? (
+                        <a href={show.event_link} target="_blank" rel="noopener noreferrer">
+                          Event Link
+                        </a>
+                      ) : (
+                        'No Link Available'
+                      )}
+                    </TableCell>
                   </TableRow>
-                </TableHead>
-                <TableBody>
-                  {shows.map((show) => (
-                    <TableRow key={show.id}>
-                      <TableCell>{venue.venue}</TableCell> {/* Static since it’s the same venue */}
-                      <TableCell>
-                        {show.bands
-                          .split(', ')
-                          .map((band, index) => (
-                            <Button
-                              key={index}
-                              onClick={() => handleBandClick(band)}
-                              style={{ textTransform: 'none', fontSize: '1rem' }}
-                              variant="text"
-                            >
-                              {band}
-                            </Button>
-                          ))}
-                      </TableCell>
-                      <TableCell>
-                        {new Date(show.start).toLocaleString('en-US', {
-                          hour: 'numeric',
-                          minute: '2-digit',
-                          hour12: true,
-                        })}
-                      </TableCell>
-                      <TableCell>
-                        {show.flyer_image ? (
-                          <img
-                            src={show.flyer_image}
-                            alt="Flyer"
-                            style={{
-                              maxWidth: '100px',
-                              maxHeight: '100px',
-                              borderRadius: '5px',
-                            }}
-                          />
-                        ) : (
-                          'No Flyer'
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {show.event_link ? (
-                          <a href={show.event_link} target="_blank" rel="noopener noreferrer">
-                            Event Link
-                          </a>
-                        ) : (
-                          'No Link Available'
-                        )}
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+                ))}
+              </TableBody>
+            </Table>
             </TableContainer>
           </Paper>
         ) : (
