@@ -192,6 +192,38 @@ app.post(
   }
 );
 
+// Get a specific TCUP band by ID
+app.get('/tcup/tcupbands/:id', async (req, res) => {
+  const bandId = req.params.id;
+  console.log('Fetching band with ID:', bandId);
+  try {
+    const query = `
+      SELECT 
+        id,
+        name,
+        genre,
+        contact,
+        play_shows,
+        group_size,
+        photos,
+        social_links,
+        stage_plot
+      FROM tcupbands
+      WHERE id = $1;
+    `;
+    const { rows } = await pool.query(query, [bandId]);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Band not found' });
+    }
+
+    res.json(rows[0]);
+  } catch (error) {
+    console.error('Error fetching band:', error);
+    res.status(500).json({ error: 'Failed to fetch band' });
+  }
+});
+
 // Start the server
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);

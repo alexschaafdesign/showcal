@@ -28,10 +28,11 @@ const TCUPBandsTable = () => {
         if (!response.ok) throw new Error("Failed to fetch bands");
         const data = await response.json();
         setBands(data);
-      } catch (err) {
-        setError(err.message);
-      } finally {
-        setLoading(false);
+        setLoading(false); // Ensure loading is set to false here
+      } catch (error) {
+        console.error("Error fetching bands:", error);
+        setError(error.message); // Set the error state
+        setLoading(false); // Prevent infinite loading state
       }
     };
 
@@ -84,7 +85,7 @@ const TCUPBandsTable = () => {
       <Paper elevation={3}>
         <Table>
           <TableHead>
-            <TableRow>
+          <TableRow>
               <TableCell><strong>Band Name</strong></TableCell>
               <TableCell><strong>Photos</strong></TableCell>
               <TableCell><strong>Social Links</strong></TableCell>
@@ -97,7 +98,11 @@ const TCUPBandsTable = () => {
           </TableHead>
           <TableBody>
             {bands.map((band) => (
-              <TableRow key={band.id}>
+              <TableRow
+                key={band.id}
+                onClick={() => navigate(`/tcupbands/${band.id}/view`)} // Navigate to the band profile
+                style={{ cursor: 'pointer' }} // Add pointer cursor for better UX
+              >
                 <TableCell>{band.name}</TableCell>
                 <TableCell>
                   {band.photos && band.photos.length > 0 ? (
@@ -183,14 +188,17 @@ const TCUPBandsTable = () => {
                     : "No Group Size"}
                 </TableCell>
                 <TableCell>
-                <Button
-                  variant="outlined"
-                  color="secondary"
-                  onClick={() => handleEditBand(band)} // Pass the band object
-                >
-                  Edit
-                </Button>
-              </TableCell>
+                  <Button
+                    variant="outlined"
+                    color="secondary"
+                    onClick={(e) => {
+                      e.stopPropagation(); // Prevent row click from triggering
+                      handleEditBand(band);
+                    }}
+                  >
+                    Edit
+                  </Button>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
