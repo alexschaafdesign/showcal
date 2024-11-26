@@ -19,10 +19,21 @@ function ShowsTable() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch('http://localhost:3001/tcup?table=shows')
-      .then((response) => response.json())
-      .then((data) => setData(data))
-      .catch((error) => console.error("Error fetching show data:", error));
+    const fetchShows = async () => {
+      try {
+        const response = await fetch("http://localhost:3001/tcup?table=shows");
+        if (!response.ok) {
+          throw new Error("Failed to fetch shows");
+        }
+        const result = await response.json();
+        console.log("Fetched Shows:", result); // Debugging
+        setData(result); // Ensure result is an array
+      } catch (err) {
+        console.error("Error fetching shows:", err);
+        setData([]); // Default to an empty array on error
+      }
+    };
+    fetchShows();
   }, []);
 
   const handleTabChange = (event, newValue) => setActiveTab(newValue);

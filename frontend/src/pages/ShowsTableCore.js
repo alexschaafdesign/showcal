@@ -112,26 +112,28 @@ function ShowsTableCore({ data, onBandClick, onVenueClick }) {
                         {item.venue_name || 'Unknown Venue'}
                       </TableCell>
                       <TableCell>
-                        {item.band_list.map((band, index) => (
-                          <div key={index}>
-                            <Button
-                              onClick={() => onBandClick && onBandClick(band.id)}
-                              style={{ textTransform: 'none', fontSize: '1rem' }}
-                              variant="text"
-                            >
-                              {band.name}
-                            </Button>
-                          </div>
-                        ))}
+                        {item.bands.length > 0
+                          ? item.bands.map((band, index) => (
+                              <div key={index}>
+                                <Button
+                                  onClick={() => onBandClick && onBandClick(band.id)}
+                                  style={{ textTransform: 'none', fontSize: '1rem', textAlign: 'left' }}
+                                  variant="text"
+                                >
+                                  {band.name}
+                                </Button>
+                              </div>
+                            ))
+                          : 'No Bands Listed'}
                       </TableCell>
-                      <TableCell>
+                      <TableCell sx={{ fontSize: '18px' }}>
                         {new Date(item.start).toLocaleString('en-US', {
                           hour: 'numeric',
                           minute: '2-digit',
                           hour12: true,
                         })}
                       </TableCell>
-                      <TableCell>
+                      <TableCell sx={{ fontSize: '18px' }}>
                         {item.event_link ? (
                           <a href={item.event_link} target="_blank" rel="noopener noreferrer">
                             Event Link

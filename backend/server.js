@@ -61,13 +61,7 @@ const upload = multer({
     },
   }),
   fileFilter: (req, file, cb) => {
-    // Allow only certain file types
-    const allowedMimeTypes = [
-      "image/jpeg",
-      "image/png",
-      "image/gif",
-      "application/pdf",
-    ];
+    const allowedMimeTypes = ["image/jpeg", "image/png", "image/gif", "application/pdf"];
     if (allowedMimeTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
@@ -94,9 +88,7 @@ pool.connect((err) => {
   }
 });
 
-// API Endpoints
-
-// Get TCUP bands
+// Unified `/tcup` Endpoint
 app.get('/tcup', async (req, res) => {
   const { table } = req.query;
 
@@ -116,6 +108,47 @@ app.get('/tcup', async (req, res) => {
           social_links,
           stage_plot
         FROM tcupbands;
+      `;
+      result = await pool.query(query);
+    } else if (table === 'shows') {
+      const query = `
+        SELECT 
+          shows.id AS show_id,
+          shows.start,
+          shows.flyer_image,
+          shows.event_link,
+          shows.venue_id,
+          venues.venue AS venue_name,
+          array_agg(json_build_object('id', bands.id, 'name', bands.band)) AS bands
+        FROM 
+          shows
+        LEFT JOIN 
+          venues ON shows.venue_id = venues.id
+        LEFT JOIN 
+          show_bands ON shows.id = show_bands.show_id
+        LEFT JOIN 
+          bands ON show_bands.band_id = bands.id
+        GROUP BY 
+          shows.id, venues.id
+        ORDER BY 
+          shows.start ASC;
+      `;
+      result = await pool.query(query);
+    } else if (table === 'bands') {
+      const query = `
+        SELECT id, band, social_links
+        FROM bands;
+      `;
+      result = await pool.query(query);
+    } else if (table === 'venues') {
+      const query = `
+        SELECT 
+          id,
+          venue,
+          location,
+          capacity,
+          cover_image
+        FROM venues;
       `;
       result = await pool.query(query);
     } else {
@@ -138,13 +171,6 @@ app.post(
   ]),
   async (req, res) => {
     try {
-      console.log('Request Body:', req.body);
-      console.log('Request Files:', req.files);
-
-      if (!req.files || !req.files.photos) {
-        return res.status(400).json({ error: "Photos or stage_plot not uploaded correctly" });
-      }
-
       const {
         name,
         genre = null,
@@ -183,7 +209,6 @@ app.post(
       ];
 
       const { rows } = await pool.query(query, values);
-
       res.status(201).json({ message: 'Band added successfully!', band: rows[0] });
     } catch (error) {
       console.error('Error adding band:', error.message);
@@ -195,7 +220,6 @@ app.post(
 // Get a specific TCUP band by ID
 app.get('/tcup/tcupbands/:id', async (req, res) => {
   const bandId = req.params.id;
-  console.log('Fetching band with ID:', bandId);
   try {
     const query = `
       SELECT 

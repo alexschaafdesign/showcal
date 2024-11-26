@@ -69,6 +69,20 @@ const TCUPBandProfile = () => {
             </ul>
           )}
         </Typography>
+        <Typography variant="body1">
+        Stage Plot: 
+        {band.stage_plot ? (
+            <a 
+            href={`http://localhost:3001${band.stage_plot}`} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            >
+            View Stage Plot
+            </a>
+        ) : (
+            "No Stage Plot Available"
+        )}
+        </Typography>
       </Paper>
     </Box>
   );

@@ -94,6 +94,7 @@ const TCUPBandsTable = () => {
               <TableCell><strong>Looking to Play Shows?</strong></TableCell>
               <TableCell><strong>Group Size</strong></TableCell>
               <TableCell><strong>Actions</strong></TableCell>
+              <TableCell><strong>Stage Plot</strong></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -198,6 +199,19 @@ const TCUPBandsTable = () => {
                   >
                     Edit
                   </Button>
+                </TableCell>
+                <TableCell>
+                  {band.stage_plot ? (
+                    <a
+                      href={`http://localhost:3001${band.stage_plot}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      View Stage Plot
+                    </a>
+                  ) : (
+                    "No Stage Plot"
+                  )}
                 </TableCell>
               </TableRow>
             ))}

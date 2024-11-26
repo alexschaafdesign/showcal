@@ -1,4 +1,5 @@
 import React from 'react';
+import ReactDOM from "react-dom";
 import { Route, Routes, Navigate } from 'react-router-dom';
 import Calendar from './pages/Calendar.js';
 import Home from './pages/Home.js';
@@ -9,6 +10,7 @@ import './styles/App.css';
 import VenuesTable from './pages/VenuesTable.js';
 import VenueProfile from './pages/VenueProfile.js';
 import { Box } from '@mui/material';
+import { ThemeProvider, createTheme } from "@mui/material/styles";
 import TCUPBandForm from './pages/TCUPBandForm.js';
 import TCUPBandsTable from './pages/TCUPBandsTable.js';
 import TCUPBandProfile from './pages/TCUPBandProfile.js';

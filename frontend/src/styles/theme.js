@@ -1,5 +1,5 @@
 import { createTheme } from '@mui/material/styles';
-import { red, blue, green } from '@mui/material/colors';
+import { red, blue, green, purple } from '@mui/material/colors';
 
 // Create the theme
 const theme = createTheme({
@@ -89,6 +89,18 @@ const theme = createTheme({
               },
             padding: '4px 4px',
           },
+        submit: {
+          backgroundColor: purple[500],
+          color: '#ffffff',
+          '&:hover': {
+            backgroundColor: purple [400],
+          },
+          padding: '12px 80px',
+          textTransform: 'uppercase', // Prevent uppercase transformation
+          fontFamily: '"Roboto", "Arial", sans-serif', // Set font family
+          fontWeight: 600, // Set font weight
+          fontSize: '1rem', // Set font size
+        }
       },
     },
     MuiTextField: {
@@ -99,6 +111,16 @@ const theme = createTheme({
       styleOverrides: {
         root: {
           marginBottom: '16px', // Consistent margin for spacing
+        },
+      },
+    },
+    MuiFormHelperText: {
+      styleOverrides: {
+        root: {
+          color: '#000000', // Red color for helper text
+          fontSize: '0.875rem', // Font size
+          fontWeight: 400, // Font weight
+          marginLeft: '4px', // Add a bit of spacing
         },
       },
     },
@@ -284,7 +306,7 @@ const theme = createTheme({
     MuiIconButton: {
       styleOverrides: {
         root: {
-          color: green[500], // Green color for icon buttons
+          color: red[500], // Green color for icon buttons
         },
       },
     },
