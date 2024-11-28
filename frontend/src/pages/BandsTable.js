@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import NavigationTabs from '../components/NavigationTabs'; // Adjust path as needed
 import {
   Box,
-  Tabs,
-  Tab,
   Table,
   TableHead,
   TableRow,
@@ -23,7 +22,6 @@ const BandTable = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState(2); // Active tab index, assuming "Bands" is the third tab
   const navigate = useNavigate();
   const location = useLocation(); // Access the state passed from navigate
   const [successMessage, setSuccessMessage] = useState('');
@@ -32,7 +30,7 @@ const BandTable = () => {
   useEffect(() => {
     const fetchBands = async () => {
       try {
-        const response = await fetch('http://localhost:3001/tcup?table=bands');
+        const response = await fetch('http://localhost:3001/bands');
         if (!response.ok) {
           throw new Error('Failed to fetch bands');
         }
@@ -62,12 +60,6 @@ const BandTable = () => {
     }
   }, [location.state]);
 
-  const handleTabChange = (event, newValue) => {
-    setActiveTab(newValue);
-    if (newValue === 0) navigate('/shows'); // Navigate to Shows table
-    if (newValue === 1) navigate('/venues'); // Navigate to Venues table
-  };
-
   const handleSearch = (event) => {
     const query = event.target.value.toLowerCase();
     setSearchQuery(query);
@@ -96,13 +88,7 @@ const BandTable = () => {
       )}
 
       {/* Tabs */}
-      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
-        <Tabs value={activeTab} onChange={handleTabChange} centered>
-          <Tab label="Shows" />
-          <Tab label="Venues" />
-          <Tab label="Bands" />
-        </Tabs>
-      </Box>
+      <NavigationTabs />
 
       <Typography variant="h1" gutterBottom textAlign={'center'}>
         TWIN CITIES BAND LIST

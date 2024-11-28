@@ -6,6 +6,13 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 import multer from 'multer';
 import fs from 'fs';
+import venuesRoutes from './routes/venues.js';
+import tcupbandsRoutes from './routes/tcupbands.js';
+import bandsRoutes from './routes/bands.js';
+import showsRoutes from './routes/shows.js';
+import uploadRoutes from './routes/upload.js'; // Import the new upload route
+import revertRoutes from './routes/revert.js'; // Adjust the path as needed
+
 
 // Define __dirname manually
 const __filename = fileURLToPath(import.meta.url);
@@ -28,6 +35,16 @@ const pool = new Pool({
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// Route Handling
+app.use('/venues', venuesRoutes);       // All routes for venues table
+app.use('/tcupbands', tcupbandsRoutes); // All routes for TCUP bands
+app.use('/bands', bandsRoutes);         // All routes for bands table
+app.use('/shows', showsRoutes);         // All routes for shows table
+app.use('/venues', venuesRoutes);       // All routes for venues table
+app.use('/', uploadRoutes);       // Register the upload route
+app.use('/revert', revertRoutes);  // to delete photos from the form
+
 
 // Serve static files
 app.use('/images', express.static(path.join(__dirname, '../assets/images')));
@@ -88,167 +105,22 @@ pool.connect((err) => {
   }
 });
 
-// Unified `/tcup` Endpoint
-app.get('/tcup', async (req, res) => {
-  const { table } = req.query;
-
-  try {
-    let result;
-
-    if (table === 'tcupbands') {
-      const query = `
-        SELECT 
-          id,
-          name,
-          genre,
-          contact,
-          play_shows,
-          group_size,
-          photos,
-          social_links,
-          stage_plot
-        FROM tcupbands;
-      `;
-      result = await pool.query(query);
-    } else if (table === 'shows') {
-      const query = `
-        SELECT 
-          shows.id AS show_id,
-          shows.start,
-          shows.flyer_image,
-          shows.event_link,
-          shows.venue_id,
-          venues.venue AS venue_name,
-          array_agg(json_build_object('id', bands.id, 'name', bands.band)) AS bands
-        FROM 
-          shows
-        LEFT JOIN 
-          venues ON shows.venue_id = venues.id
-        LEFT JOIN 
-          show_bands ON shows.id = show_bands.show_id
-        LEFT JOIN 
-          bands ON show_bands.band_id = bands.id
-        GROUP BY 
-          shows.id, venues.id
-        ORDER BY 
-          shows.start ASC;
-      `;
-      result = await pool.query(query);
-    } else if (table === 'bands') {
-      const query = `
-        SELECT id, band, social_links
-        FROM bands;
-      `;
-      result = await pool.query(query);
-    } else if (table === 'venues') {
-      const query = `
-        SELECT 
-          id,
-          venue,
-          location,
-          capacity,
-          cover_image
-        FROM venues;
-      `;
-      result = await pool.query(query);
-    } else {
-      return res.status(400).json({ error: "Invalid table parameter" });
-    }
-
-    res.json(result.rows);
-  } catch (err) {
-    console.error(`Error fetching ${table} data:`, err.message);
-    res.status(500).json({ error: `Error fetching ${table} data` });
-  }
-});
-
-// Add a band to the tcupbands table
-app.post(
-  '/tcup/tcupbands',
-  upload.fields([
-    { name: 'photos', maxCount: 3 },
-    { name: 'stage_plot', maxCount: 1 },
-  ]),
-  async (req, res) => {
-    try {
-      const {
-        name,
-        genre = null,
-        contact = null,
-        play_shows = null,
-        group_size = null,
-        social_links = null,
-      } = req.body;
-
-      const parsedGroupSize = group_size ? JSON.parse(group_size) : [];
-      const parsedSocialLinks = social_links ? JSON.parse(social_links) : {};
-
-      const photos = req.files['photos']
-        ? req.files['photos'].map((file) => `/images/${file.filename}`)
-        : [];
-      const stagePlot =
-        req.files['stage_plot'] && req.files['stage_plot'][0]
-          ? `/documents/${req.files['stage_plot'][0].filename}`
-          : null;
-
-      const query = `
-        INSERT INTO tcupbands (name, genre, contact, play_shows, group_size, photos, social_links, stage_plot)
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-        RETURNING *;
-      `;
-
-      const values = [
-        name,
-        genre,
-        contact,
-        play_shows,
-        parsedGroupSize,
-        photos,
-        parsedSocialLinks,
-        stagePlot,
-      ];
-
-      const { rows } = await pool.query(query, values);
-      res.status(201).json({ message: 'Band added successfully!', band: rows[0] });
-    } catch (error) {
-      console.error('Error adding band:', error.message);
-      res.status(500).json({ error: 'Failed to add band' });
-    }
-  }
-);
-
-// Get a specific TCUP band by ID
-app.get('/tcup/tcupbands/:id', async (req, res) => {
-  const bandId = req.params.id;
-  try {
-    const query = `
-      SELECT 
-        id,
-        name,
-        genre,
-        contact,
-        play_shows,
-        group_size,
-        photos,
-        social_links,
-        stage_plot
-      FROM tcupbands
-      WHERE id = $1;
-    `;
-    const { rows } = await pool.query(query, [bandId]);
-
-    if (rows.length === 0) {
-      return res.status(404).json({ error: 'Band not found' });
-    }
-
-    res.json(rows[0]);
-  } catch (error) {
-    console.error('Error fetching band:', error);
-    res.status(500).json({ error: 'Failed to fetch band' });
-  }
-});
-
 // Start the server
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
+});
+
+console.log('Server started. Routes registered:');
+console.log('/venues');
+console.log('/tcupbands');
+console.log('/bands');
+console.log('/shows');
+console.log('Connected to database:', process.env.DB_NAME);
+
+pool.query('SELECT current_database()', (err, res) => {
+  if (err) {
+    console.error('Database connection error:', err);
+  } else {
+    console.log('Connected to database:', res.rows[0].current_database);
+  }
 });

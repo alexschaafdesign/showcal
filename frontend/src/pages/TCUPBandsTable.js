@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom"; // Import useLocation
+import NavigationTabs from "../components/NavigationTabs";
 import {
   Box,
   Button,
@@ -24,7 +25,7 @@ const TCUPBandsTable = () => {
   useEffect(() => {
     const fetchBands = async () => {
       try {
-        const response = await fetch("http://localhost:3001/tcup?table=tcupbands");
+        const response = await fetch("http://localhost:3001/tcupbands");
         if (!response.ok) throw new Error("Failed to fetch bands");
         const data = await response.json();
         setBands(data);
@@ -71,6 +72,8 @@ const TCUPBandsTable = () => {
         </Alert>
       )}
 
+      <NavigationTabs />
+
       <Typography variant="h4" gutterBottom>
         TCUP Bands
       </Typography>
@@ -101,7 +104,7 @@ const TCUPBandsTable = () => {
             {bands.map((band) => (
               <TableRow
                 key={band.id}
-                onClick={() => navigate(`/tcupbands/${band.id}/view`)} // Navigate to the band profile
+                onClick={() => navigate(`/tcupbands/${band.id}`)} // Navigate to the band profile
                 style={{ cursor: 'pointer' }} // Add pointer cursor for better UX
               >
                 <TableCell>{band.name}</TableCell>
@@ -111,7 +114,7 @@ const TCUPBandsTable = () => {
                       <img
                         key={index}
                         src={`http://localhost:3001${photo}`} // Prepend the server URL
-                        alt={`Band Photo ${index + 1}`}
+                        alt={`Band ${index + 1}`}
                         style={{ width: 50, height: 50, marginRight: 5 }}
                       />
                     ))

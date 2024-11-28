@@ -1,27 +1,29 @@
-import multer from 'multer';
-import path from 'path';
+import multer from "multer";
+import path from "path";
+import { fileURLToPath } from "url";
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Define storage for uploaded files
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    if (file.fieldname === "photos") {
-      cb(null, path.join(__dirname, '../../assets/images'));
-    } else if (file.fieldname === "stage_plot") {
-      cb(null, path.join(__dirname, '../../assets/documents'));
-    } else {
-      cb(new Error("Invalid file field"), false);
-    }
+    const folder =
+      file.fieldname === "images" ? "images" : "documents";
+    cb(null, path.join(__dirname, `../../assets/${folder}`));
   },
   filename: (req, file, cb) => {
-    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-    cb(null, `${uniqueSuffix}-${file.originalname}`);
+    const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}-${file.originalname}`;
+    cb(null, uniqueSuffix);
   },
 });
 
+// Create upload instance
 const upload = multer({
   storage,
   fileFilter: (req, file, cb) => {
-    const allowedMimeTypes = ["image/jpeg", "image/png", "image/gif", "application/pdf"];
-    if (allowedMimeTypes.includes(file.mimetype)) {
+    const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
+    if (allowedTypes.includes(file.mimetype)) {
       cb(null, true);
     } else {
       cb(new Error("Unsupported file type"), false);

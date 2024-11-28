@@ -1,96 +1,97 @@
 import express from 'express';
-import cors from 'cors';
-import dotenv from 'dotenv';
-import { fileURLToPath } from 'url';
-import path from 'path';
-import pool from './config/db.js'; // Import shared database connection
-import showsRoutes from './routes/shows.js';
-import bandsRoutes from './routes/bands.js';
-import venuesRoutes from './routes/venues.js';
-import tcupBandsRoutes from './routes/tcupbands.js'; // Route for TCUPBands table
-import showBandsRoutes from './routes/show_bands.js'; // Optional: Route for show_bands junction table
+import pool from '../config/db.js';
 
-// Define __dirname manually
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const router = express.Router();
 
-const app = express();
-const PORT = process.env.PORT || 3001;
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
-
-// Middleware
-app.use(cors());
-app.use(express.json());
-
-// Serve static files
-app.use('/images', express.static(path.join(__dirname, '../assets/images')));
-app.use('/documents', express.static(path.join(__dirname, '../assets/documents')));
-
-// Ensure directories exist (utility function)
-import ensureDirectoryExistence from './utils/ensureDirectoryExistence.js';
-ensureDirectoryExistence(path.join(__dirname, '../assets/images'));
-ensureDirectoryExistence(path.join(__dirname, '../assets/documents'));
-
-// Unified `/tcup` Endpoint for querying tables
-app.get('/tcup', async (req, res) => {
-  const { table } = req.query;
-
+// Get all venues
+router.get('/', async (req, res) => {
   try {
-    let result;
-
-    switch (table) {
-      case 'tcupbands':
-        result = await pool.query('SELECT * FROM tcupbands');
-        break;
-      case 'shows':
-        result = await pool.query(`
-          SELECT 
-            shows.id AS show_id,
-            shows.start,
-            shows.flyer_image,
-            shows.event_link,
-            shows.venue_id,
-            venues.venue AS venue_name,
-            array_agg(json_build_object('id', bands.id, 'name', bands.band)) AS bands
-          FROM 
-            shows
-          LEFT JOIN 
-            venues ON shows.venue_id = venues.id
-          LEFT JOIN 
-            show_bands ON shows.id = show_bands.show_id
-          LEFT JOIN 
-            bands ON show_bands.band_id = bands.id
-          GROUP BY 
-            shows.id, venues.id
-          ORDER BY 
-            shows.start ASC;
-        `);
-        break;
-      case 'bands':
-        result = await pool.query('SELECT id, band, social_links FROM bands');
-        break;
-      case 'venues':
-        result = await pool.query('SELECT * FROM venues');
-        break;
-      default:
-        return res.status(400).json({ error: 'Invalid table parameter' });
-    }
-
+    console.log('Attempting to query venues...');
+    const query = 'SELECT * FROM public.venues';
+    const result = await pool.query('SELECT * FROM public.venues');
+    console.log('Query result:', result.rows);
     res.json(result.rows);
-  } catch (err) {
-    console.error(`Error fetching ${table} data:`, err.message);
-    res.status(500).json({ error: `Error fetching ${table} data` });
+  } catch (error) {
+    console.error('Error fetching venues:', error);
+    res.status(500).json({ message: 'Server error' });
+
+ 
+      
   }
 });
 
-// Routes
-app.use('/shows', showsRoutes);
-app.use('/bands', bandsRoutes);
-app.use('/venues', venuesRoutes);
-app.use('/tcupbands', tcupBandsRoutes);
-app.use('/showbands', showBandsRoutes); // Optional
+// Get a single venue by ID
+router.get('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const venue = await pool.query('SELECT * FROM venues WHERE id = $1', [id]);
 
-// Start the server
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+    if (venue.rows.length === 0) {
+      return res.status(404).json({ message: 'Venue not found' });
+    }
+
+    res.json(venue.rows[0]);
+  } catch (error) {
+    console.error('Error fetching venue:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
 });
+
+// Create a new venue
+router.post('/', async (req, res) => {
+  try {
+    const { name, address, capacity } = req.body;
+
+    const newVenue = await pool.query(
+      'INSERT INTO venues (name, address, capacity) VALUES ($1, $2, $3) RETURNING *',
+      [name, address, capacity]
+    );
+
+    res.status(201).json(newVenue.rows[0]);
+  } catch (error) {
+    console.error('Error creating venue:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Update an existing venue
+router.put('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, address, capacity } = req.body;
+
+    const updatedVenue = await pool.query(
+      'UPDATE venues SET name = $1, address = $2, capacity = $3 WHERE id = $4 RETURNING *',
+      [name, address, capacity, id]
+    );
+
+    if (updatedVenue.rows.length === 0) {
+      return res.status(404).json({ message: 'Venue not found' });
+    }
+
+    res.json(updatedVenue.rows[0]);
+  } catch (error) {
+    console.error('Error updating venue:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Delete a venue
+router.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const deletedVenue = await pool.query('DELETE FROM venues WHERE id = $1 RETURNING *', [id]);
+
+    if (deletedVenue.rows.length === 0) {
+      return res.status(404).json({ message: 'Venue not found' });
+    }
+
+    res.json({ message: 'Venue deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting venue:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+export default router;

@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from "react-dom";
 import { Route, Routes, Navigate } from 'react-router-dom';
 import Calendar from './pages/Calendar.js';
 import Home from './pages/Home.js';
@@ -33,10 +32,10 @@ function App() {
         <Route path="/tcupbands" element={<TCUPBandsTable />} /> {/* Bands page */}
         <Route path="/venues" element={<VenuesTable />} /> {/* Venues page */}
         <Route path="/bands/:id/view" element={<BandProfile />} /> {/* View dynamic band profile page */}
-        <Route path="/tcupbands/:id/view" element={<TCUPBandProfile />} /> {/* View dynamic band profile page */}
-        <Route path="/tcupbands/:id/edit" element={<TCUPBandForm />} /> {/* Edit band profile page */}
+        <Route path="/tcupbands/add" element={<TCUPBandForm isEdit={false} />} />
+        <Route path="/tcupbands/:bandid" element={<TCUPBandProfile />} /> {/* View dynamic band profile page */}
+        <Route path="/tcupbands/:bandid/edit" element={<TCUPBandForm isEdit={true} />} />
         <Route path="/venues/:id" element={<VenueProfile />} /> {/* Dynamic route */}
-        <Route path="/tcupbands/add" element={<TCUPBandForm />} />
         <Route path="/calendar" element={<Calendar />} />
         <Route path="*" element={<div>Page Not Found</div>} /> {/* Catch-all for invalid routes */}
       </Routes>

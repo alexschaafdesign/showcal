@@ -1,27 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import NavigationTabs from '../components/NavigationTabs'; // Adjust path as needed
+import ShowsTableCore from './ShowsTableCore';
 import {
   TextField,
   Select,
   MenuItem,
-  Tabs,
-  Tab,
   Box,
   Typography,
 } from '@mui/material';
-import ShowsTableCore from './ShowsTableCore';
 
 function ShowsTable() {
   const [data, setData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedVenue, setSelectedVenue] = useState("");
-  const [activeTab, setActiveTab] = useState(0);
   const navigate = useNavigate();
 
   useEffect(() => {
     const fetchShows = async () => {
       try {
-        const response = await fetch("http://localhost:3001/tcup?table=shows");
+        const response = await fetch("http://localhost:3001/shows");
         if (!response.ok) {
           throw new Error("Failed to fetch shows");
         }
@@ -35,8 +33,6 @@ function ShowsTable() {
     };
     fetchShows();
   }, []);
-
-  const handleTabChange = (event, newValue) => setActiveTab(newValue);
 
   const filterEvents = () => {
     const filtered = data.filter((item) => {
@@ -54,22 +50,17 @@ function ShowsTable() {
     return filtered;
   };
 
+
+  
   return (
     <div>
-      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
-        <Tabs value={activeTab} onChange={handleTabChange} centered>
-          <Tab label="Shows" />
-          <Tab label="Venues" onClick={() => navigate('/venues')} />
-          <Tab label="Bands" onClick={() => navigate('/bands')} />
-        </Tabs>
-      </Box>
-
-      {activeTab === 0 && (
-        <>
-          <Typography variant="h1" gutterBottom textAlign={'center'}>
+       
+        <NavigationTabs />
+          
+          <Typography variant="h3" gutterBottom textAlign={'center'}>
             TWIN CITIES SHOW LIST
           </Typography>
-
+  
           <TextField
             id="outlined-search"
             label="Search by venue or band name"
@@ -99,9 +90,7 @@ function ShowsTable() {
             data={filterEvents()}
             onBandClick={(id) => navigate(`/bands/${id}`)}
             onVenueClick={(id) => navigate(`/venues/${id}`)}
-          />
-        </>
-      )}
+          />    
     </div>
   );
 }

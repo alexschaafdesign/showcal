@@ -2,7 +2,7 @@ import pkg from 'pg';
 import dotenv from 'dotenv';
 import path from 'path';
 
-dotenv.config({ path: path.resolve('./.env') });
+dotenv.config({ path: path.resolve('../.env') });
 
 const { Pool } = pkg;
 

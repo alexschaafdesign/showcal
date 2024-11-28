@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Tabs, Tab, Table, TableHead, TableRow, TableCell, TableBody, Paper, Typography } from '@mui/material';
+import { Box, Table, TableHead, TableRow, TableCell, TableBody, Paper, Typography } from '@mui/material';
+import NavigationTabs from '../components/NavigationTabs';
 
 const VenuesTable = () => {
   const [venues, setVenues] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [activeTab, setActiveTab] = useState(1); // Active tab index, assuming "Venues" is the second tab
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -27,12 +27,6 @@ const VenuesTable = () => {
     fetchVenues();
   }, []);
 
-  const handleTabChange = (event, newValue) => {
-    setActiveTab(newValue);
-    if (newValue === 0) navigate('/shows'); // Navigate to Shows table
-    if (newValue === 2) navigate('/bands'); // Navigate to Bands table
-  };
-
   const handleVenueClick = (id) => {
     console.log(`Navigating to venue with id: ${id}`);
     navigate(`/venues/${id}`); // Navigate to the VenueProfile using the venue ID
@@ -43,14 +37,8 @@ const VenuesTable = () => {
 
   return (
     <Box sx={{ padding: 0 }}>
-      {/* Tabs */}
-      <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
-        <Tabs value={activeTab} onChange={handleTabChange} centered>
-          <Tab label="Shows" />
-          <Tab label="Venues" />
-          <Tab label="Bands" />
-        </Tabs>
-      </Box>
+      
+      <NavigationTabs />
 
       <Typography variant="h1" gutterBottom textAlign={'center'}>
         TWIN CITIES VENUE LIST
