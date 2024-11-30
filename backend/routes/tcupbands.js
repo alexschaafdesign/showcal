@@ -37,30 +37,42 @@ router.get("/:bandid/edit", fetchBandMiddleware, (req, res) => {
  */
 router.post("/add", upload.array("images", 10), async (req, res) => {
   try {
-    console.log("Uploaded Images:", req.files); // Log uploaded files
-    console.log("Request Body:", req.body); // Log raw body fields before parsing
+    console.log("[POST /add] Uploaded Images:", req.files);
+    console.log("[POST /add] Request Body:", req.body);
 
-    const { name, genre, contact, play_shows, group_size, social_links, images } = parseBandFields(req.body, req.files);
+    const { name, genre, contact, play_shows, group_size, social_links } =
+      parseBandFields(req.body, req.files);
 
-    console.log("Parsed Band Fields:", { name, genre, contact, play_shows, group_size, social_links, images });
+    // Ensure group_size and social_links are parsed correctly
+    const parsedGroupSize =
+      group_size && typeof group_size === "string" ? JSON.parse(group_size) : [];
+    const parsedSocialLinks =
+      social_links && typeof social_links === "string"
+        ? JSON.parse(social_links)
+        : {};
+
+    console.log("[POST /add] Parsed Group Size:", parsedGroupSize);
+    console.log("[POST /add] Parsed Social Links:", parsedSocialLinks);
+
+    const uploadedImages = req.files.map((file) => `/assets/images/${file.filename}`);
+    console.log("[POST /add] Uploaded Images:", uploadedImages);
 
     const values = [
       name,
       genre,
       contact,
       play_shows,
-      `{${group_size.join(",")}}`, // PostgreSQL array for group_size
-      JSON.stringify(social_links), // JSON stringify social links
-      `{${images.map((img) => `"${img}"`).join(",")}}`, // PostgreSQL array for images
+      `{${parsedGroupSize.join(",")}}`,
+      JSON.stringify(parsedSocialLinks),
+      `{${uploadedImages.map((img) => `"${img}"`).join(",")}}`,
     ];
 
-    console.log("Insert Values:", values); // Log values being sent to the database
+    console.log("[POST /add] Insert Values:", values);
 
     const { rows } = await pool.query(addBandQuery, values);
-
-    sendSuccessResponse(res, rows[0]); // Return the newly added band
+    sendSuccessResponse(res, rows[0]);
   } catch (error) {
-    console.error("Error adding band:", error);
+    console.error("[POST /add] Error adding band:", error);
     res.status(500).json({ error: "Failed to add band" });
   }
 });
@@ -71,8 +83,10 @@ router.post("/add", upload.array("images", 10), async (req, res) => {
 router.put("/:bandid/edit", upload.array("images", 10), async (req, res) => {
   try {
     const { bandid } = req.params;
+    if (!bandid) {
+      return res.status(400).json({ error: "Band ID is required for editing" });
+    }
 
-    // Extract and parse fields
     const {
       name,
       genre,
@@ -81,53 +95,54 @@ router.put("/:bandid/edit", upload.array("images", 10), async (req, res) => {
       group_size,
       social_links,
       preUploadedImages,
-      removedImages,
     } = req.body;
 
-    // Parse data fields if necessary
-    const formattedGroupSize = group_size ? JSON.parse(group_size) : [];
-    const formattedSocialLinks = social_links ? JSON.parse(social_links) : {};
-    const preUploadedImagesArray = preUploadedImages
+    console.log("[PUT /:bandid/edit] Raw Request Body:", req.body);
+
+    // Parse preUploadedImages if provided
+    const parsedPreUploadedImages = preUploadedImages
       ? JSON.parse(preUploadedImages)
       : [];
-    const removedImagesArray = removedImages
-      ? JSON.parse(removedImages)
-      : [];
+    console.log("[PUT /:bandid/edit] Parsed PreUploaded Images:", parsedPreUploadedImages);
 
-    // Remove images listed in removedImages
-    const updatedImages = preUploadedImagesArray.filter(
-      (img) => !removedImagesArray.includes(img)
-    );
+    // Process new uploaded images from multer
+    const newUploadedImages = req.files?.map(
+      (file) => `/assets/images/${file.filename}`
+    ) || [];
+    console.log("[PUT /:bandid/edit] New Uploaded Images:", newUploadedImages);
 
-    // Combine remaining images with new uploads
-    const newImages = req.files.map((file) => `/assets/images/${file.filename}`);
-    const allImages = [...updatedImages, ...newImages];
+    const allImages = [...parsedPreUploadedImages, ...newUploadedImages];
+    console.log("[PUT /:bandid/edit] Combined Images:", allImages);
 
-    // Prepare query values
+    const parsedGroupSize =
+      group_size && typeof group_size === "string" ? JSON.parse(group_size) : [];
+    const parsedSocialLinks =
+      social_links && typeof social_links === "string"
+        ? JSON.parse(social_links)
+        : {};
+
     const values = [
       name,
       genre,
       contact,
       play_shows,
-      `{${formattedGroupSize.join(",")}}`, // PostgreSQL array for group_size
-      JSON.stringify(formattedSocialLinks), // JSON stringify for social links
-      `{${allImages.map((img) => `"${img}"`).join(",")}}`, // PostgreSQL array for images
-      bandid, // Band ID for WHERE clause
+      `{${parsedGroupSize.join(",")}}`,
+      JSON.stringify(parsedSocialLinks),
+      `{${allImages.map((img) => `"${img}"`).join(",")}}`,
+      bandid,
     ];
 
-    console.log("Update Query Values:", values);
+    console.log("[PUT /:bandid/edit] Update Query Values:", values);
 
-    // Execute the update query
     const { rows } = await pool.query(updateBandQuery, values);
 
     if (rows.length === 0) {
       return res.status(404).json({ error: "Band not found" });
     }
 
-    // Format the returned data and send the response
-    sendSuccessResponse(res, formatBandData(rows[0]));
+    res.json({ success: true, data: rows[0] });
   } catch (error) {
-    console.error("Error updating band:", error);
+    console.error("[PUT /:bandid/edit] Error updating band:", error);
     res.status(500).json({ error: "Failed to update band" });
   }
 });

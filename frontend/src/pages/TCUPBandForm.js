@@ -37,147 +37,96 @@ const TCUPBandForm = ({ isEdit = false }) => {
     },
   });
 
-  const [imageFiles, setImageFiles] = useState([]); // Handles images
-  const [removedFiles, setRemovedFiles] = useState([]); // For removed preloaded images
+  const [imageFiles, setImageFiles] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
-  const [successMessage, setSuccessMessage] = useState("");
   const endpoint = "http://localhost:3001";
 
-  // Preload existing images into FilePond
   useEffect(() => {
     const fetchBand = async () => {
-      console.log("useEffect is triggered");
-      console.log("isEdit:", isEdit, "bandDataFromState:", bandDataFromState);
-  
-      if (isEdit) {
-        if (bandDataFromState) {
-          console.log("Preloading data from bandDataFromState:", bandDataFromState);
-  
-          // Set form data
-          setFormData({
-            name: bandDataFromState.name || "",
-            genre: bandDataFromState.genre || "",
-            contact: bandDataFromState.contact || "",
-            play_shows: bandDataFromState.play_shows || "",
-            group_size: bandDataFromState.group_size || [],
-            social_links: bandDataFromState.social_links || {
-              instagram: "",
-              spotify: "",
-              bandcamp: "",
-              soundcloud: "",
-              website: "",
-            },
-          });
-  
-          // Preload existing images into FilePond
-          const preloadedImages = (bandDataFromState.images || []).map((image) => ({
-            source: image,
-            options: { type: "local" },
-          }));
-          console.log("Preloaded Images from bandDataFromState:", preloadedImages);
-          setImageFiles(preloadedImages);
-        } else {
-          console.log("Fetching band data using Band ID:", bandid);
-          try {
-            const response = await fetch(`${endpoint}/tcupbands/${bandid}/edit`);
-            if (!response.ok) throw new Error("Failed to fetch band data");
-            const data = await response.json();
-  
-            console.log("Fetched Band Data from API:", data.data);
-  
-            // Set form data
-            setFormData({
-              name: data.data.name || "",
-              genre: data.data.genre || "",
-              contact: data.data.contact || "",
-              play_shows: data.data.play_shows || "",
-              group_size: data.data.group_size || [],
-              social_links: data.data.social_links || {
-                instagram: "",
-                spotify: "",
-                bandcamp: "",
-                soundcloud: "",
-                website: "",
-              },
-            });
-  
-            // Preload existing images into FilePond
-            const preloadedImages = (data.data.images || []).map((image) => ({
-              source: image,
-              options: { type: "local" },
-            }));
-            console.log("Preloaded Images from API:", preloadedImages);
-            setImageFiles(preloadedImages);
-          } catch (error) {
-            console.error("Error fetching band data:", error);
-          }
-        }
+      if (!isEdit) return; // Exit if not in edit mode
+
+      try {
+        const bandData = bandDataFromState
+          ? bandDataFromState
+          : await (await fetch(`${endpoint}/tcupbands/${bandid}/edit`)).json().data;
+
+        // Populate form fields
+        setFormData({
+          name: bandData.name || "",
+          genre: bandData.genre || "",
+          contact: bandData.contact || "",
+          play_shows: bandData.play_shows || "",
+          group_size: bandData.group_size || [],
+          social_links: bandData.social_links || {
+            instagram: "",
+            spotify: "",
+            bandcamp: "",
+            soundcloud: "",
+            website: "",
+          },
+        });
+
+        // Preload existing images
+        const preloadedImages = (bandData.images || []).map((image) => ({
+          source: image,
+          options: { type: "local" },
+        }));
+        setImageFiles(preloadedImages);
+      } catch (error) {
+        console.error("Error fetching band data:", error);
+        setErrorMessage("Failed to load band data.");
       }
     };
-  
+
     fetchBand();
   }, [isEdit, bandid, bandDataFromState]);
-  
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const preUploadedFiles = imageFiles
-  .filter((file) => !file.file)
-  .map((file) => file.source);
-
-  // handleSubmit function
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-  
+
     const dataToSubmit = new FormData();
-  
-    // Append form data
+
+    // Add form data
     dataToSubmit.append("name", formData.name);
     dataToSubmit.append("genre", formData.genre);
     dataToSubmit.append("contact", formData.contact);
     dataToSubmit.append("play_shows", formData.play_shows);
     dataToSubmit.append("group_size", JSON.stringify(formData.group_size));
     dataToSubmit.append("social_links", JSON.stringify(formData.social_links));
-  
-    // Append pre-uploaded files (send as a single JSON string array)
-    if (preUploadedFiles.length > 0) {
-      dataToSubmit.append("preUploadedImages", JSON.stringify(preUploadedFiles));
+
+    // Handle preloaded and new images
+    const preUploadedImages = imageFiles
+      .filter((file) => !file.file)
+      .map((file) => file.source);
+
+    const newFiles = imageFiles.filter((file) => file.file);
+
+    if (preUploadedImages.length > 0) {
+      dataToSubmit.append("preUploadedImages", JSON.stringify(preUploadedImages));
     }
-  
-    // Append new files for upload
-    imageFiles.forEach((fileObj) => {
-      if (fileObj.file) {
-        dataToSubmit.append("images", fileObj.file); // Use the `file` property only
-      }
+
+    newFiles.forEach((fileObj) => {
+      dataToSubmit.append("images", fileObj.file);
     });
-  
-    // Debugging: Log FormData entries
-    for (let [key, value] of dataToSubmit.entries()) {
-      console.log(key, value instanceof File ? value.name : value);
-    }
-  
+
     try {
       const endpointURL = isEdit
-        ? `${endpoint}/tcupbands/${bandid}/edit` // Use PUT for edits
-        : `${endpoint}/tcupbands/add`; // Use POST for adds
-  
+        ? `${endpoint}/tcupbands/${bandid}/edit`
+        : `${endpoint}/tcupbands/add`;
+
       const response = await fetch(endpointURL, {
         method: isEdit ? "PUT" : "POST",
         body: dataToSubmit,
       });
-  
+
       if (!response.ok) throw new Error("Failed to submit band data");
-  
-      const successMessage = isEdit
-        ? "Band updated successfully!"
-        : "Band added successfully!";
-  
-      // Redirect on success
-      window.scrollTo(0, 0); // Scroll to top on success
-      navigate("/tcupbands", { state: { successMessage } });
+
+      navigate("/tcupbands");
     } catch (err) {
       console.error("Error submitting band data:", err);
       setErrorMessage("Failed to submit band data.");
@@ -190,11 +139,6 @@ const TCUPBandForm = ({ isEdit = false }) => {
         {isEdit ? "Edit Your Band" : "Add Your Band"}
       </Typography>
 
-      {successMessage && (
-        <Alert severity="success" sx={{ mb: 2 }}>
-          {successMessage}
-        </Alert>
-      )}
       {errorMessage && (
         <Alert severity="error" sx={{ mb: 2 }}>
           {errorMessage}
@@ -263,19 +207,15 @@ const TCUPBandForm = ({ isEdit = false }) => {
             />
           ))}
         </Box>
-      
-        {/* Images Section */}
+
         <Typography>Images</Typography>
-        {console.log("ImageFiles before rendering FilePond:", imageFiles)}
         <CustomFilePond
-        files={imageFiles}
-        setFiles={setImageFiles}
-        endpoint="http://localhost:3001"
-        name="images" // Must match the field name in Multer middleware
-        allowMultiple={true}
-        maxFiles={10}
-      />
-        {console.log("Final ImageFiles passed to FilePond:", imageFiles)}
+          files={imageFiles}
+          setFiles={setImageFiles}
+          endpoint={endpoint}
+          allowMultiple={true}
+          maxFiles={10}
+        />
 
         <Button
           type="submit"

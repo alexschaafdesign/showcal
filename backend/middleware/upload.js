@@ -19,18 +19,25 @@ const storage = multer.diskStorage({
 
 // Set up Multer instance
 const upload = multer({
-  storage, // Use the defined storage
+  storage,
   fileFilter: (req, file, cb) => {
-    const allowedTypes = ["image/jpeg", "image/png"]; // Allow only JPEG and PNG formats
-    if (allowedTypes.includes(file.mimetype)) {
-      cb(null, true); // Accept the file
+    console.log("Incoming file details:", file);
+
+    const allowedTypes = ["image/jpeg", "image/png"]; // Allow only these formats
+    const isAllowed = allowedTypes.includes(file.mimetype);
+
+    if (isAllowed) {
+      cb(null, true); // Accept file
+    } else if (file.originalname === "blob" && file.mimetype === "text/html") {
+      console.log("Ignoring preloaded image blob");
+      cb(null, false); // Ignore preloaded blobs sent accidentally
     } else {
-      cb(new Error("Unsupported file type"), false); // Reject the file
+      cb(new Error(`Unsupported file type: ${file.mimetype}`), false);
     }
   },
   limits: {
-    fileSize: 5 * 1024 * 1024, // Limit file size to 5MB
-    files: 10, // Limit the number of files per request
+    fileSize: 5 * 1024 * 1024,
+    files: 10,
   },
 });
 
