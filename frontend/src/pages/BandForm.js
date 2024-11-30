@@ -38,29 +38,28 @@ const TCUPBandForm = ({ isEdit = false }) => {
   });
 
   const [imageFiles, setImageFiles] = useState([]); // Handles images
-  const [removedFiles, setRemovedFiles] = useState([]); // For removed preloaded images
+  const [removedImages, setRemovedImages] = useState([]); // Tracks removed images
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const endpoint = "http://localhost:3001";
 
-  // Preload existing images into FilePond
   useEffect(() => {
     const fetchBand = async () => {
-      console.log("useEffect is triggered");
-      console.log("isEdit:", isEdit, "bandDataFromState:", bandDataFromState);
+      if (isEdit && !bandDataFromState) {
+        try {
+          const response = await fetch(`${endpoint}/tcupbands/${bandid}/edit`);
+          if (!response.ok) throw new Error("Failed to fetch band data");
+          const data = await response.json();
   
-      if (isEdit) {
-        if (bandDataFromState) {
-          console.log("Preloading data from bandDataFromState:", bandDataFromState);
+          console.log("Fetched Band Data:", data);
   
-          // Set form data
           setFormData({
-            name: bandDataFromState.name || "",
-            genre: bandDataFromState.genre || "",
-            contact: bandDataFromState.contact || "",
-            play_shows: bandDataFromState.play_shows || "",
-            group_size: bandDataFromState.group_size || [],
-            social_links: bandDataFromState.social_links || {
+            name: data.data.name || "",
+            genre: data.data.genre || "",
+            contact: data.data.contact || "",
+            play_shows: data.data.play_shows || "",
+            group_size: data.data.group_size || [],
+            social_links: data.data.social_links || {
               instagram: "",
               spotify: "",
               bandcamp: "",
@@ -70,54 +69,21 @@ const TCUPBandForm = ({ isEdit = false }) => {
           });
   
           // Preload existing images into FilePond
-          const preloadedImages = (bandDataFromState.images || []).map((image) => ({
-            source: image,
-            options: { type: "local" },
-          }));
-          console.log("Preloaded Images from bandDataFromState:", preloadedImages);
-          setImageFiles(preloadedImages);
-        } else {
-          console.log("Fetching band data using Band ID:", bandid);
-          try {
-            const response = await fetch(`${endpoint}/tcupbands/${bandid}/edit`);
-            if (!response.ok) throw new Error("Failed to fetch band data");
-            const data = await response.json();
-  
-            console.log("Fetched Band Data from API:", data.data);
-  
-            // Set form data
-            setFormData({
-              name: data.data.name || "",
-              genre: data.data.genre || "",
-              contact: data.data.contact || "",
-              play_shows: data.data.play_shows || "",
-              group_size: data.data.group_size || [],
-              social_links: data.data.social_links || {
-                instagram: "",
-                spotify: "",
-                bandcamp: "",
-                soundcloud: "",
-                website: "",
-              },
-            });
-  
-            // Preload existing images into FilePond
-            const preloadedImages = (data.data.images || []).map((image) => ({
+          setImageFiles(
+            (data.data.images || []).map((image) => ({
               source: image,
               options: { type: "local" },
-            }));
-            console.log("Preloaded Images from API:", preloadedImages);
-            setImageFiles(preloadedImages);
-          } catch (error) {
-            console.error("Error fetching band data:", error);
-          }
+            }))
+          );
+        } catch (error) {
+          console.error("Error fetching band data:", error);
         }
       }
     };
   
     fetchBand();
   }, [isEdit, bandid, bandDataFromState]);
-  
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -263,10 +229,9 @@ const TCUPBandForm = ({ isEdit = false }) => {
             />
           ))}
         </Box>
-      
+
         {/* Images Section */}
         <Typography>Images</Typography>
-        {console.log("ImageFiles before rendering FilePond:", imageFiles)}
         <CustomFilePond
         files={imageFiles}
         setFiles={setImageFiles}
@@ -275,7 +240,6 @@ const TCUPBandForm = ({ isEdit = false }) => {
         allowMultiple={true}
         maxFiles={10}
       />
-        {console.log("Final ImageFiles passed to FilePond:", imageFiles)}
 
         <Button
           type="submit"
