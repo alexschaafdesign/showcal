@@ -43,14 +43,19 @@ const TCUPBandForm = ({ isEdit = false }) => {
 
   useEffect(() => {
     const fetchBand = async () => {
-      if (!isEdit) return; // Exit if not in edit mode
-
+      if (!isEdit) return;
+  
       try {
-        const bandData = bandDataFromState
-          ? bandDataFromState
-          : await (await fetch(`${endpoint}/tcupbands/${bandid}/edit`)).json().data;
-
-        // Populate form fields
+        let bandData;
+  
+        if (bandDataFromState) {
+          bandData = bandDataFromState;
+        } else {
+          const response = await fetch(`${endpoint}/tcupbands/${bandid}/edit`);
+          const data = await response.json();
+          bandData = data.data;
+        }
+  
         setFormData({
           name: bandData.name || "",
           genre: bandData.genre || "",
@@ -65,19 +70,19 @@ const TCUPBandForm = ({ isEdit = false }) => {
             website: "",
           },
         });
-
-        // Preload existing images
-        const preloadedImages = (bandData.images || []).map((image) => ({
+  
+        // Format preloaded images
+        const preloadedImages = bandData.images?.map((image) => ({
           source: image,
-          options: { type: "local" },
+          options: { type: "local" }, // Maintain local type
         }));
-        setImageFiles(preloadedImages);
+  
+        setImageFiles(preloadedImages || []);
       } catch (error) {
         console.error("Error fetching band data:", error);
-        setErrorMessage("Failed to load band data.");
       }
     };
-
+  
     fetchBand();
   }, [isEdit, bandid, bandDataFromState]);
 
@@ -85,6 +90,8 @@ const TCUPBandForm = ({ isEdit = false }) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
+
+  // HANDLE SUBMIT
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -99,32 +106,44 @@ const TCUPBandForm = ({ isEdit = false }) => {
     dataToSubmit.append("group_size", JSON.stringify(formData.group_size));
     dataToSubmit.append("social_links", JSON.stringify(formData.social_links));
 
-    // Handle preloaded and new images
+    // Separate preloaded and new files
     const preUploadedImages = imageFiles
-      .filter((file) => !file.file)
-      .map((file) => file.source);
+    .filter((file) => file.source && typeof file.source === "string") // Only files with a `source` string are preloaded
+    .map((file) => file.source);
 
-    const newFiles = imageFiles.filter((file) => file.file);
+    const newFiles = imageFiles.filter((file) => file.file); // Newly added files
 
+    // Append preUploadedImages as JSON
     if (preUploadedImages.length > 0) {
       dataToSubmit.append("preUploadedImages", JSON.stringify(preUploadedImages));
     }
 
+    // Append new uploads
     newFiles.forEach((fileObj) => {
       dataToSubmit.append("images", fileObj.file);
     });
+
+    console.log("Submitting preUploadedImages:", preUploadedImages);
+    console.log("Submitting new files:", newFiles);
 
     try {
       const endpointURL = isEdit
         ? `${endpoint}/tcupbands/${bandid}/edit`
         : `${endpoint}/tcupbands/add`;
 
+      const method = isEdit ? "PUT" : "POST";
+
+      console.log("Submitting to:", endpointURL, "Method:", method);
+
       const response = await fetch(endpointURL, {
-        method: isEdit ? "PUT" : "POST",
+        method: method,
         body: dataToSubmit,
       });
 
       if (!response.ok) throw new Error("Failed to submit band data");
+
+      const result = await response.json();
+      console.log("Response from backend:", result);
 
       navigate("/tcupbands");
     } catch (err) {

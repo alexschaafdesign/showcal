@@ -37,39 +37,41 @@ router.get("/:bandid/edit", fetchBandMiddleware, (req, res) => {
  */
 router.post("/add", upload.array("images", 10), async (req, res) => {
   try {
-    console.log("[POST /add] Uploaded Images:", req.files);
-    console.log("[POST /add] Request Body:", req.body);
+    console.log("[POST /add] Uploaded Images:", req.files); // Log uploaded files
+    console.log("[POST /add] Request Body:", req.body); // Log raw body fields
 
-    const { name, genre, contact, play_shows, group_size, social_links } =
-      parseBandFields(req.body, req.files);
-
-    // Ensure group_size and social_links are parsed correctly
-    const parsedGroupSize =
-      group_size && typeof group_size === "string" ? JSON.parse(group_size) : [];
-    const parsedSocialLinks =
-      social_links && typeof social_links === "string"
-        ? JSON.parse(social_links)
-        : {};
+    // Parse group_size and social_links fields from the request body
+    const parsedGroupSize = req.body.group_size
+      ? JSON.parse(req.body.group_size)
+      : [];
+    const parsedSocialLinks = req.body.social_links
+      ? JSON.parse(req.body.social_links)
+      : {};
 
     console.log("[POST /add] Parsed Group Size:", parsedGroupSize);
     console.log("[POST /add] Parsed Social Links:", parsedSocialLinks);
 
-    const uploadedImages = req.files.map((file) => `/assets/images/${file.filename}`);
-    console.log("[POST /add] Uploaded Images:", uploadedImages);
+    // Process new uploaded images from Multer
+    const newUploadedImages = req.files.map((file) => `/assets/images/${file.filename}`);
+    console.log("[POST /add] New Uploaded Images:", newUploadedImages);
 
+    // Prepare query values for the database
     const values = [
-      name,
-      genre,
-      contact,
-      play_shows,
-      `{${parsedGroupSize.join(",")}}`,
-      JSON.stringify(parsedSocialLinks),
-      `{${uploadedImages.map((img) => `"${img}"`).join(",")}}`,
+      req.body.name,
+      req.body.genre,
+      req.body.contact,
+      req.body.play_shows,
+      `{${parsedGroupSize.join(",")}}`, // Convert array to PostgreSQL array format
+      JSON.stringify(parsedSocialLinks), // Store as JSON in the database
+      `{${newUploadedImages.map((img) => `"${img}"`).join(",")}}`, // PostgreSQL array for images
     ];
 
     console.log("[POST /add] Insert Values:", values);
 
+    // Execute the insert query
     const { rows } = await pool.query(addBandQuery, values);
+
+    // Send success response with the newly created band
     sendSuccessResponse(res, rows[0]);
   } catch (error) {
     console.error("[POST /add] Error adding band:", error);
@@ -83,10 +85,6 @@ router.post("/add", upload.array("images", 10), async (req, res) => {
 router.put("/:bandid/edit", upload.array("images", 10), async (req, res) => {
   try {
     const { bandid } = req.params;
-    if (!bandid) {
-      return res.status(400).json({ error: "Band ID is required for editing" });
-    }
-
     const {
       name,
       genre,
@@ -94,32 +92,31 @@ router.put("/:bandid/edit", upload.array("images", 10), async (req, res) => {
       play_shows,
       group_size,
       social_links,
-      preUploadedImages,
+      preUploadedImages, // Sent from the client as JSON
     } = req.body;
 
     console.log("[PUT /:bandid/edit] Raw Request Body:", req.body);
+    console.log("PreUploaded Images:", preUploadedImages);
 
-    // Parse preUploadedImages if provided
+    // Parse preUploadedImages
     const parsedPreUploadedImages = preUploadedImages
       ? JSON.parse(preUploadedImages)
       : [];
     console.log("[PUT /:bandid/edit] Parsed PreUploaded Images:", parsedPreUploadedImages);
 
-    // Process new uploaded images from multer
-    const newUploadedImages = req.files?.map(
-      (file) => `/assets/images/${file.filename}`
-    ) || [];
+    // Process new uploaded images
+    const newUploadedImages = req.files.map((file) => `/assets/images/${file.filename}`);
+
     console.log("[PUT /:bandid/edit] New Uploaded Images:", newUploadedImages);
 
+    // Combine preUploadedImages and newUploadedImages
     const allImages = [...parsedPreUploadedImages, ...newUploadedImages];
     console.log("[PUT /:bandid/edit] Combined Images:", allImages);
 
     const parsedGroupSize =
-      group_size && typeof group_size === "string" ? JSON.parse(group_size) : [];
+      typeof group_size === "string" ? JSON.parse(group_size) : [];
     const parsedSocialLinks =
-      social_links && typeof social_links === "string"
-        ? JSON.parse(social_links)
-        : {};
+      typeof social_links === "string" ? JSON.parse(social_links) : {};
 
     const values = [
       name,
