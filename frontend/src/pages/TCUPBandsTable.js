@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useLocation } from "react-router-dom"; // Import useLocation
+import { useNavigate, useLocation } from "react-router-dom"; // For navigation and state
 import NavigationTabs from "../components/NavigationTabs";
+import formatBandData from "../utils/formatBandData";
 import {
   Box,
   Button,
@@ -11,7 +12,7 @@ import {
   TableBody,
   Paper,
   Typography,
-  Alert, // Import Alert for showing success message
+  Alert, // Alert for success messages
 } from "@mui/material";
 
 const TCUPBandsTable = () => {
@@ -25,25 +26,29 @@ const TCUPBandsTable = () => {
   useEffect(() => {
     const fetchBands = async () => {
       try {
-        const response = await fetch("http://localhost:3001/tcupbands");
+        const response = await fetch("http://127.0.0.1:3001/tcupbands");
         if (!response.ok) throw new Error("Failed to fetch bands");
         const data = await response.json();
-        setBands(data);
-        setLoading(false); // Ensure loading is set to false here
+  
+        // Apply the formatBandData utility
+        const formattedBands = data.data.map(formatBandData);
+  
+        setBands(formattedBands); // Set the formatted bands in state
       } catch (error) {
         console.error("Error fetching bands:", error);
-        setError(error.message); // Set the error state
-        setLoading(false); // Prevent infinite loading state
+        setError(error.message);
+      } finally {
+        setLoading(false);
       }
     };
-
+  
     fetchBands();
 
-    // Check for success message in location state
+    // Show success message if redirected from another page
     if (location.state?.successMessage) {
       setSuccessMessage(location.state.successMessage);
 
-      // Clear the message after 3 seconds
+      // Clear the message after 5 seconds
       const timer = setTimeout(() => {
         setSuccessMessage("");
       }, 5000);
@@ -65,7 +70,7 @@ const TCUPBandsTable = () => {
 
   return (
     <Box sx={{ padding: 3 }}>
-      {/* Success Message */}
+      {/* Display success message */}
       {successMessage && (
         <Alert severity="success" sx={{ mb: 2 }}>
           {successMessage}
@@ -88,38 +93,37 @@ const TCUPBandsTable = () => {
       <Paper elevation={3}>
         <Table>
           <TableHead>
-          <TableRow>
+            <TableRow>
               <TableCell><strong>Band Name</strong></TableCell>
-              <TableCell><strong>Photos</strong></TableCell>
+              <TableCell><strong>Images</strong></TableCell>
               <TableCell><strong>Social Links</strong></TableCell>
               <TableCell><strong>Genre</strong></TableCell>
               <TableCell><strong>Contact Info</strong></TableCell>
               <TableCell><strong>Looking to Play Shows?</strong></TableCell>
               <TableCell><strong>Group Size</strong></TableCell>
               <TableCell><strong>Actions</strong></TableCell>
-              <TableCell><strong>Stage Plot</strong></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {bands.map((band) => (
               <TableRow
                 key={band.id}
-                onClick={() => navigate(`/tcupbands/${band.id}`)} // Navigate to the band profile
-                style={{ cursor: 'pointer' }} // Add pointer cursor for better UX
+                onClick={() => navigate(`/tcupbands/${band.id}`)}
+                style={{ cursor: "pointer" }} // Add pointer cursor for better UX
               >
                 <TableCell>{band.name}</TableCell>
                 <TableCell>
-                  {band.photos && band.photos.length > 0 ? (
-                    band.photos.map((photo, index) => (
+                  {Array.isArray(band.images) && band.images.length > 0 ? (
+                    band.images.map((image, index) => (
                       <img
                         key={index}
-                        src={`http://localhost:3001${photo}`} // Prepend the server URL
+                        src={`http://localhost:3001${image}`} // Prepend server URL for image path
                         alt={`Band ${index + 1}`}
                         style={{ width: 50, height: 50, marginRight: 5 }}
                       />
                     ))
                   ) : (
-                    'No Photos'
+                    "No Images"
                   )}
                 </TableCell>
                 <TableCell>
@@ -202,19 +206,6 @@ const TCUPBandsTable = () => {
                   >
                     Edit
                   </Button>
-                </TableCell>
-                <TableCell>
-                  {band.stage_plot ? (
-                    <a
-                      href={`http://localhost:3001${band.stage_plot}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      View Stage Plot
-                    </a>
-                  ) : (
-                    "No Stage Plot"
-                  )}
                 </TableCell>
               </TableRow>
             ))}

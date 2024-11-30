@@ -1,19 +1,17 @@
-import React, { useState } from "react";
+// Import FilePond plugins
+import { useState } from "react";
 import { FilePond, registerPlugin } from "react-filepond";
 import "filepond/dist/filepond.min.css";
-
-// Import FilePond plugins if needed
 import FilePondPluginImagePreview from "filepond-plugin-image-preview";
 import "filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css";
-import FilePondPluginFileValidateType from "filepond-plugin-file-validate-type";
+import FilePondPluginFilePoster from "filepond-plugin-file-poster";
 
-registerPlugin(FilePondPluginImagePreview);
+registerPlugin(FilePondPluginImagePreview, FilePondPluginFilePoster);
 
 const CustomFilePond = ({
   files,
   setFiles,
   endpoint,
-  name, // Add the name prop
   allowMultiple = true,
   maxFiles = 10,
 }) => {
@@ -26,24 +24,24 @@ const CustomFilePond = ({
         allowMultiple={allowMultiple}
         maxFiles={maxFiles}
         onupdatefiles={(fileItems) => {
-          console.log("Updated Files:", fileItems);
           setFiles(
             fileItems.map((item) => ({
               file: item.file, // New file object
               source: item.source, // Existing file path
+              options: item.options, // Ensure existing file options are preserved
             }))
           );
         }}
-        name={name} // Pass the name prop to FilePond
-        labelIdle='Drag & Drop your files or <span class="filepond--label-action">Browse</span>'
+        name="images" // Matches the field name expected by the backend
+        labelIdle='Drag & Drop your images or <span class="filepond--label-action">Browse</span>'
         server={{
           process: {
             url: `${endpoint}/upload`,
             method: "POST",
             onload: (response) => {
-              const { filePath } = JSON.parse(response);
-              console.log("File uploaded:", filePath);
-              return filePath;
+              const { images } = JSON.parse(response); // Adjust response structure
+              console.log("File uploaded:", images);
+              return images;
             },
             onerror: (error) => {
               console.error("Upload error:", error);
@@ -51,6 +49,7 @@ const CustomFilePond = ({
             },
           },
           load: (source, load) => {
+            // Fetch existing files
             fetch(source)
               .then((res) => res.blob())
               .then(load)
@@ -64,8 +63,8 @@ const CustomFilePond = ({
             },
           },
         }}
-        acceptedFileTypes={["image/*", "application/pdf"]}
-        allowReorder={true}
+        acceptedFileTypes={["image/*"]}
+        allowReorder={false}
         instantUpload={true}
       />
       {uploadError && <p style={{ color: "red" }}>{uploadError}</p>}

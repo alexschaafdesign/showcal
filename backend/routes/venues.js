@@ -14,9 +14,6 @@ router.get('/', async (req, res) => {
   } catch (error) {
     console.error('Error fetching venues:', error);
     res.status(500).json({ message: 'Server error' });
-
- 
-      
   }
 });
 

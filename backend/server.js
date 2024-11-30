@@ -4,17 +4,13 @@ import pkg from 'pg';
 import dotenv from 'dotenv';
 import { fileURLToPath } from 'url';
 import path from 'path';
-import multer from 'multer';
 import fs from 'fs';
 import venuesRoutes from './routes/venues.js';
 import tcupbandsRoutes from './routes/tcupbands.js';
 import bandsRoutes from './routes/bands.js';
 import showsRoutes from './routes/shows.js';
-import uploadRoutes from './routes/upload.js'; // Import the new upload route
-import revertRoutes from './routes/revert.js'; // Adjust the path as needed
+import uploadRoutes from './routes/upload.js';
 
-
-// Define __dirname manually
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -35,20 +31,17 @@ const pool = new Pool({
 // Middleware
 app.use(cors());
 app.use(express.json());
+app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 
-// Route Handling
+// Routes
 app.use('/venues', venuesRoutes);       // All routes for venues table
 app.use('/tcupbands', tcupbandsRoutes); // All routes for TCUP bands
 app.use('/bands', bandsRoutes);         // All routes for bands table
 app.use('/shows', showsRoutes);         // All routes for shows table
-app.use('/venues', venuesRoutes);       // All routes for venues table
 app.use('/', uploadRoutes);       // Register the upload route
-app.use('/revert', revertRoutes);  // to delete photos from the form
-
 
 // Serve static files
-app.use('/images', express.static(path.join(__dirname, '../assets/images')));
-app.use('/documents', express.static(path.join(__dirname, '../assets/documents')));
+app.use('/assets/images', express.static(path.join(__dirname, '../assets/images')));
 
 // Ensure directories exist
 const ensureDirectoryExistence = (dir) => {
@@ -58,34 +51,6 @@ const ensureDirectoryExistence = (dir) => {
 };
 
 ensureDirectoryExistence(path.join(__dirname, '../assets/images'));
-ensureDirectoryExistence(path.join(__dirname, '../assets/documents'));
-
-// Configure Multer for dynamic file uploads
-const upload = multer({
-  storage: multer.diskStorage({
-    destination: (req, file, cb) => {
-      if (file.fieldname === "photos") {
-        cb(null, path.join(__dirname, '../assets/images')); // Store images
-      } else if (file.fieldname === "stage_plot") {
-        cb(null, path.join(__dirname, '../assets/documents')); // Store stage plots
-      } else {
-        cb(new Error("Invalid file field"), false);
-      }
-    },
-    filename: (req, file, cb) => {
-      const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}`;
-      cb(null, `${uniqueSuffix}-${file.originalname}`);
-    },
-  }),
-  fileFilter: (req, file, cb) => {
-    const allowedMimeTypes = ["image/jpeg", "image/png", "image/gif", "application/pdf"];
-    if (allowedMimeTypes.includes(file.mimetype)) {
-      cb(null, true);
-    } else {
-      cb(new Error("Unsupported file type"), false);
-    }
-  },
-});
 
 // Validate required environment variables
 const requiredEnvVars = ['DB_USER', 'DB_HOST', 'DB_NAME', 'DB_PASSWORD', 'DB_PORT'];
@@ -115,7 +80,7 @@ console.log('/venues');
 console.log('/tcupbands');
 console.log('/bands');
 console.log('/shows');
-console.log('Connected to database:', process.env.DB_NAME);
+console.log('/upload');
 
 pool.query('SELECT current_database()', (err, res) => {
   if (err) {

@@ -122,7 +122,7 @@ cursor.execute("""
 """)
 cursor.execute("""
     CREATE TABLE IF NOT EXISTS bands (
-        band TEXT UNIQUE
+        band TEXT PRIMARY KEY
     );
 """)
 

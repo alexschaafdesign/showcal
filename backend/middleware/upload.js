@@ -8,27 +8,30 @@ const __dirname = path.dirname(__filename);
 // Define storage for uploaded files
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const folder =
-      file.fieldname === "images" ? "images" : "documents";
-    cb(null, path.join(__dirname, `../../assets/${folder}`));
+    const folder = "assets/images"; // Save all uploaded images in the specified folder
+    cb(null, path.join(__dirname, `../../${folder}`)); // Resolve to the correct folder path
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1e9)}-${file.originalname}`;
-    cb(null, uniqueSuffix);
+    cb(null, uniqueSuffix); // Save file with a unique name
   },
 });
 
-// Create upload instance
+// Set up Multer instance
 const upload = multer({
-  storage,
+  storage, // Use the defined storage
   fileFilter: (req, file, cb) => {
-    const allowedTypes = ["image/jpeg", "image/png", "application/pdf"];
+    const allowedTypes = ["image/jpeg", "image/png"]; // Allow only JPEG and PNG formats
     if (allowedTypes.includes(file.mimetype)) {
-      cb(null, true);
+      cb(null, true); // Accept the file
     } else {
-      cb(new Error("Unsupported file type"), false);
+      cb(new Error("Unsupported file type"), false); // Reject the file
     }
   },
+  limits: {
+    fileSize: 5 * 1024 * 1024, // Limit file size to 5MB
+    files: 10, // Limit the number of files per request
+  },
 });
 
-export default upload;
+export default upload; // Export the multer instance
