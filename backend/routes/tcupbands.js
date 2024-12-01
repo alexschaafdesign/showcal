@@ -37,10 +37,9 @@ router.get("/:bandid/edit", fetchBandMiddleware, (req, res) => {
  */
 router.post("/add", upload.array("images", 10), async (req, res) => {
   try {
-    console.log("[POST /add] Uploaded Images:", req.files); // Log uploaded files
-    console.log("[POST /add] Request Body:", req.body); // Log raw body fields
+    console.log("[POST /add] Uploaded Images:", req.files);
+    console.log("[POST /add] Request Body:", req.body);
 
-    // Parse group_size and social_links fields from the request body
     const parsedGroupSize = req.body.group_size
       ? JSON.parse(req.body.group_size)
       : [];
@@ -48,22 +47,22 @@ router.post("/add", upload.array("images", 10), async (req, res) => {
       ? JSON.parse(req.body.social_links)
       : {};
 
-    console.log("[POST /add] Parsed Group Size:", parsedGroupSize);
-    console.log("[POST /add] Parsed Social Links:", parsedSocialLinks);
+    // Process profile photo
+    const profilePhoto = req.body.profile_photo || "/assets/images/tcup_logo.jpg";
 
-    // Process new uploaded images from Multer
+    // Process uploaded images
     const newUploadedImages = req.files.map((file) => `/assets/images/${file.filename}`);
-    console.log("[POST /add] New Uploaded Images:", newUploadedImages);
 
-    // Prepare query values for the database
+    // Prepare query values
     const values = [
       req.body.name,
       req.body.genre,
       req.body.contact,
       req.body.play_shows,
-      `{${parsedGroupSize.join(",")}}`, // Convert array to PostgreSQL array format
-      JSON.stringify(parsedSocialLinks), // Store as JSON in the database
-      `{${newUploadedImages.map((img) => `"${img}"`).join(",")}}`, // PostgreSQL array for images
+      `{${parsedGroupSize.join(",")}}`,
+      JSON.stringify(parsedSocialLinks),
+      `{${newUploadedImages.map((img) => `"${img}"`).join(",")}}`,
+      profilePhoto, // Include profile_photo in the query
     ];
 
     console.log("[POST /add] Insert Values:", values);
@@ -71,7 +70,6 @@ router.post("/add", upload.array("images", 10), async (req, res) => {
     // Execute the insert query
     const { rows } = await pool.query(addBandQuery, values);
 
-    // Send success response with the newly created band
     sendSuccessResponse(res, rows[0]);
   } catch (error) {
     console.error("[POST /add] Error adding band:", error);

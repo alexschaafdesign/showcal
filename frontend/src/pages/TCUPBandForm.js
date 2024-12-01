@@ -90,6 +90,21 @@ const TCUPBandForm = ({ isEdit = false }) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
+  
+  function validateSpotifyLink(url) {
+    const regex = /^(https?:\/\/)?(open\.)?spotify\.com\/(track|album|playlist)\/[a-zA-Z0-9]+/;
+    return regex.test(url);
+  }
+  
+  function validateBandcampLink(url) {
+    const regex = /^(https?:\/\/)?([a-zA-Z0-9-]+\.bandcamp\.com)\/.+$/;
+    return regex.test(url);
+  }
+  
+  function validateYouTubeLink(url) {
+    const regex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/;
+    return regex.test(url);
+  }
 
   // HANDLE SUBMIT
 
@@ -125,6 +140,21 @@ const TCUPBandForm = ({ isEdit = false }) => {
 
     console.log("Submitting preUploadedImages:", preUploadedImages);
     console.log("Submitting new files:", newFiles);
+
+
+    // Format social links
+    if (formData.social_links.spotify && !validateSpotifyLink(formData.social_links.spotify)) {
+      setErrorMessage("Invalid Spotify link.");
+      return;
+    }
+    if (formData.social_links.bandcamp && !validateBandcampLink(formData.social_links.bandcamp)) {
+      setErrorMessage("Invalid Bandcamp link.");
+      return;
+    }
+    if (formData.social_links.youtube && !validateYouTubeLink(formData.social_links.youtube)) {
+      setErrorMessage("Invalid YouTube link.");
+      return;
+    }
 
     try {
       const endpointURL = isEdit
@@ -188,6 +218,58 @@ const TCUPBandForm = ({ isEdit = false }) => {
           value={formData.contact}
           onChange={handleChange}
           fullWidth
+          sx={{ mb: 2 }}
+        />
+        {/* Add Spotify, Bandcamp, YouTube link fields */}
+        <Typography variant="h6" sx={{ mb: 2 }}>
+          Media Links
+        </Typography>
+        <TextField
+          label="Spotify Link"
+          name="spotify"
+          value={formData.social_links.spotify}
+          fullWidth
+          onChange={(e) =>
+            setFormData((prev) => ({
+              ...prev,
+              social_links: {
+                ...prev.social_links,
+                spotify: e.target.value,
+              },
+            }))
+          }
+          sx={{ mb: 2 }}
+        />
+        <TextField
+          label="Bandcamp Link"
+          name="bandcamp"
+          value={formData.social_links.bandcamp}
+          fullWidth
+          onChange={(e) =>
+            setFormData((prev) => ({
+              ...prev,
+              social_links: {
+                ...prev.social_links,
+                bandcamp: e.target.value,
+              },
+            }))
+          }
+          sx={{ mb: 2 }}
+        />
+        <TextField
+          label="YouTube Link"
+          name="youtube"
+          value={formData.social_links.youtube || ""}
+          fullWidth
+          onChange={(e) =>
+            setFormData((prev) => ({
+              ...prev,
+              social_links: {
+                ...prev.social_links,
+                youtube: e.target.value,
+              },
+            }))
+          }
           sx={{ mb: 2 }}
         />
         <FormControl fullWidth sx={{ mb: 2 }}>
