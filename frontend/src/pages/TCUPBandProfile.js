@@ -5,6 +5,7 @@ import Grid from "@mui/material/Grid";
 import formatBandData from "../utils/formatBandData";
 import AppBreadcrumbs from "../components/Breadcrumbs";
 import InfoCard from "../components/InfoCard";
+import ProfilePhotoCard from "../components/ProfilePhotoCard";
 
 const TCUPBandProfile = () => {
   const { bandid } = useParams();
@@ -51,6 +52,10 @@ const TCUPBandProfile = () => {
 
   const images = Array.isArray(band.images) ? band.images : [];
 
+  const imageUrl =
+  band.profile_photo ||
+  (images?.[0] ? `http://localhost:3001${images[0]}` : "/assets/images/tcup_logo.jpg");
+
   const handleEdit = () => {
     navigate(`/tcupbands/${bandid}/edit`, { state: { band } });
   };
@@ -64,48 +69,19 @@ const TCUPBandProfile = () => {
         <Grid item xs={12} md={4}>
           <Box>
             {/* Profile Section */}
-            <Box
-              sx={{
-                display: "flex",
-                alignItems: "center",
-                gap: 2,
-              }}
-            >
-              <Typography
-                variant="h2"
-                textAlign="left"
-                gutterBottom
-                sx={{ textTransform: "uppercase" }}
-              >
-                {band.name}
-              </Typography>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={handleEdit}
-                sx={{ marginBottom: 2 }}
-              >
-                Edit Band
-              </Button>
-            </Box>
 
             {/* Profile Picture */}
-            <Box
-              component="img"
-              src={`http://localhost:3001${images[0]}`}
-              alt="Profile Picture"
-              onClick={() => handleOpen(images[0])} // Add the click handler here
-              sx={{
-                width: "200px",
-                height: "200px",
-                borderRadius: "50%",
-                objectFit: "cover",
-                boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
-                marginBottom: 2,
-                cursor: "pointer", // Add pointer cursor to indicate it's clickable
-              }}
-            />
 
+            <ProfilePhotoCard
+              name={band.name}
+              imageUrl={
+                band.profile_photo ||
+                (images?.[0] ? `http://localhost:3001${images[0]}` : "/assets/images/tcup_logo.jpg")
+              }
+              onEdit={handleEdit}
+              socialLinks={band.social_links}
+              genre={band.genre}
+            />
             {/* Info Cards */}
             <Box
               sx={{

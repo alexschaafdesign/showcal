@@ -12,7 +12,7 @@ import {
   Typography,
   TextField,
 } from '@mui/material';
-import BandSocialLinks from './BandSocialLinks';
+import BandSocialLinks from '../components/BandSocialLinks';
 
 
 
