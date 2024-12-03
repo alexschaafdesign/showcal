@@ -24,44 +24,32 @@ def get_venue_id(cursor, venue_name):
         raise ValueError(f"Venue '{venue_name}' not found in the venues table.")
     return venue_row[0]
 
-def insert_show(cursor, venue_id, bands, start, event_link, flyer_image, allow_update=False):
+def insert_show(cursor, venue_id, bands, start, event_link, flyer_image):
     """Insert or update a show in the database."""
     try:
         # Attempt to insert the show
         insert_query = """
             INSERT INTO shows (venue_id, bands, start, event_link, flyer_image)
             VALUES (%s, %s, %s, %s, %s)
-            ON CONFLICT ON CONSTRAINT unique_show DO NOTHING
+            ON CONFLICT ON CONSTRAINT unique_show DO UPDATE
+            SET 
+                bands = EXCLUDED.bands,
+                event_link = EXCLUDED.event_link,
+                flyer_image = COALESCE(EXCLUDED.flyer_image, shows.flyer_image)
             RETURNING id;
         """
         cursor.execute(insert_query, (venue_id, bands, start, event_link, flyer_image))
         result = cursor.fetchone()
 
-        if result:  # New show was inserted
+        if result:  # Show was inserted or updated
             show_id = result[0]
-            print(f"Inserted show with ID: {show_id}")
+            print(f"Inserted/Updated show with ID: {show_id}")
             return show_id, True
 
-        # If no ID is returned, check for an existing show
-        cursor.execute("""
-            SELECT id, flyer_image FROM shows WHERE venue_id = %s AND start = %s;
-        """, (venue_id, start))
-        show_row = cursor.fetchone()
-
-        if not show_row:
-            raise ValueError(f"Failed to find or insert show: venue_id={venue_id}, start={start}")
-
-        show_id, existing_flyer = show_row
-        if allow_update and not existing_flyer and flyer_image:
-            # Update the flyer image if it was missing
-            cursor.execute("""
-                UPDATE shows SET flyer_image = %s WHERE id = %s;
-            """, (flyer_image, show_id))
-            print(f"Updated flyer for show ID: {show_id}")
-        return show_id, False
+        raise ValueError("Unexpected: Insert or update did not affect any rows.")
 
     except Exception as e:
-        print(f"Error inserting/updating show: {e}")
+        print(f"Error inserting/updating show (venue_id={venue_id}, start={start}): {e}")
         raise
 
 def link_band_to_show(cursor, band_id, show_id):

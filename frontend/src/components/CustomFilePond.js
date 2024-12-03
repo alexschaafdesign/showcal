@@ -9,9 +9,10 @@ registerPlugin(FilePondPluginImagePreview);
 const CustomFilePond = ({
   files, // The `files` prop passed from the parent
   setFiles, // Callback to update files
-  endpoint,
-  allowMultiple = true,
-  maxFiles = 10,
+  endpoint, // Dynamic endpoint for the server
+  name = "images", // Name of the field (e.g., "profile_image" or "images")
+  allowMultiple = true, // Whether multiple files are allowed
+  maxFiles = 10, // Maximum number of files
 }) => {
   // Memoize files to avoid unnecessary updates
   const memoizedFiles = useMemo(() => files, [files]);
@@ -31,12 +32,16 @@ const CustomFilePond = ({
       }}
       allowMultiple={allowMultiple}
       maxFiles={maxFiles}
-      name="images"
+      name={name} // Dynamically set the field name
       server={{
         process: {
-          url: `${endpoint}/upload`,
+          url: `${endpoint}/upload`, // Dynamic endpoint for processing
           method: "POST",
-          onload: (response) => JSON.parse(response).images,
+          onload: (response) => {
+            const parsedResponse = JSON.parse(response);
+            console.log("Upload response:", parsedResponse);
+            return parsedResponse; // Adjust based on API response structure
+          },
         },
         load: (source, load) => {
           fetch(source)
@@ -45,7 +50,7 @@ const CustomFilePond = ({
             .catch((err) => console.error("Error loading file:", err));
         },
       }}
-      labelIdle='Drag & Drop your images or <span class="filepond--label-action">Browse</span>'
+      labelIdle={`Drag & Drop your ${name} or <span class="filepond--label-action">Browse</span>`} // Dynamic label
       acceptedFileTypes={["image/png", "image/jpeg"]}
       instantUpload={false}
     />

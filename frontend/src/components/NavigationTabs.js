@@ -1,6 +1,6 @@
-import React from 'react';
-import { Box, Tabs, Tab } from '@mui/material';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React from "react";
+import { Box, Tabs, Tab } from "@mui/material";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const NavigationTabs = () => {
   const navigate = useNavigate();
@@ -8,28 +8,52 @@ const NavigationTabs = () => {
 
   // Determine the active tab based on the current route
   const getActiveTab = () => {
-    if (location.pathname.startsWith('/shows')) return 0;
-    if (location.pathname.startsWith('/venues')) return 1;
-    if (location.pathname.startsWith('/bands')) return 2;
-    if (location.pathname.startsWith('/tcupbands')) return 3;
+    if (location.pathname.startsWith("/shows")) return 0;
+    if (location.pathname.startsWith("/venues")) return 1;
+    if (location.pathname.startsWith("/tcupbands")) return 2;
     return false; // No tab selected
   };
 
   const handleTabChange = (event, newValue) => {
-    if (newValue === 0) navigate('/shows'); // Navigate to Shows table
-    if (newValue === 1) navigate('/venues'); // Navigate to Venues table
-    if (newValue === 2) navigate('/bands'); // Navigate to Bands table
-    if (newValue === 3) navigate('/tcupbands'); // Navigate to TCUP Bands table
-
+    switch (newValue) {
+      case 0:
+        navigate("/shows");
+        break;
+      case 1:
+        navigate("/venues");
+        break;
+      case 2:
+        navigate("/tcupbands");
+        break;
+      default:
+        break;
+    }
   };
 
   return (
-    <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
-      <Tabs value={getActiveTab()} onChange={handleTabChange} centered>
-        <Tab label="Shows" />
-        <Tab label="Venues" />
-        <Tab label="Bands" />
-        <Tab label="TCUP Bands" />
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center", // Center align tabs horizontally
+        alignItems: "center",
+        padding: "0px 16px", // Adjust padding as needed
+        margin: 0,
+      }}
+    >
+      <Tabs
+        value={getActiveTab()}
+        onChange={handleTabChange}
+        centered
+      >
+        <Tab
+          label="Shows"
+        />
+        <Tab
+          label="Venues"
+        />
+        <Tab
+          label="Bands"
+        />
       </Tabs>
     </Box>
   );

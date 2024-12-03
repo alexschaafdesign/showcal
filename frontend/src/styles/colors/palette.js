@@ -2,8 +2,8 @@ import colorTokens from './colortokens';
 
 const palette = {
   primary: {
-    light: colorTokens.primary.light,
-    main: colorTokens.primary.main,
+    light: colorTokens.primary.light, //purple
+    main: colorTokens.primary.main,  
     dark: colorTokens.primary.dark,
   },
   secondary: {
@@ -35,6 +35,7 @@ const palette = {
     light: colorTokens.neutral.light,
     main: colorTokens.neutral.main,
     dark: colorTokens.neutral.dark,
+    white: colorTokens.neutral.white,
   },
   background: {
     default: colorTokens.background.default,

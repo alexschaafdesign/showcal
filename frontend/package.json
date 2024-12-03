@@ -2,7 +2,7 @@
   "name": "client",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://alexschaafdesign.github.io/showcal/",
+  "homepage": "/portal",
   "dependencies": {
     "@emotion/react": "^11.13.5",
     "@emotion/styled": "^11.13.5",
@@ -10,8 +10,8 @@
     "@fullcalendar/interaction": "^6.1.15",
     "@fullcalendar/react": "^6.1.15",
     "@mui/icons-material": "^6.1.8",
-    "@mui/material": "^6.1.8",
-    "@mui/system": "^6.1.8",
+    "@mui/material": "^6.1.9",
+    "@mui/system": "^6.1.9",
     "@testing-library/jest-dom": "^5.17.0",
     "@testing-library/react": "^13.4.0",
     "@testing-library/user-event": "^13.5.0",
@@ -69,8 +69,11 @@
     "@babel/core": "^7.26.0",
     "@babel/preset-env": "^7.26.0",
     "@babel/preset-react": "^7.25.9",
+    "@pmmmwh/react-refresh-webpack-plugin": "^0.5.15",
     "gh-pages": "^6.2.0",
     "react-app-rewired": "^2.2.1",
+    "react-refresh": "^0.14.2",
     "webpack-dev-server": "^5.1.0"
   }
+  
 }

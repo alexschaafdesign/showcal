@@ -47,22 +47,18 @@ router.post("/add", upload.array("images", 10), async (req, res) => {
       ? JSON.parse(req.body.social_links)
       : {};
 
-    // Process profile photo
-    const profilePhoto = req.body.profile_photo || "/assets/images/tcup_logo.jpg";
-
     // Process uploaded images
     const newUploadedImages = req.files.map((file) => `/assets/images/${file.filename}`);
 
     // Prepare query values
     const values = [
       req.body.name,
-      req.body.genre,
+      req.body.genre.split(',').map((g) => g.trim()), // If `genre` is a string, convert to an array
       req.body.contact,
       req.body.play_shows,
       `{${parsedGroupSize.join(",")}}`,
       JSON.stringify(parsedSocialLinks),
       `{${newUploadedImages.map((img) => `"${img}"`).join(",")}}`,
-      profilePhoto, // Include profile_photo in the query
     ];
 
     console.log("[POST /add] Insert Values:", values);

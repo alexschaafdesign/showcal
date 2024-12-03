@@ -13,7 +13,7 @@ router.post('/upload', upload.array('images', 10), (req, res) => {
       }
   
       // Extract paths for uploaded files
-      const uploadedImages = req.files.map((file) => `assets/images/${file.filename}`);
+      const uploadedImages = req.files.map((file) => `/images/${file.filename}`);
   
       console.log('Uploaded Images:', uploadedImages);
       console.log('Request Body:', req.body); // Logs any additional fields sent with the request

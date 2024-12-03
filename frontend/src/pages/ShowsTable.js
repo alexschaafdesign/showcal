@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import NavigationTabs from '../components/NavigationTabs'; // Adjust path as needed
 import ShowsTableCore from './ShowsTableCore';
 import {
   TextField,
@@ -11,31 +10,47 @@ import {
 } from '@mui/material';
 
 function ShowsTable() {
-  const [data, setData] = useState([]);
+  const [showsData, setShowsData] = useState([]);
+  const [bandsData, setBandsData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedVenue, setSelectedVenue] = useState("");
   const navigate = useNavigate();
 
   useEffect(() => {
+    // Fetch shows data
     const fetchShows = async () => {
       try {
         const response = await fetch("http://localhost:3001/shows");
-        if (!response.ok) {
-          throw new Error("Failed to fetch shows");
-        }
+        if (!response.ok) throw new Error("Failed to fetch shows");
         const result = await response.json();
         console.log("Fetched Shows:", result); // Debugging
-        setData(result); // Ensure result is an array
+        setShowsData(result);
       } catch (err) {
         console.error("Error fetching shows:", err);
-        setData([]); // Default to an empty array on error
+        setShowsData([]);
       }
     };
+
+    // Fetch bands data
+    const fetchBands = async () => {
+      try {
+        const response = await fetch("http://localhost:3001/tcupbands");
+        if (!response.ok) throw new Error("Failed to fetch bands");
+        const result = await response.json();
+        console.log("Fetched Bands:", result); // Debugging
+        setBandsData(result);
+      } catch (err) {
+        console.error("Error fetching bands:", err);
+        setBandsData([]);
+      }
+    };
+
     fetchShows();
+    fetchBands();
   }, []);
 
   const filterEvents = () => {
-    const filtered = data.filter((item) => {
+    const filtered = showsData.filter((item) => {
       const matchesSearch = searchTerm
         ? item.venue_name.toLowerCase().includes(searchTerm) ||
           item.bands.toLowerCase().includes(searchTerm)
@@ -50,47 +65,59 @@ function ShowsTable() {
     return filtered;
   };
 
+  const crossReferenceBands = (bandsString) => {
+    const bandNames = typeof bandsString === "string" ? bandsString.split(", ") : []; // Split by comma and space
+    return bandNames.map((bandName) => {
+      const matchedBand = bandsData.find(
+        (band) => band.name.toLowerCase() === bandName.toLowerCase()
+      );
+      return matchedBand
+        ? { name: bandName, id: matchedBand.id } // Link to BandProfile
+        : { name: bandName, id: null }; // No link
+    });
+  };
 
-  
+  const processedData = filterEvents().map((show) => ({
+    ...show,
+    bands: crossReferenceBands(Array.isArray(show.bands) ? show.bands : (typeof show.bands === "string" ? show.bands.split(", ") : [])),
+  }));
+
   return (
     <div>
-       
-        <NavigationTabs />
-          
-          <Typography variant="h3" gutterBottom textAlign={'center'}>
-            TWIN CITIES SHOW LIST
-          </Typography>
-  
-          <TextField
-            id="outlined-search"
-            label="Search by venue or band name"
-            type="search"
-            fullWidth
-            margin="normal"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
-          />
+      <Typography variant="h2" gutterBottom textAlign={'center'}>
+        TWIN CITIES SHOW LIST
+      </Typography>
 
-          <Select
-            value={selectedVenue}
-            onChange={(e) => setSelectedVenue(e.target.value)}
-            displayEmpty
-            fullWidth
-            style={{ marginBottom: '20px' }}
-          >
-            <MenuItem value="">All Venues</MenuItem>
-            {[...new Set(data.map((item) => item.venue_name))].map((venue, index) => (
-              <MenuItem key={index} value={venue}>
-                {venue}
-              </MenuItem>
-            ))}
-          </Select>
+      <TextField
+        id="outlined-search"
+        label="Search by venue or band name"
+        type="search"
+        fullWidth
+        margin="normal"
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
+      />
 
-          <ShowsTableCore
-            data={filterEvents()}
-            onBandClick={(id) => navigate(`/bands/${id}`)}
-            onVenueClick={(id) => navigate(`/venues/${id}`)}
-          />    
+      <Select
+        value={selectedVenue}
+        onChange={(e) => setSelectedVenue(e.target.value)}
+        displayEmpty
+        fullWidth
+        style={{ marginBottom: '20px' }}
+      >
+        <MenuItem value="">All Venues</MenuItem>
+        {[...new Set(showsData.map((item) => item.venue_name))].map((venue, index) => (
+          <MenuItem key={index} value={venue}>
+            {venue}
+          </MenuItem>
+        ))}
+      </Select>
+
+      <ShowsTableCore
+        data={processedData}
+        onBandClick={(id) => id && navigate(`/bands/${id}`)} // Only navigate if ID exists
+        onVenueClick={(id) => navigate(`/venues/${id}`)}
+      />
     </div>
   );
 }

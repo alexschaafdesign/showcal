@@ -6,8 +6,9 @@ import formatBandData from "../utils/formatBandData";
 import AppBreadcrumbs from "../components/Breadcrumbs";
 import InfoCard from "../components/InfoCard";
 import ProfilePhotoCard from "../components/ProfilePhotoCard";
+import ShowsTableCore from "./ShowsTableCore";
 
-const TCUPBandProfile = () => {
+const TCUPBandProfile = ({ allShows = [] }) => {
   const { bandid } = useParams();
   const navigate = useNavigate();
   const [band, setBand] = useState(null);
@@ -15,6 +16,8 @@ const TCUPBandProfile = () => {
   const [error, setError] = useState(null);
   const [open, setOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [bandShows, setBandShows] = useState([]);
+
 
   useEffect(() => {
     const fetchBand = async () => {
@@ -36,15 +39,42 @@ const TCUPBandProfile = () => {
     fetchBand();
   }, [bandid]);
 
+  useEffect(() => {
+    console.log("allShows in TCUPBandProfile:", allShows);
+    if (!Array.isArray(allShows)) return;
+  
+    const filteredShows = allShows.filter((show) =>
+      Array.isArray(show.bands) && show.bands.some((band) => band.id === parseInt(bandid, 10))
+    );
+    setBandShows(filteredShows);
+  }, [allShows, bandid]);
+
   const handleOpen = (image) => {
     setSelectedImage(image);
     setOpen(true);
+  };
+
+  const onBandClick = (bandid) => {
+    console.log("Band clicked:", bandid);
+  };
+  
+  const onVenueClick = (venueid) => {
+    console.log("Venue clicked:", venueid);
   };
 
   const handleClose = () => {
     setOpen(false);
     setSelectedImage(null);
   };
+
+  const handleBandClick = (bandid) => {
+    console.log("Band clicked:", bandid);
+  };
+  
+  const handleVenueClick = (venueid) => {
+    console.log("Venue clicked:", venueid);
+  };
+
 
   if (loading) return <Typography>Loading...</Typography>;
   if (error) return <Typography color="error">{error}</Typography>;
@@ -82,17 +112,23 @@ const TCUPBandProfile = () => {
               socialLinks={band.social_links}
               genre={band.genre}
             />
-            {/* Info Cards */}
-            <Box
-              sx={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: 2,
-              }}
-            >
-              <InfoCard label="Genre" value={band.genre} />
-              <InfoCard label="Contact Info" value={band.contact} />
-            </Box>
+
+            <div>
+                  <h1>Band Profile</h1>
+                  {/* Other band profile details here */}
+
+                  <h2>Upcoming Shows</h2>
+                  {bandShows.length > 0 ? (
+                    <ShowsTableCore
+                      data={bandShows}
+                      onBandClick={onBandClick}
+                      onVenueClick={onVenueClick}
+                    />
+                  ) : (
+                    <p>No upcoming shows for this band.</p>
+                  )}
+                </div>
+            
           </Box>
         </Grid>
 

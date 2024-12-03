@@ -69,54 +69,49 @@ for event in events:
 
 
 
-        # If event link exists, navigate to the event page to get flyer_image and datetime
-            if event_details['event_link']:
-                driver.get(event_details['event_link'])
-                time.sleep(2)  # Adjust sleep time as needed for page load
+        # If event link exists, navigate to the event page to get flyer_image
+        if event_details['event_link']:
+            driver.get(event_details['event_link'])
+            time.sleep(2)  # Adjust sleep time as needed for page load
 
-                # Parse the event page
-                event_soup = BeautifulSoup(driver.page_source, 'html.parser')
+            # Parse the event page
+            event_soup = BeautifulSoup(driver.page_source, 'html.parser')
 
-                print(event_soup.prettify())
-
-                # Initialize flyer_image in event_details
-                event_details['flyer_image'] = None
-
-                # Extract flyer image
-                image_wrapper = event_soup.find("div", class_="image-block-wrapper")
-                if image_wrapper:
-                    img_tag = image_wrapper.find("img", src=True)
-                    event_details['flyer_image'] = img_tag['src'] if img_tag else None
-                else:
-                    event_details['flyer_image'] = None
-
-                print(f"Flyer image found for {event_details['bands']}: {event_details['flyer_image']}")
-
-                # Extract date and time
-                try:
-                    date_time_container = event_soup.find("ul", class_="eventitem-meta event-meta event-meta-date-time-container")
-                    if date_time_container:
-                        time_item = date_time_container.find("li", class_="eventitem-meta-item eventitem-meta-time event-meta-item")
-                        if time_item:
-                            time_span = time_item.find("time", class_="event-time-localized-start")
-                            if time_span and time_span.get("datetime"):
-                                event_details['start'] = datetime.fromisoformat(time_span["datetime"])
-                            else:
-                                print("Time span or datetime attribute missing.")
-                                event_details['start'] = None
-                        else:
-                            print("Time item not found.")
-                            event_details['start'] = None
-                    else:
-                        print("Date-time container not found.")
-                        event_details['start'] = None
-                except Exception as e:
-                    print(f"Error extracting start date and time for {event_details['bands']}: {e}")
-                    event_details['start'] = None
+            # Extract flyer image
+            image_wrapper = event_soup.find("div", class_="image-block-wrapper")
+            if image_wrapper:
+                img_tag = image_wrapper.find("img", src=True)
+                event_details['flyer_image'] = img_tag['src'] if img_tag else None
             else:
                 event_details['flyer_image'] = None
+
+            print(f"Flyer image found for {event_details['bands']}: {event_details['flyer_image']}")
+        else:
+            event_details['flyer_image'] = None
+            print(f"No event link for {event_details['bands']}")
+
+            # Extract date and time from the event card
+            try:
+                date_time_container = event.find("ul", class_="eventitem-meta event-meta event-meta-date-time-container")
+                if date_time_container:
+                    time_item = date_time_container.find("li", class_="eventitem-meta-item eventitem-meta-time event-meta-item")
+                    if time_item:
+                        time_span = time_item.find("span", class_="event-time-localized")
+                        if time_span and time_span.get("datetime"):
+                            # Parse the datetime attribute
+                            event_details['start'] = datetime.fromisoformat(time_span["datetime"])
+                        else:
+                            print("Time span or datetime attribute missing.")
+                            event_details['start'] = None
+                    else:
+                        print("Time item not found.")
+                        event_details['start'] = None
+                else:
+                    print("Date-time container not found.")
+                    event_details['start'] = None
+            except Exception as e:
+                print(f"Error extracting start date and time: {e}")
                 event_details['start'] = None
-                print(f"No event link for {event_details['bands']}")
 
                 print(f"Flyer image: {event_details['flyer_image']}, Start: {event_details['start']}")
 
@@ -154,6 +149,7 @@ for event_details in events_data:
             start=event_details.get('start'),  # Use .get() to avoid KeyError
             event_link=event_details['event_link'],
             flyer_image=event_details['flyer_image'],
+            allow_update=True
         )
         if was_inserted:
             shows_added += 1

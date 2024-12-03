@@ -10,32 +10,34 @@ import VenuesTable from "./pages/VenuesTable.js";
 import VenueProfile from "./pages/VenueProfile.js";
 import { Box } from "@mui/material";
 import { ThemeProvider, createTheme } from "@mui/material/styles";
+import theme from "./styles/theme"; // Import your custom theme
 import TCUPBandForm from "./pages/TCUPBandForm.js";
 import TCUPBandsTable from "./pages/TCUPBandsTable.js";
 import TCUPBandProfile from "./pages/TCUPBandProfile.js";
+import Header from "./components/Header.js"; // Import your custom Header component
 
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: "#1976d2",
-    },
-    secondary: {
-      main: "#dc004e",
-    },
-  },
-});
+
 
 function App() {
   return (
     <ThemeProvider theme={theme}>
+      {/* Include Header above the Routes */}
+      <Header />
       <Box
         sx={{
-          padding: {
+          paddingTop: {
+            xs: 0, // padding of 16px for extra small screens
+            sm: 0, // padding of 24px for small screens
+            md: 0, // padding of 32px for medium screens
+          },
+          marginTop: 2,
+          paddingLeft: {
             xs: 2, // padding of 16px for extra small screens
             sm: 3, // padding of 24px for small screens
             md: 4, // padding of 32px for medium screens
           },
-          margin: 2,
+          marginLeft: 12,
+          marginRight: 12,
         }}
       >
         <Routes>

@@ -112,19 +112,24 @@ function ShowsTableCore({ data, onBandClick, onVenueClick }) {
                         {item.venue_name || 'Unknown Venue'}
                       </TableCell>
                       <TableCell>
-                        {item.bands.length > 0
-                          ? item.bands.map((band, index) => (
-                              <div key={index}>
-                                <Button
-                                  onClick={() => onBandClick && onBandClick(band.id)}
-                                  style={{ textTransform: 'none', fontSize: '1rem', textAlign: 'left' }}
-                                  variant="text"
-                                >
-                                  {band.name}
-                                </Button>
-                              </div>
-                            ))
-                          : 'No Bands Listed'}
+                        {item.bands ? (
+                          item.bands.split(',').map((bandName, index) => (
+                            <Button
+                              key={index}
+                              onClick={() => onBandClick && onBandClick(bandName.trim())}
+                              style={{
+                                textTransform: 'none',
+                                fontSize: '1rem',
+                                textAlign: 'left',
+                              }}
+                              variant="text"
+                            >
+                              {bandName.trim()}
+                            </Button>
+                          ))
+                        ) : (
+                          'No Bands Listed'
+                        )}
                       </TableCell>
                       <TableCell sx={{ fontSize: '18px' }}>
                         {new Date(item.start).toLocaleString('en-US', {

@@ -1,93 +1,84 @@
-import express from 'express';
-import pool from '../config/db.js';
+import express from "express";
+import pool from "../config/db.js";
+import upload from "../middleware/upload.js";
+import sendSuccessResponse from "../utils/sendSuccessResponse.js";
 
 const router = express.Router();
 
 // Get all venues
-router.get('/', async (req, res) => {
+router.get("/", async (req, res) => {
   try {
-    console.log('Attempting to query venues...');
-    const query = 'SELECT * FROM public.venues';
-    const result = await pool.query('SELECT * FROM public.venues');
-    console.log('Query result:', result.rows);
-    res.json(result.rows);
+    const query = "SELECT * FROM venues";
+    const result = await pool.query(query);
+    sendSuccessResponse(res, result.rows);
   } catch (error) {
-    console.error('Error fetching venues:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error("Error fetching venues:", error);
+    res.status(500).json({ error: "Server error" });
   }
 });
 
 // Get a single venue by ID
-router.get('/:id', async (req, res) => {
+router.get("/:venueId", async (req, res) => {
   try {
-    const { id } = req.params;
-    const venue = await pool.query('SELECT * FROM venues WHERE id = $1', [id]);
+    const { venueId } = req.params;
+    const query = "SELECT * FROM venues WHERE id = $1";
+    const result = await pool.query(query, [venueId]);
 
-    if (venue.rows.length === 0) {
-      return res.status(404).json({ message: 'Venue not found' });
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Venue not found" });
     }
 
-    res.json(venue.rows[0]);
+    sendSuccessResponse(res, result.rows[0]);
   } catch (error) {
-    console.error('Error fetching venue:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error("Error fetching venue:", error);
+    res.status(500).json({ error: "Server error" });
   }
 });
 
-// Create a new venue
-router.post('/', async (req, res) => {
+// Add a new venue
+router.post("/add", upload.single("cover_image"), async (req, res) => {
   try {
-    const { name, address, capacity } = req.body;
+    const { venue, location, capacity } = req.body;
 
-    const newVenue = await pool.query(
-      'INSERT INTO venues (name, address, capacity) VALUES ($1, $2, $3) RETURNING *',
-      [name, address, capacity]
-    );
+    const coverImagePath = req.file
+      ? `/assets/images/${req.file.filename}`
+      : null;
 
-    res.status(201).json(newVenue.rows[0]);
+    const query =
+      "INSERT INTO venues (venue, location, capacity, cover_image) VALUES ($1, $2, $3, $4) RETURNING *";
+    const values = [venue, location, capacity, coverImagePath];
+    const result = await pool.query(query, values);
+
+    sendSuccessResponse(res, result.rows[0]);
   } catch (error) {
-    console.error('Error creating venue:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error("Error adding venue:", error);
+    res.status(500).json({ error: "Server error" });
   }
 });
 
-// Update an existing venue
-router.put('/:id', async (req, res) => {
+// Edit an existing venue
+router.put("/:venueId/edit", upload.single("cover_image"), async (req, res) => {
   try {
-    const { id } = req.params;
-    const { name, address, capacity } = req.body;
+    const { venueId } = req.params;
+    const { venue, location, capacity } = req.body;
 
-    const updatedVenue = await pool.query(
-      'UPDATE venues SET name = $1, address = $2, capacity = $3 WHERE id = $4 RETURNING *',
-      [name, address, capacity, id]
-    );
+    const coverImagePath = req.file
+      ? `/assets/images/${req.file.filename}`
+      : null;
 
-    if (updatedVenue.rows.length === 0) {
-      return res.status(404).json({ message: 'Venue not found' });
+    const query =
+      "UPDATE venues SET venue = $1, location = $2, capacity = $3, cover_image = $4 WHERE id = $5 RETURNING *";
+    const values = [name, location, capacity, coverImagePath, venueId];
+    const result = await pool.query(query, values);
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: "Venue not found" });
     }
 
-    res.json(updatedVenue.rows[0]);
+    sendSuccessResponse(res, result.rows[0]);
   } catch (error) {
-    console.error('Error updating venue:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
-
-// Delete a venue
-router.delete('/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const deletedVenue = await pool.query('DELETE FROM venues WHERE id = $1 RETURNING *', [id]);
-
-    if (deletedVenue.rows.length === 0) {
-      return res.status(404).json({ message: 'Venue not found' });
-    }
-
-    res.json({ message: 'Venue deleted successfully' });
-  } catch (error) {
-    console.error('Error deleting venue:', error);
-    res.status(500).json({ message: 'Server error' });
+    console.error("Error editing venue:", error);
+    res.status(500).json({ error: "Server error" });
   }
 });
 

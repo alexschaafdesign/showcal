@@ -1,4 +1,6 @@
+import { fontSize, fontStyle, fontWeight, textTransform } from '@mui/system';
 import palette from './colors/palette'; // Import your palette
+
 
 export const components = {
     MuiDialog: {
@@ -28,30 +30,32 @@ export const components = {
           disableRipple: true, // Disable ripple effect for cleaner UI
         },
       },
-    MuiTab: {
+      MuiTab: {
         styleOverrides: {
-          root: {
-            color: 'black',
-            backgroundColor: 'white', // Default background for inactive tabs
-            '&.Mui-selected': {
-              color: 'blue', // Selected tab color
-              backgroundColor: 'lightblue', // Background for selected tab
+          root: ({ theme }) => ({
+            color: theme.palette.neutral.white, // Default text color
+            fontSize: "1.25rem",
+            textTransform: "uppercase",
+            margin: "0 16px",
+            fontWeight: "400",
+            "&.Mui-selected": {
+              color: theme.palette.neutral.white, // Highlighted text color when selected
             },
-            '&:hover': {
-              backgroundColor: 'lightgray', // Background on hover for inactive tabs
+            "&:hover": {
+              color: "#FFFFFF", // Hover effect color
+              backgroundColor: theme.palette.primary.light, // Use theme token
             },
-          },
+          }),
         },
       },
-    MuiTabs: {
-    styleOverrides: {
+      MuiTabs: {
+        styleOverrides: {
           root: {
-            backgroundColor: '#f4f4f4', // Background color of the tabs container
-            color: '#333', // Default text color
+            backgroundColor: "transparent", // Background color of the tabs container
           },
-          indicator: {
-            backgroundColor: '#1976d2', // Color of the active tab underline
-          },
+          indicator: ({ theme }) => ({
+            backgroundColor: theme.palette.neutral.white, // Use theme token for active tab underline
+          }),
         },
       },
     MuiSelect: {

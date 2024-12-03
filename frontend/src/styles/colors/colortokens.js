@@ -36,6 +36,7 @@ const colorTokens = {
     light: colors.gray90,
     main: colors.gray50,
     dark: colors.gray30,
+    white: colors.gray99
   },
   background: {
     default: colors.gray98,

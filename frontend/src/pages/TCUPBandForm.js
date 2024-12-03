@@ -14,6 +14,7 @@ import {
 } from "@mui/material";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import CustomFilePond from "../components/CustomFilePond";
+import AppBreadcrumbs from "../components/Breadcrumbs";
 
 const TCUPBandForm = ({ isEdit = false }) => {
   const { bandid } = useParams();
@@ -24,7 +25,7 @@ const TCUPBandForm = ({ isEdit = false }) => {
 
   const [formData, setFormData] = useState({
     name: bandDataFromState?.name || "",
-    genre: bandDataFromState?.genre || "",
+  genre: bandDataFromState?.genre || ["", "", ""], // Change this to an array for three genres
     contact: bandDataFromState?.contact || "",
     play_shows: bandDataFromState?.play_shows || "",
     group_size: bandDataFromState?.group_size || [],
@@ -40,6 +41,12 @@ const TCUPBandForm = ({ isEdit = false }) => {
   const [imageFiles, setImageFiles] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
   const endpoint = "http://localhost:3001";
+
+  const handleGenreChange = (index, value) => {
+    const updatedGenres = [...formData.genre];
+    updatedGenres[index] = value; // Update the specific genre at the given index
+    setFormData((prev) => ({ ...prev, genre: updatedGenres }));
+  };
 
   useEffect(() => {
     const fetchBand = async () => {
@@ -92,12 +99,12 @@ const TCUPBandForm = ({ isEdit = false }) => {
   };
   
   function validateSpotifyLink(url) {
-    const regex = /^(https?:\/\/)?(open\.)?spotify\.com\/(track|album|playlist)\/[a-zA-Z0-9]+/;
+    const regex = /^(https?:\/\/)?(open\.)?spotify\.com\/(track|album|playlist|artist)\/[a-zA-Z0-9]+/;
     return regex.test(url);
   }
   
   function validateBandcampLink(url) {
-    const regex = /^(https?:\/\/)?([a-zA-Z0-9-]+\.bandcamp\.com)\/.+$/;
+    const regex = /^(https?:\/\/)?([a-zA-Z0-9-]+\.bandcamp\.com)(\/.*)?$/;
     return regex.test(url);
   }
   
@@ -184,6 +191,7 @@ const TCUPBandForm = ({ isEdit = false }) => {
 
   return (
     <Box sx={{ paddingTop: 2, paddingBottom: 10, paddingX: 4 }}>
+      <AppBreadcrumbs />
       <Typography variant="h1" gutterBottom textAlign={"center"}>
         {isEdit ? "Edit Your Band" : "Add Your Band"}
       </Typography>
@@ -204,14 +212,21 @@ const TCUPBandForm = ({ isEdit = false }) => {
           required
           sx={{ mb: 2 }}
         />
-        <TextField
-          label="Genre/Style"
-          name="genre"
-          value={formData.genre}
-          onChange={handleChange}
-          fullWidth
-          sx={{ mb: 2 }}
-        />
+      <Box sx={{ mb: 2 }}>
+        <Typography variant="h6" sx={{ mb: 1 }}>
+          Genre/Style
+        </Typography>
+        {[0, 1, 2].map((index) => (
+          <TextField
+            key={index}
+            label={`Genre ${index + 1}`}
+            value={formData.genre[index] || ""}
+            onChange={(e) => handleGenreChange(index, e.target.value)}
+            fullWidth
+            sx={{ mb: 1 }}
+          />
+        ))}
+      </Box>
         <TextField
           label="Contact Info"
           name="contact"
@@ -225,7 +240,7 @@ const TCUPBandForm = ({ isEdit = false }) => {
           Media Links
         </Typography>
         <TextField
-          label="Spotify Link"
+          label="Spotify Arist Profile Link"
           name="spotify"
           value={formData.social_links.spotify}
           fullWidth
@@ -257,7 +272,7 @@ const TCUPBandForm = ({ isEdit = false }) => {
           sx={{ mb: 2 }}
         />
         <TextField
-          label="YouTube Link"
+          label="YouTube Profile Link"
           name="youtube"
           value={formData.social_links.youtube || ""}
           fullWidth
@@ -272,6 +287,8 @@ const TCUPBandForm = ({ isEdit = false }) => {
           }
           sx={{ mb: 2 }}
         />
+        <Typography variant="h3" sx={{ mb: 2 }}>
+         Social Media        </Typography>
         <FormControl fullWidth sx={{ mb: 2 }}>
           <InputLabel>Looking to Play Shows?</InputLabel>
           <Select

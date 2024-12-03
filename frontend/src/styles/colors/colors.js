@@ -64,7 +64,7 @@ const colors = {
     purple20: '#580096',
     purple30: '#7905CC',
     purple40: '#9F26F6',
-    purple50: '#B359F4',
+    purple50: '#8E6CD1',
     purple60: '#C478FB',
     purple70: '#D49AFD',
     purple80: '#E3BBFF',

@@ -1,3 +1,4 @@
+import { fontWeight, textTransform } from '@mui/system';
 import palette from './colors/palette'; // Import your palette
 
 export const buttonStyles = {
@@ -9,8 +10,10 @@ export const buttonStyles = {
           textTransform: 'none', // Remove text transformation
         },
         contained: {
-          backgroundColor: palette.primary.main, // Contained buttons use primary color
-          color: palette.text.primary,
+          backgroundColor: palette.secondary.main, // Contained buttons use primary color
+          color: palette.neutral.white,
+          fontWeight: "bold",
+          textTransform: "uppercase",
           '&:hover': {
             backgroundColor: palette.primary.light,
           },

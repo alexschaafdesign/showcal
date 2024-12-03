@@ -6,10 +6,12 @@ import { fileURLToPath } from 'url';
 import path from 'path';
 import fs from 'fs';
 import venuesRoutes from './routes/venues.js';
-import tcupbandsRoutes from './routes/tcupbands.js';
+import tcupbandsRouter from './routes/tcupbands.js';
 import bandsRoutes from './routes/bands.js';
 import showsRoutes from './routes/shows.js';
 import uploadRoutes from './routes/upload.js';
+import bodyParser from "body-parser"; // Parse application/json
+
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -32,16 +34,21 @@ const pool = new Pool({
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
+app.use(bodyParser.urlencoded({ extended: true })); // Parse application/x-www-form-urlencoded
+
 
 // Routes
 app.use('/venues', venuesRoutes);       // All routes for venues table
-app.use('/tcupbands', tcupbandsRoutes); // All routes for TCUP bands
+app.use('/tcupbands', tcupbandsRouter); // All routes for TCUP bands
 app.use('/bands', bandsRoutes);         // All routes for bands table
 app.use('/shows', showsRoutes);         // All routes for shows table
 app.use('/', uploadRoutes);       // Register the upload route
 
-// Serve static files
+// Serve static files (for the frontend)
 app.use('/assets/images', express.static(path.join(__dirname, '../assets/images')));
+
+// Serve static files for venue images (backend)
+app.use("/images/venueimages", express.static(path.join(__dirname, "./public/images/venueimages")));
 
 // Ensure directories exist
 const ensureDirectoryExistence = (dir) => {
