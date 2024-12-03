@@ -2,7 +2,7 @@ import requests
 import json
 from bs4 import BeautifulSoup
 from datetime import datetime
-from db_utils import connect_to_db, get_venue_id, insert_show, insert_band, link_band_to_show
+from db_utils import connect_to_db, get_venue_id, insert_show
 
 # Database connection
 conn = connect_to_db()
@@ -81,10 +81,10 @@ def get_links_for_band(band_element):
                 print(f"Found {platform} link for specific band: {link}")
     return links
 
-# Function to get band names and individual social links from the event page
-def get_bands_with_links_from_event_page(event_url):
-    bands_with_links = []
-    print(f"Fetching band names and links from: {event_url}")
+# Function to get band names from the event page
+def get_bands_from_event_page(event_url):
+    bands = []
+    print(f"Fetching band names from: {event_url}")
     response = requests.get(event_url)
 
     if response.status_code == 200:
@@ -97,13 +97,12 @@ def get_bands_with_links_from_event_page(event_url):
                 band = band_name_element.find('h2')
                 if band:
                     band_name = band.get_text(strip=True)
-                    social_links = get_links_for_band(item)
-                    bands_with_links.append((band_name, social_links))
-                    print(f"Band found: {band_name} with links: {social_links}")
+                    bands.append(band_name)
+                    print(f"Band found: {band_name}")
     else:
         print(f"Failed to retrieve band data from {event_url}. Status code: {response.status_code}")
 
-    return bands_with_links
+    return bands
 
 # Function to fetch and process events from the given URL
 def fetch_and_process_events(url):
@@ -146,20 +145,23 @@ def fetch_and_process_events(url):
                 print(f"Error combining date and time: {e}")
                 start_datetime = None
 
-            # Process each band individually with their links
-            bands_with_links = get_bands_with_links_from_event_page(event_url)
+            # Extract band names from the event page
+            band_names = get_bands_from_event_page(event_url)
+            bands = ", ".join(band_names)
 
-            # Insert show and link bands
-            if venue_id:
-                show_id, was_inserted = insert_show(cursor, venue_id, None, start_datetime, event_url, flyer_image)  # Unpack the tuple
+            # Insert the show into the database
+            try:
+                show_id, was_inserted = insert_show(cursor, venue_id, bands, start_datetime, event_link, flyer_image)
+
                 if was_inserted:
                     added_count += 1
                 else:
                     skipped_count += 1
 
-                for band_name, social_links in bands_with_links:
-                    band_id = insert_band(cursor, band_name, social_links)
-                    link_band_to_show(cursor, band_id, show_id)  # Pass only the single integer 'show_id'
+                print(f"Processed show ID: {show_id} (New: {was_inserted})")
+
+            except Exception as e:
+                print(f"Error processing show at {event_link}: {e}")
 
         conn.commit()  # Commit after processing all shows for the current URL
 
@@ -168,16 +170,7 @@ def fetch_and_process_events(url):
 
 # List of URLs for different months
 urls = [
-    'https://first-avenue.com/shows',  # URL for November
     'https://first-avenue.com/shows/?post_type=event&start_date=20241201',  # URL for December
-    'https://first-avenue.com/shows/?post_type=event&start_date=20250101',  # URL for January
-    'https://first-avenue.com/shows/?post_type=event&start_date=20250201',  # URL for February
-    'https://first-avenue.com/shows/?post_type=event&start_date=20250301',  # URL for March
-    'https://first-avenue.com/shows/?post_type=event&start_date=20250401',  # URL for April
-    'https://first-avenue.com/shows/?post_type=event&start_date=20250501',  # URL for May
-    'https://first-avenue.com/shows/?post_type=event&start_date=20250601',  # URL for June
-    'https://first-avenue.com/shows/?post_type=event&start_date=20250701',  # URL for July
-    'https://first-avenue.com/shows/?post_type=event&start_date=20250801',  # URL for August
 ]
 
 # Process each URL

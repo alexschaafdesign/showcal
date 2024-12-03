@@ -138,4 +138,39 @@ router.put("/:bandid/edit", upload.array("images", 10), async (req, res) => {
   }
 });
 
+router.get('/:id/shows', async (req, res) => {
+  const bandId = req.params.id;
+
+  try {
+    const query = `
+      SELECT 
+        shows.id AS show_id,
+        shows.start,
+        shows.flyer_image,
+        shows.event_link,
+        shows.venue_id,
+        shows.bands AS band_list,
+        venues.venue AS venue_name,
+        venues.location
+      FROM 
+        shows
+      LEFT JOIN 
+        venues ON shows.venue_id = venues.id
+      WHERE 
+        EXISTS (
+          SELECT 1 
+          FROM unnest(string_to_array(shows.bands, ',')) AS band_name
+          WHERE band_name ILIKE (SELECT name FROM tcupbands WHERE id = $1)
+        )
+      ORDER BY 
+        shows.start ASC;
+    `;
+    const { rows } = await pool.query(query, [bandId]);
+    res.json(rows);
+  } catch (error) {
+    console.error('Error fetching shows for band:', error);
+    res.status(500).json({ error: 'Failed to fetch shows for band' });
+  }
+});
+
 export default router;

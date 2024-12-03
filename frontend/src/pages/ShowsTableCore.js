@@ -11,17 +11,14 @@ import {
 } from '@mui/material';
 
 function ShowsTableCore({ data, onBandClick, onVenueClick }) {
-  // Get today's date at midnight
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // Filter data to include only events from today onward
   const filteredData = data.filter((item) => {
     const eventDate = new Date(item.start);
     return eventDate >= today;
   });
 
-  // Group events by date
   const groupByDate = (events) => {
     const grouped = {};
     events.forEach((item) => {
@@ -80,7 +77,7 @@ function ShowsTableCore({ data, onBandClick, onVenueClick }) {
                   </TableCell>
                 </TableRow>
                 {groupedData[date]
-                  .sort((a, b) => new Date(a.start) - new Date(b.start)) // Sort events by start time
+                  .sort((a, b) => new Date(a.start) - new Date(b.start))
                   .map((item, idx) => (
                     <TableRow key={idx}>
                       <TableCell>
@@ -112,24 +109,26 @@ function ShowsTableCore({ data, onBandClick, onVenueClick }) {
                         {item.venue_name || 'Unknown Venue'}
                       </TableCell>
                       <TableCell>
-                        {item.bands ? (
-                          item.bands.split(',').map((bandName, index) => (
-                            <Button
-                              key={index}
-                              onClick={() => onBandClick && onBandClick(bandName.trim())}
-                              style={{
-                                textTransform: 'none',
-                                fontSize: '1rem',
-                                textAlign: 'left',
-                              }}
-                              variant="text"
-                            >
-                              {bandName.trim()}
-                            </Button>
-                          ))
-                        ) : (
-                          'No Bands Listed'
-                        )}
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                          {item.bands.map((band, index) =>
+                            band.id ? (
+                              <Button
+                                key={index}
+                                onClick={() => onBandClick && onBandClick(band.id)}
+                                style={{
+                                  textTransform: 'none',
+                                  fontSize: '1rem',
+                                  textAlign: 'left',
+                                }}
+                                variant="text"
+                              >
+                                {band.name}
+                              </Button>
+                            ) : (
+                              <span key={index}>{band.name}</span>
+                            )
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell sx={{ fontSize: '18px' }}>
                         {new Date(item.start).toLocaleString('en-US', {

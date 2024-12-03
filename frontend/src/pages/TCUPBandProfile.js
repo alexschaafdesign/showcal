@@ -43,6 +43,7 @@ const TCUPBandProfile = ({ allShows = [] }) => {
     console.log("allShows in TCUPBandProfile:", allShows);
     if (!Array.isArray(allShows)) return;
   
+    // Filter shows by the current band ID
     const filteredShows = allShows.filter((show) =>
       Array.isArray(show.bands) && show.bands.some((band) => band.id === parseInt(bandid, 10))
     );
@@ -118,15 +119,15 @@ const TCUPBandProfile = ({ allShows = [] }) => {
                   {/* Other band profile details here */}
 
                   <h2>Upcoming Shows</h2>
-                  {bandShows.length > 0 ? (
-                    <ShowsTableCore
-                      data={bandShows}
-                      onBandClick={onBandClick}
-                      onVenueClick={onVenueClick}
-                    />
-                  ) : (
-                    <p>No upcoming shows for this band.</p>
-                  )}
+                    {bandShows.length > 0 ? (
+                      <ShowsTableCore
+                        data={bandShows}
+                        onBandClick={onBandClick}
+                        onVenueClick={onVenueClick}
+                      />
+                    ) : (
+                      <p>No upcoming shows for this band.</p>
+                    )}
                 </div>
             
           </Box>

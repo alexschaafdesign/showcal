@@ -16,6 +16,8 @@ function ShowsTable() {
   const [selectedVenue, setSelectedVenue] = useState("");
   const navigate = useNavigate();
 
+  const safeBandsData = Array.isArray(bandsData) ? bandsData : [];
+
   useEffect(() => {
     // Fetch shows data
     const fetchShows = async () => {
@@ -30,6 +32,8 @@ function ShowsTable() {
         setShowsData([]);
       }
     };
+
+    console.log("bandsData: ", bandsData);
 
     // Fetch bands data
     const fetchBands = async () => {
@@ -53,8 +57,9 @@ function ShowsTable() {
     const filtered = showsData.filter((item) => {
       const matchesSearch = searchTerm
         ? item.venue_name.toLowerCase().includes(searchTerm) ||
-          item.bands.toLowerCase().includes(searchTerm)
+          (item.bands && item.bands.some(band => band.name.toLowerCase().includes(searchTerm)))
         : true;
+
       const matchesVenue = selectedVenue
         ? item.venue_name.toLowerCase() === selectedVenue.toLowerCase()
         : true;
@@ -65,21 +70,10 @@ function ShowsTable() {
     return filtered;
   };
 
-  const crossReferenceBands = (bandsString) => {
-    const bandNames = typeof bandsString === "string" ? bandsString.split(", ") : []; // Split by comma and space
-    return bandNames.map((bandName) => {
-      const matchedBand = bandsData.find(
-        (band) => band.name.toLowerCase() === bandName.toLowerCase()
-      );
-      return matchedBand
-        ? { name: bandName, id: matchedBand.id } // Link to BandProfile
-        : { name: bandName, id: null }; // No link
-    });
-  };
 
   const processedData = filterEvents().map((show) => ({
     ...show,
-    bands: crossReferenceBands(Array.isArray(show.bands) ? show.bands : (typeof show.bands === "string" ? show.bands.split(", ") : [])),
+    bands: show.bands || [], // Use the `bands` array from the backend
   }));
 
   return (
@@ -115,7 +109,7 @@ function ShowsTable() {
 
       <ShowsTableCore
         data={processedData}
-        onBandClick={(id) => id && navigate(`/bands/${id}`)} // Only navigate if ID exists
+        onBandClick={(id) => id && navigate(`/tcupbands/${id}`)} // Only navigate if ID exists
         onVenueClick={(id) => navigate(`/venues/${id}`)}
       />
     </div>
