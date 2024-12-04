@@ -151,7 +151,7 @@ def fetch_and_process_events(url):
 
             # Insert the show into the database
             try:
-                show_id, was_inserted = insert_show(cursor, venue_id, bands, start_datetime, event_link, flyer_image)
+                show_id, was_inserted = insert_show(conn, cursor, venue_id, bands, start_datetime, event_link, flyer_image)
 
                 if was_inserted:
                     added_count += 1
@@ -171,6 +171,15 @@ def fetch_and_process_events(url):
 # List of URLs for different months
 urls = [
     'https://first-avenue.com/shows/?post_type=event&start_date=20241201',  # URL for December
+    'https://first-avenue.com/shows/?post_type=event&start_date=20241201',  # URL for December
+    'https://first-avenue.com/shows/?post_type=event&start_date=20250101',  # URL for January
+    'https://first-avenue.com/shows/?post_type=event&start_date=20250201',  # URL for February
+    'https://first-avenue.com/shows/?post_type=event&start_date=20250301',  # URL for March
+    'https://first-avenue.com/shows/?post_type=event&start_date=20250401',  # URL for April
+    'https://first-avenue.com/shows/?post_type=event&start_date=20250501',  # URL for May
+    'https://first-avenue.com/shows/?post_type=event&start_date=20250601',  # URL for June
+    'https://first-avenue.com/shows/?post_type=event&start_date=20250701',  # URL for July
+    'https://first-avenue.com/shows/?post_type=event&start_date=20250801',  # URL for August
 ]
 
 # Process each URL

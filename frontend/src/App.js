@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Route, Routes } from "react-router-dom";
 import Calendar from "./pages/Calendar.js";
 import Home from "./pages/Home.js";
@@ -9,16 +9,32 @@ import "./styles/App.css";
 import VenuesTable from "./pages/VenuesTable.js";
 import VenueProfile from "./pages/VenueProfile.js";
 import { Box } from "@mui/material";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { ThemeProvider } from "@mui/material/styles";
 import theme from "./styles/theme"; // Import your custom theme
 import TCUPBandForm from "./pages/TCUPBandForm.js";
 import TCUPBandsTable from "./pages/TCUPBandsTable.js";
 import TCUPBandProfile from "./pages/TCUPBandProfile.js";
 import Header from "./components/Header.js"; // Import your custom Header component
 
-
-
 function App() {
+  const [allShows, setAllShows] = useState([]);
+
+  // Fetch all shows from the backend
+  useEffect(() => {
+    const fetchShows = async () => {
+      try {
+        const response = await fetch("http://localhost:3001/shows");
+        if (!response.ok) throw new Error("Failed to fetch shows");
+        const data = await response.json();
+        setAllShows(data); // Save shows data in state
+      } catch (error) {
+        console.error("Error fetching shows:", error);
+      }
+    };
+
+    fetchShows();
+  }, []);
+
   return (
     <ThemeProvider theme={theme}>
       {/* Include Header above the Routes */}
@@ -45,7 +61,7 @@ function App() {
           <Route path="/" element={<Home />} />
 
           {/* Shows */}
-          <Route path="/shows" element={<ShowsTable />} />
+          <Route path="/shows" element={<ShowsTable allShows={allShows} />} />
 
           {/* Bands */}
           <Route path="/bands" element={<BandsTable />} />
@@ -54,7 +70,10 @@ function App() {
           {/* TCUP Bands */}
           <Route path="/tcupbands" element={<TCUPBandsTable />} />
           <Route path="/tcupbands/add" element={<TCUPBandForm isEdit={false} />} />
-          <Route path="/tcupbands/:bandid" element={<TCUPBandProfile />} />
+          <Route
+            path="/tcupbands/:bandid"
+            element={<TCUPBandProfile allShows={allShows} />}
+          />
           <Route path="/tcupbands/:bandid/edit" element={<TCUPBandForm isEdit={true} />} />
 
           {/* Venues */}

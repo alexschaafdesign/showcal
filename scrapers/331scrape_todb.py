@@ -1,18 +1,11 @@
 import re
-import os
+from datetime import datetime
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
-import psycopg2
-from datetime import datetime
-
-# Database connection parameters
-DB_NAME = "tcup"
-DB_USER = "aschaaf"  # replace with your database username
-DB_PASSWORD = "notthesame"  # replace with your database password
-DB_HOST = "localhost"  # or use your database host if it's hosted remotely
+from db_utils import connect_to_db, insert_show, get_venue_id
 
 # Initialize WebDriver
 driver = webdriver.Chrome()
@@ -24,16 +17,20 @@ try:
     WebDriverWait(driver, 10).until(
         EC.element_to_be_clickable((By.CSS_SELECTOR, '.more_events a'))
     ).click()
-except:
-    print("The 'See all upcoming events' button was not found or clickable.")
+except Exception as e:
+    print(f"Error clicking 'See all upcoming events' button: {e}")
+    driver.quit()
+    exit()
 
 # Wait for event cards to load
 try:
     WebDriverWait(driver, 10).until(
         EC.presence_of_all_elements_located((By.CLASS_NAME, 'event'))
     )
-except:
-    print("Event cards did not load in time.")
+except Exception as e:
+    print(f"Error waiting for event cards: {e}")
+    driver.quit()
+    exit()
 
 # Extract page source and parse with BeautifulSoup
 soup = BeautifulSoup(driver.page_source, 'html.parser')
@@ -41,137 +38,142 @@ driver.quit()
 
 # Find all event cards
 events = soup.find_all("div", class_="event")
-events_data = []
 
-# Loop through each event block
+# Connect to the database
+conn = connect_to_db()
+cursor = conn.cursor()
+
+# Get venue ID for "331 Club"
+try:
+    venue_id = get_venue_id(cursor, "331 Club")
+except ValueError as e:
+    print(e)
+    conn.close()
+    exit()
+
+# Counters for added, updated, and skipped events
+added_count = 0
+updated_count = 0
+duplicate_count = 0
+
+# Define a function to calculate the event year
+def get_event_year(month):
+    if month in ["11", "12"]:
+        return 2024
+    return 2025
+
+# Normalize time
+def normalize_time(time_str):
+    """
+    Normalize the time string into the format 'HH:MM am/pm'.
+    """
+    try:
+        # Add a colon if it's missing (e.g., '7pm' -> '7:00 pm')
+        if ':' not in time_str:
+            time_str = time_str.replace('am', ':00 am').replace('pm', ':00 pm')
+        else:
+            time_str = re.sub(r'(\d+:\d{2})\s?(am|pm)', r'\1 \2', time_str)
+
+        # Parse and return the normalized time
+        normalized_time = datetime.strptime(time_str, "%I:%M %p").strftime("%I:%M %p")
+        return normalized_time
+    except Exception as e:
+        print(f"Error normalizing time: {time_str}. Error: {e}")
+        return None
+    
+def clean_band_name(name):
+    """
+    Cleans up band names by removing unwanted stop words and extra spaces.
+    """
+    stop_words = ['with', 'and']
+    return ' '.join(word for word in name.split() if word.lower() not in stop_words).strip()
+
+# Loop through each event to extract details
 for event in events:
-    # Initialize a dictionary to store the event details for each event
-    event_details = {}
-
-    # Find the event date
+    # Extract date details
     date_tag = event.find("div", class_="event-date")
     if date_tag:
         month_text = date_tag.find("span", class_="month").get_text(strip=True)
         day_text = date_tag.find("span", class_="date").get_text(strip=True)
-        
         month_mapping = {
             "Jan": "01", "Feb": "02", "Mar": "03", "Apr": "04", "May": "05",
             "Jun": "06", "Jul": "07", "Aug": "08", "Sep": "09", "Oct": "10",
             "Nov": "11", "Dec": "12"
         }
         month = month_mapping.get(month_text, "N/A")
-        year = "2024" if month in ["11", "12"] else "2025"
-        event_details['date'] = f"{year}-{month}-{int(day_text):02d}"
+        year = get_event_year(month)
+        date_str = f"{year}-{month}-{int(day_text):02d}"
     else:
-        event_details['date'] = 'N/A'
+        date_str = None
 
-    # Set the venue for the event
-    event_details['venue'] = "331 Club"
-
-    # Find the event-content div within each event
+    # Find event content
     event_content = event.find("div", class_="event-content")
     if not event_content:
-        continue  # Skip if no event-content is found
+        continue
 
-    # Find the columns div within event-content
+    # Extract each column as a separate event
     columns_div = event_content.find("div", class_="columns")
     if not columns_div:
-        continue  # Skip if there are no event columns found
+        continue
 
-    # Loop through each column in columns_div to get individual events
     for column in columns_div.find_all("div", class_="column"):
-        # Extract main event name and supporting acts
-        p_tag = column.find("p")
-        if p_tag:
-            full_text = p_tag.get_text(separator="\n", strip=True).split("\n")
+        # Extract event details
+        name_tag = column.find("p")
+        if not name_tag:
+            continue
 
-            # The first line is the main event name
-            event_details['name'] = full_text[0].strip()
+        # Extract bands and times from the column
+        full_text = name_tag.get_text(separator="\n", strip=True).split("\n")
+        bands = []
+        event_time = None
 
-            # Check if there's a time in the last line
-            time_match = re.search(r'(\d{1,2}(:\d{2})?\s?[ap]m)', full_text[-1], re.IGNORECASE)
-            if time_match:
-                event_time = time_match.group(0).lower()
-                if ':' not in event_time:
-                    event_time = event_time.replace("am", ":00 am").replace("pm", ":00 pm")
-                else:
-                    event_time = re.sub(r'(\d+:\d{2})\s?(am|pm)', r'\1 \2', event_time)
-                event_details['time'] = event_time
+        for line in full_text:
+            line = line.strip()
+            if re.search(r'\d{1,2}(:\d{2})?\s?[ap]m', line, re.IGNORECASE):  # Line is a time
+                event_time = normalize_time(line)  # Normalize the time
             else:
-                event_details['time'] = 'N/A'
+                bands.append(line)  # Add line as a band
 
-            # If there are additional lines, they are considered supporting acts
-            if len(full_text) > 1:
-                event_details['support'] = ', '.join(full_text[1:]).strip()
-            else:
-                event_details['support'] = 'N/A'
-        else:
-            event_details['name'] = "N/A"
-            event_details['time'] = "N/A"
-            event_details['support'] = "N/A"
+        # Deduplicate and clean band names
+        bands = list(dict.fromkeys([clean_band_name(band) for band in bands]))  # Remove duplicates
+        bands_str = ", ".join(bands)
 
-        # Combine date and time to create `start`
+        # Combine date and time
         try:
-            start_datetime = datetime.strptime(f"{event_details['date']} {event_details['time']}", "%Y-%m-%d %I:%M %p")
-            event_details['start'] = start_datetime
+            start = datetime.strptime(f"{date_str} {event_time}", "%Y-%m-%d %I:%M %p")
         except ValueError as e:
-            print(f"Error combining date and time for {event_details['name']}: {e}")
-            event_details['start'] = None
+            print(f"Skipping event due to date/time issue: {bands_str}. Error: {e}")
+            continue
 
-        # Append the event to events_data
-        events_data.append(event_details.copy())
+        # Extract event link
+        event_link = None
+        link_tag = column.find("a", href=True)
+        if link_tag:
+            event_link = link_tag['href']
 
-# Connect to the PostgreSQL database
-conn = psycopg2.connect(
-    dbname=DB_NAME,
-    user=DB_USER,
-    password=DB_PASSWORD,
-    host=DB_HOST
-)
-cursor = conn.cursor()
+        # Extract flyer
+        flyer_image = "https://www.mnvibe.com/sites/default/files/styles/max_650x650/public/2022-09/5013409958_17377ca2c1_c.jpg?itok=42M5mkxp"
 
-# Check if the table exists; create it if not
-cursor.execute("""
-    CREATE TABLE IF NOT EXISTS shows (
-        venue TEXT,
-        headliner TEXT,
-        start TIMESTAMP,
-        support TEXT,
-        event_link TEXT
-    );
-""")
+        # Insert into database
+        try:
+            show_id, was_inserted = insert_show(
+                conn, cursor, venue_id, bands_str, start, event_link, flyer_image
+            )
+            if was_inserted:
+                added_count += 1
+                print(f"Inserted event: {bands_str} at {start}")
+            else:
+                duplicate_count += 1
+                print(f"Duplicate event skipped: {bands_str} at {start}")
+        except Exception as e:
+            print(f"Error processing event: {bands_str}. Error: {e}")
+            conn.rollback()
+            continue
 
-# Fetch existing events to avoid duplicates
-cursor.execute("SELECT headliner, start FROM shows")
-existing_events = set(cursor.fetchall())
-
-# Prepare rows to add to the database with `start` datetime
-rows_to_add = []
-for event in events_data:
-    if event['start'] and (event['name'], event['start']) not in existing_events:
-        rows_to_add.append((
-            event['venue'],
-            event['name'],  # Assuming 'name' is equivalent to 'headliner'
-            event['start'],
-            event['support'],
-            event.get('event_link', '')
-        ))
-
-# Insert new events into the database
-if rows_to_add:
-    insert_query = """
-    INSERT INTO shows (venue, headliner, start, support, event_link)
-    VALUES (%s, %s, %s, %s, %s)
-    """
-    cursor.executemany(insert_query, rows_to_add)
-    conn.commit()
-    print(f"{len(rows_to_add)} new events added to the database.")
-else:
-    print("No new events to add. All entries are duplicates.")
-
-# Close the database connection
+# Commit and close the database
+conn.commit()
 cursor.close()
 conn.close()
 
-# Show notification when done
-os.system('osascript -e \'display notification "331 Scrape finished!" with title "331 Scrape finished"\'')
+# Print summary
+print(f"All events processed. Added: {added_count}, Duplicates: {duplicate_count}.")

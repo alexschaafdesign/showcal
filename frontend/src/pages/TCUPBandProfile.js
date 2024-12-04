@@ -1,10 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Box, Typography, Paper, Stack, Button, Modal } from "@mui/material";
+import { Box, Typography, Button, Modal, Stack } from "@mui/material";
 import Grid from "@mui/material/Grid";
 import formatBandData from "../utils/formatBandData";
 import AppBreadcrumbs from "../components/Breadcrumbs";
-import InfoCard from "../components/InfoCard";
 import ProfilePhotoCard from "../components/ProfilePhotoCard";
 import ShowsTableCore from "./ShowsTableCore";
 
@@ -16,16 +15,14 @@ const TCUPBandProfile = ({ allShows = [] }) => {
   const [error, setError] = useState(null);
   const [open, setOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
-  const [bandShows, setBandShows] = useState([]);
 
-
+  // Fetch band data on mount
   useEffect(() => {
     const fetchBand = async () => {
       try {
         const response = await fetch(`http://localhost:3001/tcupbands/${bandid}`);
         if (!response.ok) throw new Error("Failed to fetch band data");
         const data = await response.json();
-
         const formattedBand = formatBandData(data.data);
         setBand(formattedBand);
       } catch (err) {
@@ -39,28 +36,23 @@ const TCUPBandProfile = ({ allShows = [] }) => {
     fetchBand();
   }, [bandid]);
 
-  useEffect(() => {
-    console.log("allShows in TCUPBandProfile:", allShows);
-    if (!Array.isArray(allShows)) return;
-  
-    // Filter shows by the current band ID
-    const filteredShows = allShows.filter((show) =>
-      Array.isArray(show.bands) && show.bands.some((band) => band.id === parseInt(bandid, 10))
+  // Compute bandShows using useMemo
+  const parsedBandid = parseInt(bandid, 10);
+  const bandShows = useMemo(() => {
+    if (!Array.isArray(allShows)) return [];
+    return allShows.filter(
+      (show) =>
+        Array.isArray(show.bands) &&
+        show.bands.some((band) => band.id === parsedBandid)
     );
-    setBandShows(filteredShows);
-  }, [allShows, bandid]);
+  }, [allShows, parsedBandid]);
 
+  // Handle modal image
   const handleOpen = (image) => {
-    setSelectedImage(image);
-    setOpen(true);
-  };
-
-  const onBandClick = (bandid) => {
-    console.log("Band clicked:", bandid);
-  };
-  
-  const onVenueClick = (venueid) => {
-    console.log("Venue clicked:", venueid);
+    if (image) {
+      setSelectedImage(image);
+      setOpen(true);
+    }
   };
 
   const handleClose = () => {
@@ -68,28 +60,23 @@ const TCUPBandProfile = ({ allShows = [] }) => {
     setSelectedImage(null);
   };
 
-  const handleBandClick = (bandid) => {
-    console.log("Band clicked:", bandid);
-  };
-  
-  const handleVenueClick = (venueid) => {
-    console.log("Venue clicked:", venueid);
+  // Navigate to edit page
+  const handleEdit = () => {
+    if (band) {
+      navigate(`/tcupbands/${bandid}/edit`, { state: { band } });
+    }
   };
 
-
+  // Conditional rendering for loading, errors, and missing band data
   if (loading) return <Typography>Loading...</Typography>;
   if (error) return <Typography color="error">{error}</Typography>;
   if (!band) return <Typography>Band not found</Typography>;
 
+  // Band profile image handling
   const images = Array.isArray(band.images) ? band.images : [];
-
   const imageUrl =
-  band.profile_photo ||
-  (images?.[0] ? `http://localhost:3001${images[0]}` : "/assets/images/tcup_logo.jpg");
-
-  const handleEdit = () => {
-    navigate(`/tcupbands/${bandid}/edit`, { state: { band } });
-  };
+    band.profile_photo ||
+    (images?.[0] ? `http://localhost:3001${images[0]}` : "/assets/images/tcup_logo.jpg");
 
   return (
     <Box sx={{ padding: 3 }}>
@@ -98,44 +85,31 @@ const TCUPBandProfile = ({ allShows = [] }) => {
       <Grid container spacing={3} alignItems="flex-start">
         {/* Left Column */}
         <Grid item xs={12} md={4}>
-          <Box>
-            {/* Profile Section */}
+          <ProfilePhotoCard
+            name={band.name}
+            imageUrl={imageUrl}
+            onEdit={handleEdit}
+            socialLinks={band.social_links}
+            genre={band.genre}
+          />
 
-            {/* Profile Picture */}
-
-            <ProfilePhotoCard
-              name={band.name}
-              imageUrl={
-                band.profile_photo ||
-                (images?.[0] ? `http://localhost:3001${images[0]}` : "/assets/images/tcup_logo.jpg")
-              }
-              onEdit={handleEdit}
-              socialLinks={band.social_links}
-              genre={band.genre}
-            />
-
-            <div>
-                  <h1>Band Profile</h1>
-                  {/* Other band profile details here */}
-
-                  <h2>Upcoming Shows</h2>
-                    {bandShows.length > 0 ? (
-                      <ShowsTableCore
-                        data={bandShows}
-                        onBandClick={onBandClick}
-                        onVenueClick={onVenueClick}
-                      />
-                    ) : (
-                      <p>No upcoming shows for this band.</p>
-                    )}
-                </div>
-            
+          <Box mt={2}>
+            <Button
+              variant="contained"
+              color="primary"
+              fullWidth
+              onClick={handleEdit}
+              sx={{ marginBottom: 2 }}
+            >
+              Edit Band Profile
+            </Button>
           </Box>
+
+
         </Grid>
 
         {/* Right Column */}
         <Grid item xs={12} md={8}>
-          {/* Photos Section */}
           <Typography variant="h5" gutterBottom>
             Photos
           </Typography>
@@ -170,48 +144,54 @@ const TCUPBandProfile = ({ allShows = [] }) => {
         </Grid>
       </Grid>
 
-      {/* Modal for viewing an image */}
+      <Typography variant="h5" gutterBottom>
+            Upcoming Shows
+          </Typography>
+          {bandShows.length > 0 ? (
+            <ShowsTableCore
+              data={bandShows}
+              onBandClick={(bandid) => console.log("Band clicked:", bandid)}
+              onVenueClick={(venueid) => console.log("Venue clicked:", venueid)}
+            />
+          ) : (
+            <Typography>No upcoming shows for this band.</Typography>
+          )}
+
       <Modal open={open} onClose={handleClose}>
-  <Box
-    sx={{
-      position: "absolute",
-      top: "50%",
-      left: "50%",
-      transform: "translate(-50%, -50%)",
-      bgcolor: "transparent",
-      boxShadow: "none",
-      p: 0,
-      maxWidth: "90vw",
-      maxHeight: "90vh",
-      display: "flex",
-      alignItems: "center",
-      justifyContent: "center",
-      overflow: "hidden",
-      outline: "none", // Explicitly remove focus outline for the modal
-    }}
-  >
-    {selectedImage && (
-      <img
-        src={`http://localhost:3001${selectedImage}`}
-        alt="Expanded Image"
-        style={{
-          maxWidth: "calc(100vw - 32px)",
-          maxHeight: "calc(100vh - 32px)",
-          width: "auto",
-          height: "auto",
-          objectFit: "contain",
-          borderRadius: "8px",
-          display: "block",
-          margin: "auto",
-          outline: "none", // Explicitly remove focus outline for the image
-          border: "none",
-          boxShadow: "none", // Ensure no extra shadow is applied
-        }}
-        tabIndex={-1} // Prevent the image from being focusable
-      />
-    )}
-  </Box>
-</Modal>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            bgcolor: "transparent",
+            boxShadow: "none",
+            p: 0,
+            maxWidth: "90vw",
+            maxHeight: "90vh",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            overflow: "hidden",
+            outline: "none",
+          }}
+        >
+          {selectedImage && (
+            <img
+              src={`http://localhost:3001${selectedImage}`}
+              alt="Expanded Image"
+              style={{
+                maxWidth: "calc(100vw - 32px)",
+                maxHeight: "calc(100vh - 32px)",
+                width: "auto",
+                height: "auto",
+                objectFit: "contain",
+                borderRadius: "8px",
+              }}
+            />
+          )}
+        </Box>
+      </Modal>
     </Box>
   );
 };

@@ -8,6 +8,8 @@ import {
   TableRow,
   Paper,
   Button,
+  Typography,
+  Chip,
 } from '@mui/material';
 
 function ShowsTableCore({ data, onBandClick, onVenueClick }) {
@@ -109,23 +111,45 @@ function ShowsTableCore({ data, onBandClick, onVenueClick }) {
                         {item.venue_name || 'Unknown Venue'}
                       </TableCell>
                       <TableCell>
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                        <div style={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column', gap: '4px', width: 'fit-content', }}>
                           {item.bands.map((band, index) =>
                             band.id ? (
-                              <Button
-                                key={index}
-                                onClick={() => onBandClick && onBandClick(band.id)}
-                                style={{
-                                  textTransform: 'none',
-                                  fontSize: '1rem',
-                                  textAlign: 'left',
-                                }}
-                                variant="text"
-                              >
-                                {band.name}
-                              </Button>
-                            ) : (
-                              <span key={index}>{band.name}</span>
+                              <Typography
+                              key={`${item.id}-${band.id || band.name}-${index}`} // Unique key for each band in the context of a show
+                              sx={{
+                                fontWeight: band.id ? 'bold' : 'normal',
+                                color: band.id ? 'primary.main' : 'grey.600',
+                                cursor: band.id ? 'pointer' : 'default',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                              }}
+                              onClick={() => band.id && onBandClick && onBandClick(band.id)}
+                            >
+                              {band.name}
+                              {band.id && (
+                                <Chip
+                                  label="TCUP BAND"
+                                  color="primary"
+                                  size="small"
+                                  sx={{
+                                    fontWeight: 'bold',
+                                    textTransform: 'uppercase',
+                                  }}
+                                />
+                              )}
+                            </Typography>
+                          ) : (
+                            <Typography
+                              key={index}
+                              sx={{
+                                fontWeight: 'bold',
+                                color: 'grey.600',
+                                fontSize: '1rem',
+                              }}
+                            >
+                              {band.name}
+                            </Typography>
                             )
                           )}
                         </div>

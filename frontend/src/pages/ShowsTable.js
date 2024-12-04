@@ -1,87 +1,81 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import ShowsTableCore from './ShowsTableCore';
 import {
+  Typography,
   TextField,
   Select,
   MenuItem,
+  FormControlLabel,
+  Checkbox,
   Box,
-  Typography,
 } from '@mui/material';
+import ShowsTableCore from './ShowsTableCore';
 
 function ShowsTable() {
   const [showsData, setShowsData] = useState([]);
-  const [bandsData, setBandsData] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [selectedVenue, setSelectedVenue] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedVenue, setSelectedVenue] = useState('');
+  const [showTCUPBandsOnly, setShowTCUPBandsOnly] = useState(false);
   const navigate = useNavigate();
-
-  const safeBandsData = Array.isArray(bandsData) ? bandsData : [];
 
   useEffect(() => {
     // Fetch shows data
     const fetchShows = async () => {
       try {
-        const response = await fetch("http://localhost:3001/shows");
-        if (!response.ok) throw new Error("Failed to fetch shows");
+        const response = await fetch('http://localhost:3001/shows');
+        if (!response.ok) throw new Error('Failed to fetch shows');
         const result = await response.json();
-        console.log("Fetched Shows:", result); // Debugging
         setShowsData(result);
       } catch (err) {
-        console.error("Error fetching shows:", err);
+        console.error('Error fetching shows:', err);
         setShowsData([]);
       }
     };
 
-    console.log("bandsData: ", bandsData);
-
-    // Fetch bands data
-    const fetchBands = async () => {
-      try {
-        const response = await fetch("http://localhost:3001/tcupbands");
-        if (!response.ok) throw new Error("Failed to fetch bands");
-        const result = await response.json();
-        console.log("Fetched Bands:", result); // Debugging
-        setBandsData(result);
-      } catch (err) {
-        console.error("Error fetching bands:", err);
-        setBandsData([]);
-      }
-    };
-
     fetchShows();
-    fetchBands();
   }, []);
 
+  // Combined filtering logic
   const filterEvents = () => {
-    const filtered = showsData.filter((item) => {
+    return showsData.filter((item) => {
       const matchesSearch = searchTerm
         ? item.venue_name.toLowerCase().includes(searchTerm) ||
-          (item.bands && item.bands.some(band => band.name.toLowerCase().includes(searchTerm)))
+          (item.bands && item.bands.some((band) => band.name.toLowerCase().includes(searchTerm)))
         : true;
 
       const matchesVenue = selectedVenue
         ? item.venue_name.toLowerCase() === selectedVenue.toLowerCase()
         : true;
 
-      return matchesSearch && matchesVenue;
-    });
+      const matchesTCUP = showTCUPBandsOnly
+        ? item.bands && item.bands.some((band) => band.id)
+        : true;
 
-    return filtered;
+      return matchesSearch && matchesVenue && matchesTCUP;
+    });
   };
 
-
-  const processedData = filterEvents().map((show) => ({
-    ...show,
-    bands: show.bands || [], // Use the `bands` array from the backend
-  }));
+  const filteredData = filterEvents();
 
   return (
-    <div>
-      <Typography variant="h2" gutterBottom textAlign={'center'}>
+    <Box sx={{ paddingBottom: '150px', overflowY: 'auto' }}>
+      <Typography variant="h2" gutterBottom textAlign="center">
         TWIN CITIES SHOW LIST
       </Typography>
 
+      {/* Show TCUP Bands Only Filter */}
+      <FormControlLabel
+        control={
+          <Checkbox
+            checked={showTCUPBandsOnly}
+            onChange={(e) => setShowTCUPBandsOnly(e.target.checked)}
+          />
+        }
+        label="Show TCUP bands only"
+        style={{ marginBottom: '16px' }}
+      />
+
+      {/* Search Field */}
       <TextField
         id="outlined-search"
         label="Search by venue or band name"
@@ -92,6 +86,7 @@ function ShowsTable() {
         onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
       />
 
+      {/* Venue Selector */}
       <Select
         value={selectedVenue}
         onChange={(e) => setSelectedVenue(e.target.value)}
@@ -107,12 +102,13 @@ function ShowsTable() {
         ))}
       </Select>
 
+      {/* Table Core Component */}
       <ShowsTableCore
-        data={processedData}
-        onBandClick={(id) => id && navigate(`/tcupbands/${id}`)} // Only navigate if ID exists
-        onVenueClick={(id) => navigate(`/venues/${id}`)}
+        data={filteredData}
+        onBandClick={(id) => id && navigate(`/tcupbands/${id}`)} // Navigate to band page if ID exists
+        onVenueClick={(id) => navigate(`/venues/${id}`)} // Navigate to venue page
       />
-    </div>
+    </Box>
   );
 }
 

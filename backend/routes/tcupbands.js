@@ -81,11 +81,11 @@ router.put("/:bandid/edit", upload.array("images", 10), async (req, res) => {
     const { bandid } = req.params;
     const {
       name,
-      genre,
-      contact,
-      play_shows,
-      group_size,
-      social_links,
+      genre = "",
+      contact = "",
+      play_shows = "",
+      group_size = "",
+      social_links = "",
       preUploadedImages, // Sent from the client as JSON
     } = req.body;
 
@@ -107,14 +107,22 @@ router.put("/:bandid/edit", upload.array("images", 10), async (req, res) => {
     const allImages = [...parsedPreUploadedImages, ...newUploadedImages];
     console.log("[PUT /:bandid/edit] Combined Images:", allImages);
 
+    const sanitizedGenre = genre
+     ? genre.split(',').map((g) => g.trim()).filter(Boolean)
+     : [];
+    console.log("[DEBUG] Sanitized Genre:", sanitizedGenre); // Should be an array of valid strings
+
     const parsedGroupSize =
       typeof group_size === "string" ? JSON.parse(group_size) : [];
     const parsedSocialLinks =
       typeof social_links === "string" ? JSON.parse(social_links) : {};
 
+      console.log("[DEBUG] Parsed Group Size:", parsedGroupSize);
+      console.log("[DEBUG] All Images:", allImages);
+
     const values = [
       name,
-      genre,
+      `{${sanitizedGenre.join(",")}}`, // Properly formatted genre array
       contact,
       play_shows,
       `{${parsedGroupSize.join(",")}}`,
@@ -135,6 +143,9 @@ router.put("/:bandid/edit", upload.array("images", 10), async (req, res) => {
   } catch (error) {
     console.error("[PUT /:bandid/edit] Error updating band:", error);
     res.status(500).json({ error: "Failed to update band" });
+
+    console.log("req.files:", req.files); // Logs the uploaded files
+    console.log("req.body:", req.body);   // Logs additional form data
   }
 });
 
