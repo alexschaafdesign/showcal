@@ -64,7 +64,7 @@ function App() {
       >
         <Routes>
           {/* Home */}
-          <Route path="/" element={<Home />} />
+          <Route path="/" element={<ShowsTable />} />
 
           {/* Shows */}
           <Route path="/shows" element={<ShowsTable allShows={allShows} />} />

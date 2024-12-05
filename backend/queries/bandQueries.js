@@ -28,7 +28,7 @@ export const updateBandQuery = `
 
 // Insert a new band
 export const addBandQuery = `
-  INSERT INTO tcupbands (name, social_links, genre, contact, play_shows, group_size, images, profile_image, music_links)
+  INSERT INTO tcupbands (name, genre, contact, play_shows, group_size, social_links, music_links, images)
   VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
   RETURNING *;
 `;
