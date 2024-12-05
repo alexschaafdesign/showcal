@@ -39,20 +39,38 @@ export const addBand = async (req, res) => {
     }
   };
 
+  const cleanArray = (arr) => {
+    if (!Array.isArray(arr)) {
+      console.error("Expected an array but got:", arr); // Debugging
+      return [];
+    }
+    return arr.filter((item) => item && item.trim() !== ""); // Filter out empty or whitespace values
+  };
+
+
   export const updateBand = async (req, res) => {
     try {
       const { bandid } = req.params;
       const { name, genre, contact, play_shows, group_size, social_links, music_links, images } = req.bandData;
   
+      // Ensure genre and group_size are arrays and clean them
+      const cleanGenre = cleanArray(genre || []); // Default to empty array if undefined
+      const cleanGroupSize = cleanArray(group_size || []);
+  
+      // Ensure images are properly formatted
+      const formattedImages = Array.isArray(images) && images.length
+        ? `{${images.map((img) => `"${img}"`).join(",")}}`
+        : "{}"; // Use an empty array literal for PostgreSQL
+  
       const values = [
         name,
-        `{${genre}}`,
+        `{${cleanGenre.join(",")}}`, // Join array for PostgreSQL array literal
         contact,
         play_shows,
-        `{${group_size.join(",")}}`,
-        JSON.stringify(social_links),
-        JSON.stringify(music_links),
-        `{${images.map((img) => `"${img}"`).join(",")}}`,
+        `{${cleanGroupSize.join(",")}}`,
+        JSON.stringify(social_links || {}),
+        JSON.stringify(music_links || {}),
+        formattedImages,
         bandid,
       ];
   

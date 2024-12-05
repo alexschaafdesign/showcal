@@ -15,6 +15,7 @@ import {
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import CustomFilePond from "../components/CustomFilePond";
 import AppBreadcrumbs from "../components/Breadcrumbs";
+import { extractBandcampEmbedSrc, normalizeBandcampEmbedLink } from "../utils/formatBandcamp";
 
 const TCUPBandForm = ({ isEdit = false }) => {
   const { bandid } = useParams();
@@ -113,107 +114,86 @@ const TCUPBandForm = ({ isEdit = false }) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
   
-  function validateSpotifyLink(url) {
-    const regex = /^(https?:\/\/)?(open\.)?spotify\.com\/(track|album|playlist|artist)\/[a-zA-Z0-9]+/;
-    return regex.test(url);
-  }
+  function validateLink(url, platform) {
+    if (!url) return true; // Allow empty fields
   
-  function validateBandcampLink(url) {
-    const regex = /^(https?:\/\/)?([a-zA-Z0-9-]+\.bandcamp\.com)(\/.*)?$/;
-    return regex.test(url);
-  }
+    const regexes = {
+      spotify: /^(https?:\/\/)?(open\.)?spotify\.com\/(track|album|playlist|artist)\/[a-zA-Z0-9]+/,
+      bandcampSocial: /^(https?:\/\/)?([a-zA-Z0-9-]+\.bandcamp\.com)(\/.*)?$/,
+      bandcampMusic: /<iframe[^>]*src="https:\/\/bandcamp\.com\/EmbeddedPlayer\/(album|track)=\d+[^"]*"|https:\/\/bandcamp\.com\/EmbeddedPlayer\/(album|track)=\d+/, // Match iframe or direct embed link
+      youtube: /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/,
+    };
   
-  function validateYouTubeLink(url) {
-    const regex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/;
-    return regex.test(url);
+    return regexes[platform]?.test(url);
   }
 
-  // HANDLE SUBMIT
+  // HANDLE SUBMIT \\
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
+    // Only normalize and validate Bandcamp if it has a value
+    const normalizedBandcampMusic = formData.music_links.bandcamp
+      ? normalizeBandcampEmbedLink(formData.music_links.bandcamp)
+      : null;
+  
+    // If Bandcamp music embed link exists but is invalid, show error
+    if (formData.music_links.bandcamp && !normalizedBandcampMusic) {
+      setErrorMessage(
+        "Invalid Bandcamp embed code. Please paste the full iframe embed code or a valid embed link."
+      );
+      return;
+    }
+  
+    // Prepare normalized data
+    const updatedMusicLinks = {
+      ...formData.music_links,
+      bandcamp: normalizedBandcampMusic || formData.music_links.bandcamp, // Keep the existing value if unchanged
+    };
+  
     const dataToSubmit = new FormData();
+  
 
-    // Add form data
+    // Sanitize genre array
+    const sanitizedGenres = formData.genre.filter((genre) => genre.trim() !== ""); // Remove empty genres
+
     dataToSubmit.append("name", formData.name);
-    dataToSubmit.append("genre", formData.genre);
+    dataToSubmit.append("genre", `{${sanitizedGenres.join(",")}}`); // Properly format array
     dataToSubmit.append("bandemail", formData.bandemail);
     dataToSubmit.append("play_shows", formData.play_shows);
     dataToSubmit.append("group_size", JSON.stringify(formData.group_size));
     dataToSubmit.append("social_links", JSON.stringify(formData.social_links));
-    dataToSubmit.append("music_links", JSON.stringify(formData.music_links));
-
-
+    dataToSubmit.append("music_links", JSON.stringify(updatedMusicLinks));
+  
     // Include preUploadedImages in the request
     const preUploadedImages = imageFiles
       .filter((file) => typeof file.source === "string") // Pre-existing files have `source` as a string
       .map((file) => file.source);
-
+  
     if (preUploadedImages.length > 0) {
       dataToSubmit.append("preUploadedImages", JSON.stringify(preUploadedImages));
     }
-
+  
     // Include newly uploaded files
     const newFiles = imageFiles.filter((file) => file.file); // Newly added files
     newFiles.forEach((file) => {
       dataToSubmit.append("images", file.file);
     });
-
-
-    console.log("Submitting preUploadedImages:", preUploadedImages);
-    console.log("Submitting new files:", newFiles);
-
-
-    // Format social links
-    if (formData.social_links.spotify && !validateSpotifyLink(formData.social_links.spotify)) {
-      setErrorMessage("Invalid Spotify link.");
-      return;
-    }
-    if (formData.social_links.bandcamp && !validateBandcampLink(formData.social_links.bandcamp)) {
-      setErrorMessage("Invalid Bandcamp link.");
-      return;
-    }
-    if (formData.social_links.youtube && !validateYouTubeLink(formData.social_links.youtube)) {
-      setErrorMessage("Invalid YouTube link.");
-      return;
-    }
-
-    // Format music links
-    if (formData.music_links.spotify && !validateSpotifyLink(formData.music_links.spotify)) {
-      setErrorMessage("Invalid Spotify Album/Single link.");
-      return;
-    }
-    if (formData.music_links.bandcamp && !validateBandcampLink(formData.music_links.bandcamp)) {
-      setErrorMessage("Invalid Bandcamp Album/Single link.");
-      return;
-    }
-    if (formData.music_links.youtube && !validateYouTubeLink(formData.music_links.youtube)) {
-      setErrorMessage("Invalid YouTube Album/Single link.");
-      return;
-    }
-
-    console.log("Music Links:", formData.music_links);
-
+  
     try {
       const endpointURL = isEdit
         ? `${endpoint}/tcupbands/${bandid}/edit`
         : `${endpoint}/tcupbands/add`;
-
-      const method = isEdit ? "PUT" : "POST";
-
-      console.log("Submitting to:", endpointURL, "Method:", method);
-
+  
       const response = await fetch(endpointURL, {
-        method: method,
+        method: isEdit ? "PUT" : "POST",
         body: dataToSubmit,
       });
-
+  
       if (!response.ok) throw new Error("Failed to submit band data");
-
+  
       const result = await response.json();
       console.log("Response from backend:", result);
-
       navigate("/tcupbands");
     } catch (err) {
       console.error("Error submitting band data:", err);
@@ -288,9 +268,9 @@ const TCUPBandForm = ({ isEdit = false }) => {
           sx={{ mb: 2 }}
         />
         <TextField
-          label="Bandcamp Link"
+          label="Bandcamp Profile Link"
           name="bandcamp"
-          value={formData.social_links.bandcamp}
+          value={formData.social_links.bandcamp || ""}
           fullWidth
           onChange={(e) =>
             setFormData((prev) => ({
@@ -338,8 +318,23 @@ const TCUPBandForm = ({ isEdit = false }) => {
           }
           sx={{ mb: 2 }}
         />
-        <Typography variant="h3" sx={{ mb: 2 }}>
-         Social Media        </Typography>
+        <TextField
+          label="Bandcamp Music Embed"
+          name="bandcamp"
+          value={formData.music_links.bandcamp || ""}
+          fullWidth
+          onChange={(e) =>
+            setFormData((prev) => ({
+              ...prev,
+              music_links: {
+                ...prev.music_links,
+                bandcamp: e.target.value,
+              },
+            }))
+          }
+          sx={{ mb: 2 }}
+        />
+
         <FormControl fullWidth sx={{ mb: 2 }}>
           <InputLabel>Looking to Play Shows?</InputLabel>
           <Select

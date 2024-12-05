@@ -63,6 +63,18 @@ const TCUPBandProfile = ({ allShows = [] }) => {
       )
   : null;
 
+  const getBandcampEmbedUrl = (url) => {
+    // Matches typical album or track URLs
+    const match = url.match(/https:\/\/([\w-]+)\.bandcamp\.com\/(album|track)\/([\w-]+)/);
+    if (match) {
+      const artist = match[1];
+      const type = match[2];
+      const slug = match[3];
+      return `https://${artist}.bandcamp.com/${type}/${slug}`;
+    }
+    return null; // Invalid URL
+  };
+
   // Handle modal image
   const handleOpen = (image) => {
     if (image) {
@@ -170,20 +182,76 @@ const TCUPBandProfile = ({ allShows = [] }) => {
       </Typography>
     </Box>
   </Box>
+  <Grid item xs={12} md={8}>
+          <Box sx={{ width: "100%", marginTop: 4, display: "flex", flexDirection: "column" }}>
+            {images.length > 0 ? (
+              <Stack
+                direction={{ xs: "column", sm: "row" }}
+                spacing={2}
+                alignItems="center"
+                justifyContent="flex-start"
+              >
+                {images.map((image, index) => (
+                  <Box
+                    key={index}
+                    component="img"
+                    src={`http://localhost:3001${image}`}
+                    alt={`Band Photo ${index + 1}`}
+                    onClick={() => handleOpen(image)}
+                    sx={{
+                      width: { xs: "80px", sm: "100px" }, // Thumbnail size
+                      height: { xs: "80px", sm: "100px" }, // Maintain square aspect ratio
+                      objectFit: "cover", // Ensures the image is contained within the box
+                      borderRadius: "8px",
+                      boxShadow: "0 2px 4px rgba(0,0,0,0.2)", // Subtle shadow
+                      cursor: "pointer",
+                      transition: "transform 0.2s", // Add hover effect
+                      "&:hover": {
+                        transform: "scale(1.05)", // Slightly enlarge on hover
+                      },
+                    }}
+                  />
+                ))}
+              </Stack>
+            ) : (
+              <Typography>No images available.</Typography>
+            )}
+          </Box>
+        </Grid>
 </Box>
 
 
         </Grid>
 
         {/* Right Column */}
-        <Grid item xs={12} md={8}>
-          {/* Spotify Embed */}
-          {spotifyEmbedUrl && (
-            <Box mt={2}>
+        <Grid
+          item
+          xs={12}
+          md={8}
+          sx={{
+            display: "flex", 
+            flexGrow: 1,
+            flexDirection: "column", 
+            justifyContent: "space-between", // Space out elements vertically
+            height: "100%", // Ensure the column itself stretches
+          }}
+        >
+
+            {/* Spotify Embed */}
+            {spotifyEmbedUrl && (
+            <Box
+              sx={{
+                flexGrow: 1, // Allow it to grow and take up available space
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+                height: "100%",
+              }}
+            >
               <iframe
                 src={spotifyEmbedUrl}
                 width="100%"
-                height="400"
+                height="600px"
                 frameBorder="0"
                 allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
                 title="Spotify Player"
@@ -194,45 +262,39 @@ const TCUPBandProfile = ({ allShows = [] }) => {
               ></iframe>
             </Box>
           )}
-        </Grid>
-        <Grid item xs={12} md={8}>
-          <Typography variant="h5" gutterBottom>
-            Photos
-          </Typography>
-          <Box sx={{ width: "100%", display: "flex", flexDirection: "column" }}>
-            {images.length > 0 ? (
-              <Stack
-                direction={{ xs: "column", sm: "row" }}
-                spacing={2}
-                alignItems="center"
-                justifyContent="left"
-              >
-                {images.map((image, index) => (
-                  <Box
-                    key={index}
-                    component="img"
-                    src={`http://localhost:3001${image}`}
-                    alt={`Band Photo ${index + 1}`}
-                    onClick={() => handleOpen(image)}
-                    sx={{
-                      width: { xs: "100%", sm: "calc(33.333% - 16px)" },
-                      borderRadius: "8px",
-                      boxShadow: "0 4px 8px rgba(0,0,0,0.2)",
-                      cursor: "pointer",
-                    }}
-                  />
-                ))}
-              </Stack>
-            ) : (
-              <Typography>No Images Available</Typography>
-            )}
-          </Box>
-        </Grid>
-      </Grid>
 
-      <Typography variant="h5" gutterBottom>
-            Upcoming Shows
-          </Typography>
+
+          {/* Bandcamp Embed
+          {band?.music_links?.bandcamp && (
+            <Box mt={2}>
+              <iframe
+                src={band.music_links.bandcamp}
+                width="100%" // Adjust width as needed
+                height="100px" // Keep the height consistent with the standard
+                frameBorder="0"
+                seamless
+                style={{
+                  border: "none",
+                  borderRadius: "8px",
+                }}
+                title="Bandcamp Player"
+              ></iframe>
+            </Box>
+          )} */}
+
+
+        </Grid>
+        </Grid>
+
+          {/* Bottom show section */}
+
+
+         
+        <Box  
+          sx={{
+            marginTop: 4,
+          }}
+        > 
           {bandShows.length > 0 ? (
             <ShowsTableCore
               data={bandShows}
@@ -242,6 +304,7 @@ const TCUPBandProfile = ({ allShows = [] }) => {
           ) : (
             <Typography>No upcoming shows for this band.</Typography>
           )}
+        </Box>
 
       <Modal open={open} onClose={handleClose}>
         <Box
