@@ -11,6 +11,8 @@ const NavigationTabs = () => {
     if (location.pathname.startsWith("/shows")) return 0;
     if (location.pathname.startsWith("/venues")) return 1;
     if (location.pathname.startsWith("/tcupbands")) return 2;
+    if (location.pathname.startsWith("/people")) return 3;
+
     return false; // No tab selected
   };
 
@@ -24,6 +26,9 @@ const NavigationTabs = () => {
         break;
       case 2:
         navigate("/tcupbands");
+        break;
+      case 3:
+        navigate("/people");
         break;
       default:
         break;
@@ -53,6 +58,9 @@ const NavigationTabs = () => {
         />
         <Tab
           label="Bands"
+        />
+        <Tab
+          label="People"
         />
       </Tabs>
     </Box>

@@ -1,12 +1,10 @@
-// fetchAllBands.js
-
 import pool from "../config/db.js"; // Import the database pool
 import formatBandData from "../utils/formatBandData.js"; // Import formatting utility
 
 const fetchAllBandsMiddleware = async (req, res, next) => {
   try {
     const query = `
-      SELECT id, name, genre, contact, play_shows, group_size, social_links, images, created_at
+      SELECT id, name, genre, contact, play_shows, group_size, social_links, music_links, images, created_at
       FROM tcupbands;
     `;
 

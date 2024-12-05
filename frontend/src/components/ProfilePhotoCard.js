@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Box, Typography, Stack, Button } from "@mui/material";
 import BandSocialLinks from "./BandSocialLinks";
@@ -61,7 +62,7 @@ const ProfilePhotoCard = ({ name, imageUrl, location, genre, onEdit, socialLinks
         )}
 
         {/* Favorite/Action Buttons */}
-        <Button variant="text" onClick={onEdit} sx={{ padding: 0 }}>
+        <Button variant="contained" onClick={onEdit} sx={{ padding: 0 }}>
           Add as favorite
         </Button>
       </Box>

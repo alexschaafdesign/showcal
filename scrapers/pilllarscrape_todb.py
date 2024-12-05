@@ -4,16 +4,19 @@ import time
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from bs4 import BeautifulSoup
-import psycopg2
+from db_utils import connect_to_db, get_venue_id, insert_show
 
 # Database connection
-conn = psycopg2.connect(
-    dbname="tcup",
-    user="aschaaf",
-    password="notthesame",  # replace with your actual password
-    host="localhost"
-)
+conn = connect_to_db()
 cursor = conn.cursor()
+
+# Fetch venue ID
+try:
+    venue_id = get_venue_id(cursor, "Pilllar Forum")
+except ValueError as e:
+    print(f"Error fetching venue ID: {e}")
+    conn.close()
+    exit()
 
 # Web scraper setup
 driver = webdriver.Chrome()
@@ -29,20 +32,10 @@ try:
 except Exception as e:
     print("Error loading page:", e)
     driver.quit()
+    conn.close()
     exit()
 
-# Attempt to reveal hidden content if available
-try:
-    print("Attempting to expand hidden content...")
-    more_buttons = driver.find_elements(By.XPATH, "//*[contains(text(), '...')]")
-    for button in more_buttons:
-        driver.execute_script("arguments[0].click();", button)
-        time.sleep(0.5)
-except Exception:
-    print("No expandable elements found or an error occurred.")
-
 # Extract page source and parse with BeautifulSoup
-print("Parsing page source...")
 soup = BeautifulSoup(driver.page_source, 'html.parser')
 driver.quit()
 
@@ -50,134 +43,155 @@ driver.quit()
 event_blocks = soup.find_all(class_='sse-row sse-clearfix')
 events_data = []
 
-# Track the current month based on the HTML structure
+# Track the current month
 current_month = ""
 
-# Loop through each event block to extract details
+# Function to normalize time strings
+def normalize_time(time_str):
+    time_str = time_str.lower().replace('.', '')
+    if ':' not in time_str:
+        time_str = time_str.replace("am", ":00 am").replace("pm", ":00 pm")
+    return time_str
+
+# Function to clean band names
+def clean_band_name(name):
+    """
+    Cleans band names by removing unnecessary words and patterns.
+    """
+    stop_words = ['with', 'and', 'featuring']
+    # Remove dollar amounts (e.g., "$12") and times (e.g., "7:00pm")
+    name = re.sub(r'\$\d+(\.\d{2})?', '', name)  # Remove dollar amounts
+    name = re.sub(r'\d{1,2}(:\d{2})?\s?(am|pm)', '', name, flags=re.IGNORECASE)  # Remove times
+    return ' '.join(word for word in name.split() if word.lower() not in stop_words).strip()
+
+def normalize_time(time_str):
+    """
+    Normalize time strings to ensure compatibility with datetime parsing.
+    """
+    time_str = time_str.lower().replace('.', '').strip()
+    if ':' not in time_str:
+        time_str = time_str.replace("am", ":00 am").replace("pm", ":00 pm")
+    elif 'am' not in time_str and 'pm' not in time_str:
+        time_str += " pm"  # Assume PM for missing periods
+    return time_str.capitalize()
+
+# Loop through each event block
 for block in event_blocks:
-    event_details = {"venue": "Pilllar"}  # Default venue name if not provided
+    event_details = {"venue": "Pilllar Forum"}  # Default venue name
 
-    # Look for a month header in each block
-    month_tag = block.find('h1', class_='sse-size-42')
-    if month_tag:
-        current_month = month_tag.get_text(strip=True)
+    # Set a static event link for all events
+    event_details = {"event_link": "https://www.pilllar.com/pages/events"}  # Default event link
 
-    # Extract date and handle missing dates
+    # Extract the date (month and day)
     date_tag = block.find('h1', class_='sse-size-64')
     if date_tag:
-        day_info = date_tag.get_text(strip=True)
-        cleaned_date = re.sub(r'\b(\w+)\.\s+', '', day_info)
-        event_details['date'] = f"{current_month} {cleaned_date} {datetime.datetime.now().year}"
-        # Format date if available
+        raw_date = date_tag.get_text(strip=True)
+        # Extract the month and day, handling "Dec." or similar
+        cleaned_date = re.sub(r'\.', '', raw_date)  # Remove periods
+        event_details['date'] = f"{cleaned_date} {datetime.datetime.now().year}"
         try:
-            event_date = datetime.datetime.strptime(event_details['date'], "%B %d %Y")
-            event_details['date'] = event_date.strftime("%m/%d/%Y")
+            event_date = datetime.datetime.strptime(event_details['date'], "%b %d %Y")
+            event_details['date'] = event_date.strftime("%Y-%m-%d")  # Format as YYYY-MM-DD
         except ValueError:
+            print(f"Error parsing date: {raw_date}")
             event_details['date'] = None
     else:
-        event_details['date'] = None
+        event_details['date'] = None  # Ensure the 'date' key exists
 
-    # Extract event name
-    name_tag = block.find('span', style=re.compile(r'font-size:\s*24px'))
-    event_details['headliner'] = name_tag.get_text(strip=True) if name_tag else None
+    # Extract the "Music" time
+    time_tags = block.find_all('p')  # Find all <p> tags
+    music_time = None
+    for tag in time_tags:
+        if "Music" in tag.get_text():
+            music_time = tag.get_text(strip=True).split()[-1]  # Get the last part (time)
+            break
 
-    # Set a fixed time or None if unavailable
-    event_details['time'] = "18:30"
+    if music_time:
+        try:
+            event_details['time'] = normalize_time(music_time)  # Normalize the time
+        except ValueError:
+            print(f"Error parsing time: {music_time}")
+            event_details['time'] = None
+    else:
+        event_details['time'] = None  # Ensure the 'time' key exists
 
-    # Combine date and time into `start` for database insertion
+    # Combine date and time into `start`
     try:
         if event_details['date'] and event_details['time']:
+            # Combine date and time into a single datetime object
+            combined_datetime_str = f"{event_details['date']} {event_details['time']}"
             event_details['start'] = datetime.datetime.strptime(
-                f"{event_details['date']} {event_details['time']}", "%m/%d/%Y %H:%M"
+                combined_datetime_str, "%Y-%m-%d %I:%M %p"
             )
-            print(f"Parsed start datetime: {event_details['start']} for event: {event_details['headliner']}")
         else:
-            print(f"Missing date or time for event: {event_details['headliner']}")
             event_details['start'] = None
     except ValueError as ve:
-        print(f"Error parsing start datetime for event '{event_details['headliner']}': {ve}")
+        print(f"Error combining date and time for event: {ve}")
         event_details['start'] = None
 
-    # Extract support acts
-    support_tag = name_tag.find_next('p') if name_tag else None
-    event_details['support'] = support_tag.get_text(strip=True) if support_tag else None
+        # Append event details to the list
+        events_data.append(event_details)
 
-    # Optional: Add additional fields, like 'link' and 'image', if they’re on the page
-    link_tag = block.find('a', href=True)
-    event_details['link'] = link_tag['href'] if link_tag else None
+    # Debug output to verify
+    print(f"Extracted {len(events_data)} events.")
+    for event in events_data:
+        print(event)
 
-    # Extract image URL from the specific 'sse-column sse-half sse-center' div
+    # Extract bands (headliner + support acts)
+    bands = []
+
+    # Extract the primary band (headliner)
+    name_tag = block.find('span', style=re.compile(r'font-size:\s*24px'))
+    if name_tag:
+        primary_band = name_tag.get_text(strip=True)
+        if primary_band:
+            bands.append(clean_band_name(primary_band))  # Add the primary band
+
+    # Extract additional bands from other <p> tags
+    additional_bands_tags = block.find_all('p')
+    for tag in additional_bands_tags:
+        if "Music" not in tag.get_text() and "Doors" not in tag.get_text():  # Ignore time-related lines
+            additional_band_text = tag.get_text(strip=True)
+            additional_bands = [clean_band_name(band.strip()) for band in re.split(r',|\band\b|, and\b|with\b', additional_band_text, flags=re.IGNORECASE) if band.strip()]
+            bands.extend(additional_bands)  # Add additional bands to the list
+
+    # Deduplicate and clean band names
+    bands = list(dict.fromkeys(bands))  # Remove duplicates
+    bands_str = ", ".join(bands)  # Convert to a comma-separated string for database insertion
+    event_details['bands'] = bands_str  # Assign to 'bands'
+
+    # Debug print statement for verification
+    print(f"Extracted bands: {bands}")
+
+    # Extract show flyer
     image_div = block.find('div', class_='sse-column sse-half sse-center')
     if image_div:
         image_tag = image_div.find('img')
-        event_details['image'] = image_tag['src'] if image_tag else None
+        event_details['show_flyer'] = image_tag['src'] if image_tag else "https://www.mnvibe.com/sites/default/files/styles/max_650x650/public/2022-09/5013409958_17377ca2c1_c.jpg?itok=42M5mkxp"
     else:
-        event_details['image'] = None
+        event_details['show_flyer'] = "https://www.mnvibe.com/sites/default/files/styles/max_650x650/public/2022-09/5013409958_17377ca2c1_c.jpg?itok=42M5mkxp"
 
-    # Append the event details to the list
+    # Append event details
     events_data.append(event_details)
 
-print(f"Extracted {len(events_data)} events.")
-
-# Define counters for added and skipped events
+# Insert events into the database
 added_count = 0
 duplicate_count = 0
-missing_start_count = 0
-
-# Define the function to check if an event already exists in the database
-def check_duplicate_event(event_details):
-    if event_details['start'] is None:
-        return False
-    check_query = """
-        SELECT 1 FROM "shows"
-        WHERE start = %s AND venue = %s AND headliner = %s
-    """
-    cursor.execute(check_query, (
-        event_details['start'],
-        event_details['venue'], 
-        event_details['headliner']
-    ))
-    return cursor.fetchone() is not None  # Returns True if a duplicate exists
-
-# Define the function to insert events into the database
-def insert_event(event_details):
-    insert_query = """
-        INSERT INTO "shows" (venue, headliner, start, support, event_link, flyer_image)
-        VALUES (%s, %s, %s, %s, %s, %s)
-    """
-    cursor.execute(insert_query, (
-        event_details.get('venue'),
-        event_details.get('headliner'),
-        event_details.get('start'),
-        event_details.get('support'),
-        event_details.get('link'),
-        event_details.get('image')
-    ))
-    conn.commit()
-
-# Insert all extracted events into the database
 for event in events_data:
-    # Skip events with no start datetime
     if not event.get('start'):
-        print(f"Skipping event '{event.get('headliner')}' due to missing start datetime.")
-        missing_start_count += 1
         continue
-    
-    # Check for duplicates before inserting
-    if check_duplicate_event(event):
-        print(f"Duplicate event '{event['headliner']}' found. Skipping insert.")
-        duplicate_count += 1
+
+    cursor.execute("""
+        SELECT 1 FROM shows WHERE start = %s AND venue_id = %s AND bands = %s
+    """, (event['start'], venue_id, event['bands']))
+    if not cursor.fetchone():
+        insert_show(conn, cursor, venue_id, event['bands'], event['start'], event['event_link'], event['show_flyer'])
+        added_count += 1
     else:
-        try:
-            insert_event(event)
-            added_count += 1
-            print(f"Inserted event: {event['headliner']}")
-        except Exception as e:
-            print(f"Error inserting event {event['headliner']}: {e}")
+        duplicate_count += 1
 
 # Close the database connection
 cursor.close()
 conn.close()
 
-# Print summary of added and skipped events
-print(f"All events processed. Added: {added_count}, Duplicates skipped: {duplicate_count}, Missing start datetime: {missing_start_count}.")
+print(f"All events processed. Added: {added_count}, Duplicates skipped: {duplicate_count}.")

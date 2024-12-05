@@ -1,3 +1,4 @@
+
 import express from "express";
 import pool from "../config/db.js";
 import upload from "../middleware/upload.js";
@@ -46,19 +47,36 @@ router.post("/add", upload.array("images", 10), async (req, res) => {
     const parsedSocialLinks = req.body.social_links
       ? JSON.parse(req.body.social_links)
       : {};
+    const parsedMusicLinks = req.body.music_links
+    ? JSON.parse(req.body.music_links)
+    : {};
 
-    // Process uploaded images
+    const sanitizedGenre = req.body.genre
+  ? req.body.genre.split(',').map((g) => g.trim())
+  : [];
+    const contact = req.body.contact || "";
+    const name = req.body.name || "";
+    const parsedPreUploadedImages = req.body.preUploadedImages
+      ? JSON.parse(req.body.preUploadedImages)
+      : [];
     const newUploadedImages = req.files.map((file) => `/assets/images/${file.filename}`);
 
-    // Prepare query values
+    const allImages = [...parsedPreUploadedImages, ...newUploadedImages];
+    console.log("[PUT /:bandid/edit] Combined Images:", allImages);
+
+    // Ensure allImages is formatted correctly for a PostgreSQL text[] column
+    const formattedImages = `{${allImages.map((img) => `"${img}"`).join(",")}}`;
+
     const values = [
-      req.body.name,
-      req.body.genre.split(',').map((g) => g.trim()), // If `genre` is a string, convert to an array
-      req.body.contact,
-      req.body.play_shows,
+      name,
+      `{${sanitizedGenre.join(",")}}`, // Properly formatted genre array
+      contact,
+      play_shows,
       `{${parsedGroupSize.join(",")}}`,
       JSON.stringify(parsedSocialLinks),
-      `{${newUploadedImages.map((img) => `"${img}"`).join(",")}}`,
+      JSON.stringify(parsedMusicLinks),
+      formattedImages, // Use the formatted array for text[]
+      bandid,
     ];
 
     console.log("[POST /add] Insert Values:", values);
@@ -86,6 +104,7 @@ router.put("/:bandid/edit", upload.array("images", 10), async (req, res) => {
       play_shows = "",
       group_size = "",
       social_links = "",
+      music_links = "",
       preUploadedImages, // Sent from the client as JSON
     } = req.body;
 
@@ -107,6 +126,11 @@ router.put("/:bandid/edit", upload.array("images", 10), async (req, res) => {
     const allImages = [...parsedPreUploadedImages, ...newUploadedImages];
     console.log("[PUT /:bandid/edit] Combined Images:", allImages);
 
+    // Convert allImages to a PostgreSQL-compatible text[]
+    const formattedImages = `{${allImages.map((img) => `"${img}"`).join(",")}}`;
+
+    console.log("[PUT /:bandid/edit] Formatted Images for PostgreSQL:", formattedImages);
+
     const sanitizedGenre = genre
      ? genre.split(',').map((g) => g.trim()).filter(Boolean)
      : [];
@@ -116,6 +140,8 @@ router.put("/:bandid/edit", upload.array("images", 10), async (req, res) => {
       typeof group_size === "string" ? JSON.parse(group_size) : [];
     const parsedSocialLinks =
       typeof social_links === "string" ? JSON.parse(social_links) : {};
+    const parsedMusicLinks =
+    typeof music_links === "string" ? JSON.parse(music_links) : {};
 
       console.log("[DEBUG] Parsed Group Size:", parsedGroupSize);
       console.log("[DEBUG] All Images:", allImages);
@@ -127,7 +153,8 @@ router.put("/:bandid/edit", upload.array("images", 10), async (req, res) => {
       play_shows,
       `{${parsedGroupSize.join(",")}}`,
       JSON.stringify(parsedSocialLinks),
-      `{${allImages.map((img) => `"${img}"`).join(",")}}`,
+      JSON.stringify(parsedMusicLinks),
+      formattedImages, // Use the formatted array for text[]
       bandid,
     ];
 

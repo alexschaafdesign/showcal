@@ -1,3 +1,4 @@
+
 import express from 'express';
 import cors from 'cors';
 import pkg from 'pg';
@@ -11,6 +12,8 @@ import bandsRoutes from './routes/bands.js';
 import showsRoutes from './routes/shows.js';
 import uploadRoutes from './routes/upload.js';
 import bodyParser from "body-parser"; // Parse application/json
+import peopleRouter from "./routes/people.js"; // Adjust path as needed
+
 
 
 const __filename = fileURLToPath(import.meta.url);
@@ -43,6 +46,7 @@ app.use('/tcupbands', tcupbandsRouter); // All routes for TCUP bands
 app.use('/bands', bandsRoutes);         // All routes for bands table
 app.use('/shows', showsRoutes);         // All routes for shows table
 app.use('/', uploadRoutes);       // Register the upload route
+app.use("/people", peopleRouter); // Ensure the base path is correct
 
 // Serve static files (for the frontend)
 app.use('/assets/images', express.static(path.join(__dirname, '../assets/images')));
@@ -88,6 +92,7 @@ console.log('/tcupbands');
 console.log('/bands');
 console.log('/shows');
 console.log('/upload');
+console.log('/people');
 
 pool.query('SELECT current_database()', (err, res) => {
   if (err) {

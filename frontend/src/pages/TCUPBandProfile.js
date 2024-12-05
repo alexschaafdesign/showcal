@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState, useMemo } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Box, Typography, Button, Modal, Stack } from "@mui/material";
@@ -46,6 +47,18 @@ const TCUPBandProfile = ({ allShows = [] }) => {
         show.bands.some((band) => band.id === parsedBandid)
     );
   }, [allShows, parsedBandid]);
+
+  // Conditional rendering for loading, errors, and missing band data
+  if (loading) return <Typography>Loading...</Typography>;
+  if (error) return <Typography color="error">{error}</Typography>;
+  if (!band) return <Typography>Band not found</Typography>;
+
+  // Spotify Embed URL Conversion
+  const spotifyEmbedUrl = band?.music_links?.spotify
+    ? band.music_links.spotify.includes("embed")
+      ? band.music_links.spotify // Already an embed link
+      : band.music_links.spotify.replace("open.spotify.com/", "open.spotify.com/embed/") // Convert regular link
+    : null;
 
   // Handle modal image
   const handleOpen = (image) => {
@@ -97,6 +110,7 @@ const TCUPBandProfile = ({ allShows = [] }) => {
             <Button
               variant="contained"
               color="primary"
+
               fullWidth
               onClick={handleEdit}
               sx={{ marginBottom: 2 }}
@@ -110,6 +124,25 @@ const TCUPBandProfile = ({ allShows = [] }) => {
 
         {/* Right Column */}
         <Grid item xs={12} md={8}>
+          {/* Spotify Embed */}
+          {spotifyEmbedUrl && (
+            <Box mt={2}>
+              <iframe
+                src={spotifyEmbedUrl}
+                width="100%"
+                height="400"
+                frameBorder="0"
+                allow="encrypted-media"
+                title="Spotify Player"
+                style={{
+                  borderRadius: "8px",
+                  border: "none",
+                }}
+              ></iframe>
+            </Box>
+          )}
+        </Grid>
+        <Grid item xs={12} md={8}>
           <Typography variant="h5" gutterBottom>
             Photos
           </Typography>
@@ -119,7 +152,7 @@ const TCUPBandProfile = ({ allShows = [] }) => {
                 direction={{ xs: "column", sm: "row" }}
                 spacing={2}
                 alignItems="center"
-                justifyContent="center"
+                justifyContent="left"
               >
                 {images.map((image, index) => (
                   <Box

@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from "react";
 import { Route, Routes } from "react-router-dom";
 import Calendar from "./pages/Calendar.js";
@@ -15,6 +16,9 @@ import TCUPBandForm from "./pages/TCUPBandForm.js";
 import TCUPBandsTable from "./pages/TCUPBandsTable.js";
 import TCUPBandProfile from "./pages/TCUPBandProfile.js";
 import Header from "./components/Header.js"; // Import your custom Header component
+import TCUPPeopleForm from "./pages/TCUPPeopleForm.js";
+import TCUPPeopleTable from "./pages/TCUPPeopleTable.js";
+import TCUPPeopleProfile from "./pages/TCUPPeopleProfile.js";
 
 function App() {
   const [allShows, setAllShows] = useState([]);
@@ -79,6 +83,18 @@ function App() {
           {/* Venues */}
           <Route path="/venues" element={<VenuesTable />} />
           <Route path="/venues/:id" element={<VenueProfile />} />
+
+          {/* People */}
+          <Route path="/people/add" element={<TCUPPeopleForm />} />
+          <Route
+            path="/people/:personId/edit"
+            element={<TCUPPeopleForm isEdit />}
+          />
+          <Route 
+            path="/people/:personID"
+            element={<TCUPPeopleProfile />}
+          />
+          <Route path="/people" element={<TCUPPeopleTable />} />
 
           {/* Calendar */}
           <Route path="/calendar" element={<Calendar />} />
