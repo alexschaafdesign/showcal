@@ -122,6 +122,56 @@ const TCUPBandProfile = ({ allShows = [] }) => {
             </Button>
           </Box>
 
+          <Box sx={{ marginTop: 4 }}>
+          {/* Bio Header */}
+          <Typography variant="h5" gutterBottom>
+            Bio
+          </Typography>
+
+          {/* Bio Body */}
+          <Typography variant="body1" color="textSecondary">
+            Here's a spot to put your bio or whatever lorem lorem married ipsum and ispsum and lorem had a wonderful ipsum and lorem life together. 
+          </Typography>
+        </Box>
+
+        <Box sx={{ marginTop: 4 }}>
+  {/* Links Header */}
+  <Typography variant="h5" gutterBottom>
+    Links
+  </Typography>
+
+  {/* Links Content */}
+  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, marginTop: 2 }}>
+    {/* First Column */}
+    <Box sx={{ flex: 1, minWidth: '45%' }}>
+      <Typography>
+        <a
+          href="https://drive.google.com/file/d/1mDjatch2BQOje0g0sV5YzYhChjN5Oei8/view?usp=sharing"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ color: '#8E6CD1', textDecoration: 'none' }}
+        >
+          Stage Plot
+        </a>
+      </Typography>
+    </Box>
+
+    {/* Second Column */}
+    <Box sx={{ flex: 1, minWidth: '45%' }}>
+      <Typography>
+        <a
+          href="https://instagram.com/yellowostrich"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{ color: '#8E6CD1', textDecoration: 'none' }}
+        >
+          Instagram
+        </a>
+      </Typography>
+    </Box>
+  </Box>
+</Box>
+
 
         </Grid>
 

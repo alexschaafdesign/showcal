@@ -11,53 +11,74 @@ export const getBandById = (req, res) => {
 };
 
 export const addBand = async (req, res) => {
-  try {
-    const { name, genre, contact, play_shows, group_size, social_links, images } = req.bandData;
-
-    const values = [
-      name,
-      `{${genre}}`,
-      contact,
-      play_shows,
-      `{${group_size.join(",")}}`,
-      JSON.stringify(social_links),
-      JSON.stringify({}),
-      `{${images.join(",")}}`,
-    ];
-
-    const { rows } = await pool.query(addBandQuery, values);
-    sendSuccessResponse(res, rows[0]);
-  } catch (error) {
-    console.error("Error adding band:", error);
-    res.status(500).json({ error: "Failed to add band." });
-  }
-};
-
-export const updateBand = async (req, res) => {
-  try {
-    const { bandid } = req.params;
-    const { name, genre, contact, play_shows, group_size, social_links, images } = req.bandData;
-
-    const values = [
-      name,
-      `{${genre}}`,
-      contact,
-      play_shows,
-      `{${group_size.join(",")}}`,
-      JSON.stringify(social_links),
-      JSON.stringify({}),
-      `{${images.join(",")}}`,
-      bandid,
-    ];
-
-    const { rows } = await pool.query(updateBandQuery, values);
-    if (rows.length === 0) {
-      return res.status(404).json({ error: "Band not found." });
+    try {
+      const { name, genre, contact, play_shows, group_size, social_links, music_links, images } = req.bandData;
+  
+      const values = [
+        name,
+        `{${genre}}`,
+        contact,
+        play_shows,
+        `{${group_size.join(",")}}`,
+        JSON.stringify(social_links),
+        JSON.stringify(music_links),
+        `{${images.map((img) => `"${img}"`).join(",")}}`,
+      ];
+  
+      const query = `
+        INSERT INTO tcupbands (name, genre, contact, play_shows, group_size, social_links, music_links, images)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        RETURNING *;
+      `;
+  
+      const { rows } = await pool.query(query, values);
+      res.json({ success: true, data: rows[0] });
+    } catch (error) {
+      console.error("Error adding band:", error);
+      res.status(500).json({ error: "Failed to add band." });
     }
+  };
 
-    sendSuccessResponse(res, rows[0]);
-  } catch (error) {
-    console.error("Error updating band:", error);
-    res.status(500).json({ error: "Failed to update band." });
-  }
-};
+  export const updateBand = async (req, res) => {
+    try {
+      const { bandid } = req.params;
+      const { name, genre, contact, play_shows, group_size, social_links, music_links, images } = req.bandData;
+  
+      const values = [
+        name,
+        `{${genre}}`,
+        contact,
+        play_shows,
+        `{${group_size.join(",")}}`,
+        JSON.stringify(social_links),
+        JSON.stringify(music_links),
+        `{${images.map((img) => `"${img}"`).join(",")}}`,
+        bandid,
+      ];
+  
+      const query = `
+        UPDATE tcupbands
+        SET name = $1,
+            genre = $2,
+            contact = $3,
+            play_shows = $4,
+            group_size = $5,
+            social_links = $6,
+            music_links = $7,
+            images = $8
+        WHERE id = $9
+        RETURNING *;
+      `;
+  
+      const { rows } = await pool.query(query, values);
+  
+      if (rows.length === 0) {
+        return res.status(404).json({ error: "Band not found." });
+      }
+  
+      res.json({ success: true, data: rows[0] });
+    } catch (error) {
+      console.error("Error updating band:", error);
+      res.status(500).json({ error: "Failed to update band." });
+    }
+  };

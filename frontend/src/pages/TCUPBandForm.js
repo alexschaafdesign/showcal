@@ -61,6 +61,7 @@ const TCUPBandForm = ({ isEdit = false }) => {
       try {
         let bandData;
   
+        // Use data from state if available, otherwise fetch from API
         if (bandDataFromState) {
           bandData = bandDataFromState;
         } else {
@@ -69,6 +70,7 @@ const TCUPBandForm = ({ isEdit = false }) => {
           bandData = data.data;
         }
   
+        // Update formData with the fetched data
         setFormData({
           name: bandData.name || "",
           genre: bandData.genre || "",
@@ -90,12 +92,13 @@ const TCUPBandForm = ({ isEdit = false }) => {
           },
         });
   
-        // Format preloaded images
+        // Preloaded images (ensure proper formatting for FilePond)
         const preloadedImages = bandData.images?.map((image) => ({
-          source: image,
-          options: { type: "local" }, // Maintain local type
+          source: image, // URL of the image
+          options: { type: "local" }, // Indicates the image is preloaded
         }));
   
+        // Update imageFiles state with preloaded images
         setImageFiles(preloadedImages || []);
       } catch (error) {
         console.error("Error fetching band data:", error);
@@ -142,22 +145,21 @@ const TCUPBandForm = ({ isEdit = false }) => {
     dataToSubmit.append("music_links", JSON.stringify(formData.music_links));
 
 
-    // Separate preloaded and new files
+    // Include preUploadedImages in the request
     const preUploadedImages = imageFiles
-    .filter((file) => file.source && typeof file.source === "string") // Only files with a `source` string are preloaded
-    .map((file) => file.source);
+      .filter((file) => typeof file.source === "string") // Pre-existing files have `source` as a string
+      .map((file) => file.source);
 
-    const newFiles = imageFiles.filter((file) => file.file); // Newly added files
-
-    // Append preUploadedImages as JSON
     if (preUploadedImages.length > 0) {
       dataToSubmit.append("preUploadedImages", JSON.stringify(preUploadedImages));
     }
 
-    // Append new uploads
-    newFiles.forEach((fileObj) => {
-      dataToSubmit.append("images", fileObj.file);
+    // Include newly uploaded files
+    const newFiles = imageFiles.filter((file) => file.file); // Newly added files
+    newFiles.forEach((file) => {
+      dataToSubmit.append("images", file.file);
     });
+
 
     console.log("Submitting preUploadedImages:", preUploadedImages);
     console.log("Submitting new files:", newFiles);
@@ -190,6 +192,8 @@ const TCUPBandForm = ({ isEdit = false }) => {
       setErrorMessage("Invalid YouTube Album/Single link.");
       return;
     }
+
+    console.log("Music Links:", formData.music_links);
 
     try {
       const endpointURL = isEdit

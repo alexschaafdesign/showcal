@@ -2,7 +2,7 @@
   "name": "client",
   "version": "0.1.0",
   "private": true,
-  "homepage": "/portal",
+  "homepage": "https://alexschaafdesign.github.io/showcal/",
   "dependencies": {
     "-": "^0.0.1",
     "@emotion/react": "^11.13.5",

@@ -1,182 +1,33 @@
-
 import express from "express";
-import pool from "../config/db.js";
-import upload from "../middleware/upload.js";
 import fetchAllBandsMiddleware from "../middleware/fetchAllBands.js";
 import fetchBandMiddleware from "../middleware/fetchBand.js";
-import sendSuccessResponse from "../utils/sendSuccessResponse.js"; // Centralized success response
-import formatBandData from "../utils/formatBandData.js"; // Data formatting utility
-import parseBandFields from "../utils/parseBandFields.js"; // Parse request fields
-import { getAllBandsQuery, addBandQuery, updateBandQuery } from "../queries/bandQueries.js";
+import uploadAndParseMiddleware from "../middleware/uploadAndParse.js";
+import { 
+  getAllBands, 
+  getBandById, 
+  addBand, 
+  updateBand 
+} from "../controllers/bandController.js";
 
 const router = express.Router();
 
-/**
- * Route: Get all TCUP bands
- */
-router.get("/", fetchAllBandsMiddleware, (req, res) => {
-  sendSuccessResponse(res, req.bands); // Use bands attached by the middleware
-});
+// Route: Fetch all bands
+router.get("/", fetchAllBandsMiddleware, getAllBands);
 
-/**
- * Route: Get a specific TCUP band by ID
- */
-router.get("/:bandid", fetchBandMiddleware, (req, res) => {
-  sendSuccessResponse(res, req.band); // Use the band attached by the middleware
-});
+// Route: Fetch a specific band by ID
+router.get("/:bandid", fetchBandMiddleware, getBandById);
 
-/**
- * Route: Fetch data for edit form
- */
-router.get("/:bandid/edit", fetchBandMiddleware, (req, res) => {
-  console.log("Band data sent to frontend:", req.band);
-  sendSuccessResponse(res, req.band); // Use the band attached by the middleware
-});
+// Route: Fetch data for edit form (reuse same controller as get by ID)
+router.get("/:bandid/edit", fetchBandMiddleware, getBandById);
 
-/**
- * Route: Add a new TCUP band
- */
-router.post("/add", upload.array("images", 10), async (req, res) => {
-  try {
-    console.log("[POST /add] Uploaded Images:", req.files);
-    console.log("[POST /add] Request Body:", req.body);
+// Route: Add a new band
+router.post("/add", uploadAndParseMiddleware, addBand);
 
-    const parsedGroupSize = req.body.group_size
-      ? JSON.parse(req.body.group_size)
-      : [];
-    const parsedSocialLinks = req.body.social_links
-      ? JSON.parse(req.body.social_links)
-      : {};
-    const parsedMusicLinks = req.body.music_links
-    ? JSON.parse(req.body.music_links)
-    : {};
+// Route: Update an existing band
+router.put("/:bandid/edit", uploadAndParseMiddleware, updateBand);
 
-    const sanitizedGenre = req.body.genre
-  ? req.body.genre.split(',').map((g) => g.trim())
-  : [];
-    const contact = req.body.contact || "";
-    const name = req.body.name || "";
-    const parsedPreUploadedImages = req.body.preUploadedImages
-      ? JSON.parse(req.body.preUploadedImages)
-      : [];
-    const newUploadedImages = req.files.map((file) => `/assets/images/${file.filename}`);
-
-    const allImages = [...parsedPreUploadedImages, ...newUploadedImages];
-    console.log("[PUT /:bandid/edit] Combined Images:", allImages);
-
-    // Ensure allImages is formatted correctly for a PostgreSQL text[] column
-    const formattedImages = `{${allImages.map((img) => `"${img}"`).join(",")}}`;
-
-    const values = [
-      name,
-      `{${sanitizedGenre.join(",")}}`, // Properly formatted genre array
-      contact,
-      play_shows,
-      `{${parsedGroupSize.join(",")}}`,
-      JSON.stringify(parsedSocialLinks),
-      JSON.stringify(parsedMusicLinks),
-      formattedImages, // Use the formatted array for text[]
-      bandid,
-    ];
-
-    console.log("[POST /add] Insert Values:", values);
-
-    // Execute the insert query
-    const { rows } = await pool.query(addBandQuery, values);
-
-    sendSuccessResponse(res, rows[0]);
-  } catch (error) {
-    console.error("[POST /add] Error adding band:", error);
-    res.status(500).json({ error: "Failed to add band" });
-  }
-});
-
-/**
- * Route: Edit an existing TCUP band
- */
-router.put("/:bandid/edit", upload.array("images", 10), async (req, res) => {
-  try {
-    const { bandid } = req.params;
-    const {
-      name,
-      genre = "",
-      contact = "",
-      play_shows = "",
-      group_size = "",
-      social_links = "",
-      music_links = "",
-      preUploadedImages, // Sent from the client as JSON
-    } = req.body;
-
-    console.log("[PUT /:bandid/edit] Raw Request Body:", req.body);
-    console.log("PreUploaded Images:", preUploadedImages);
-
-    // Parse preUploadedImages
-    const parsedPreUploadedImages = preUploadedImages
-      ? JSON.parse(preUploadedImages)
-      : [];
-    console.log("[PUT /:bandid/edit] Parsed PreUploaded Images:", parsedPreUploadedImages);
-
-    // Process new uploaded images
-    const newUploadedImages = req.files.map((file) => `/assets/images/${file.filename}`);
-
-    console.log("[PUT /:bandid/edit] New Uploaded Images:", newUploadedImages);
-
-    // Combine preUploadedImages and newUploadedImages
-    const allImages = [...parsedPreUploadedImages, ...newUploadedImages];
-    console.log("[PUT /:bandid/edit] Combined Images:", allImages);
-
-    // Convert allImages to a PostgreSQL-compatible text[]
-    const formattedImages = `{${allImages.map((img) => `"${img}"`).join(",")}}`;
-
-    console.log("[PUT /:bandid/edit] Formatted Images for PostgreSQL:", formattedImages);
-
-    const sanitizedGenre = genre
-     ? genre.split(',').map((g) => g.trim()).filter(Boolean)
-     : [];
-    console.log("[DEBUG] Sanitized Genre:", sanitizedGenre); // Should be an array of valid strings
-
-    const parsedGroupSize =
-      typeof group_size === "string" ? JSON.parse(group_size) : [];
-    const parsedSocialLinks =
-      typeof social_links === "string" ? JSON.parse(social_links) : {};
-    const parsedMusicLinks =
-    typeof music_links === "string" ? JSON.parse(music_links) : {};
-
-      console.log("[DEBUG] Parsed Group Size:", parsedGroupSize);
-      console.log("[DEBUG] All Images:", allImages);
-
-    const values = [
-      name,
-      `{${sanitizedGenre.join(",")}}`, // Properly formatted genre array
-      contact,
-      play_shows,
-      `{${parsedGroupSize.join(",")}}`,
-      JSON.stringify(parsedSocialLinks),
-      JSON.stringify(parsedMusicLinks),
-      formattedImages, // Use the formatted array for text[]
-      bandid,
-    ];
-
-    console.log("[PUT /:bandid/edit] Update Query Values:", values);
-
-    const { rows } = await pool.query(updateBandQuery, values);
-
-    if (rows.length === 0) {
-      return res.status(404).json({ error: "Band not found" });
-    }
-
-    res.json({ success: true, data: rows[0] });
-  } catch (error) {
-    console.error("[PUT /:bandid/edit] Error updating band:", error);
-    res.status(500).json({ error: "Failed to update band" });
-
-    console.log("req.files:", req.files); // Logs the uploaded files
-    console.log("req.body:", req.body);   // Logs additional form data
-  }
-});
-
-router.get('/:id/shows', async (req, res) => {
+// Route: Fetch shows associated with a band
+router.get("/:id/shows", async (req, res) => {
   const bandId = req.params.id;
 
   try {
@@ -206,8 +57,8 @@ router.get('/:id/shows', async (req, res) => {
     const { rows } = await pool.query(query, [bandId]);
     res.json(rows);
   } catch (error) {
-    console.error('Error fetching shows for band:', error);
-    res.status(500).json({ error: 'Failed to fetch shows for band' });
+    console.error("Error fetching shows for band:", error);
+    res.status(500).json({ error: "Failed to fetch shows for band" });
   }
 });
 
