@@ -58,7 +58,7 @@ function ShowsTable() {
   const filteredData = filterEvents();
 
   return (
-    <Box sx={{ paddingBottom: '150px', overflowY: 'auto' }}>
+    <Box sx={{ paddingBottom: '150px', paddingTop: 2, overflowY: 'auto' }}>
       <Typography variant="h2" gutterBottom textAlign="center">
         TWIN CITIES SHOW LIST
       </Typography>

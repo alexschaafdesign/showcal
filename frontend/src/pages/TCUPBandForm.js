@@ -25,8 +25,8 @@ const TCUPBandForm = ({ isEdit = false }) => {
 
   const [formData, setFormData] = useState({
     name: bandDataFromState?.name || "",
-  genre: bandDataFromState?.genre || ["", "", ""], // Change this to an array for three genres
-    contact: bandDataFromState?.contact || "",
+    genre: bandDataFromState?.genre || ["", "", ""], // Change this to an array for three genres
+    bandemail: bandDataFromState?.bandemail || "",
     play_shows: bandDataFromState?.play_shows || "",
     group_size: bandDataFromState?.group_size || [],
     social_links: bandDataFromState?.social_links || {
@@ -35,6 +35,12 @@ const TCUPBandForm = ({ isEdit = false }) => {
       bandcamp: "",
       soundcloud: "",
       website: "",
+    },
+    music_links: bandDataFromState?.music_links || {
+      spotify: "",
+      bandcamp: "",
+      soundcloud: "",
+      youtube: "",
     },
   });
 
@@ -66,7 +72,7 @@ const TCUPBandForm = ({ isEdit = false }) => {
         setFormData({
           name: bandData.name || "",
           genre: bandData.genre || "",
-          contact: bandData.contact || "",
+          bandemail: bandData.bandemail || "",
           play_shows: bandData.play_shows || "",
           group_size: bandData.group_size || [],
           social_links: bandData.social_links || {
@@ -75,6 +81,12 @@ const TCUPBandForm = ({ isEdit = false }) => {
             bandcamp: "",
             soundcloud: "",
             website: "",
+          },
+          music_links: bandData.music_links || {
+            spotify: "",
+            bandcamp: "",
+            soundcloud: "",
+            youtube: "",
           },
         });
   
@@ -123,10 +135,12 @@ const TCUPBandForm = ({ isEdit = false }) => {
     // Add form data
     dataToSubmit.append("name", formData.name);
     dataToSubmit.append("genre", formData.genre);
-    dataToSubmit.append("contact", formData.contact);
+    dataToSubmit.append("bandemail", formData.bandemail);
     dataToSubmit.append("play_shows", formData.play_shows);
     dataToSubmit.append("group_size", JSON.stringify(formData.group_size));
     dataToSubmit.append("social_links", JSON.stringify(formData.social_links));
+    dataToSubmit.append("music_links", JSON.stringify(formData.music_links));
+
 
     // Separate preloaded and new files
     const preUploadedImages = imageFiles
@@ -160,6 +174,20 @@ const TCUPBandForm = ({ isEdit = false }) => {
     }
     if (formData.social_links.youtube && !validateYouTubeLink(formData.social_links.youtube)) {
       setErrorMessage("Invalid YouTube link.");
+      return;
+    }
+
+    // Format music links
+    if (formData.music_links.spotify && !validateSpotifyLink(formData.music_links.spotify)) {
+      setErrorMessage("Invalid Spotify Album/Single link.");
+      return;
+    }
+    if (formData.music_links.bandcamp && !validateBandcampLink(formData.music_links.bandcamp)) {
+      setErrorMessage("Invalid Bandcamp Album/Single link.");
+      return;
+    }
+    if (formData.music_links.youtube && !validateYouTubeLink(formData.music_links.youtube)) {
+      setErrorMessage("Invalid YouTube Album/Single link.");
       return;
     }
 
@@ -228,16 +256,16 @@ const TCUPBandForm = ({ isEdit = false }) => {
         ))}
       </Box>
         <TextField
-          label="Contact Info"
-          name="contact"
-          value={formData.contact}
+          label="Band Email"
+          name="bandemail"
+          value={formData.bandemail}
           onChange={handleChange}
           fullWidth
           sx={{ mb: 2 }}
         />
         {/* Add Spotify, Bandcamp, YouTube link fields */}
         <Typography variant="h6" sx={{ mb: 2 }}>
-          Media Links
+          Profile Links (to your overall artist profiles, not a specific album or song)
         </Typography>
         <TextField
           label="Spotify Arist Profile Link"
@@ -282,6 +310,25 @@ const TCUPBandForm = ({ isEdit = false }) => {
               social_links: {
                 ...prev.social_links,
                 youtube: e.target.value,
+              },
+            }))
+          }
+          sx={{ mb: 2 }}
+        />
+        <Typography variant="h6" sx={{ mb: 2 }}>
+        Music Links (post the share link for an album or song!)
+        </Typography>
+        <TextField
+          label="Spotify Album/Single Link"
+          name="spotify"
+          value={formData.music_links.spotify || ""}
+          fullWidth
+          onChange={(e) =>
+            setFormData((prev) => ({
+              ...prev,
+              music_links: {
+                ...prev.music_links,
+                spotify: e.target.value,
               },
             }))
           }

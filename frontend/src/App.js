@@ -50,14 +50,16 @@ function App() {
             sm: 0, // padding of 24px for small screens
             md: 0, // padding of 32px for medium screens
           },
-          marginTop: 2,
-          paddingLeft: {
-            xs: 2, // padding of 16px for extra small screens
+          paddingX: {
+            xs: 1, // padding of 16px for extra small screens
             sm: 3, // padding of 24px for small screens
             md: 4, // padding of 32px for medium screens
           },
-          marginLeft: 12,
-          marginRight: 12,
+          marginX: {
+            xs: 2, // Horizontal margin of 16px for extra small screens
+            sm: 4, // Horizontal margin of 32px for small screens
+            md: 20, // Horizontal margin of 48px for medium and larger screens
+          },
         }}
       >
         <Routes>

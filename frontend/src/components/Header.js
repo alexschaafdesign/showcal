@@ -1,30 +1,49 @@
-import React from "react";
-import { Box } from "@mui/material";
-import NavigationTabs from "./NavigationTabs";
+import React, { useState } from "react";
+import {
+  Box,
+  IconButton,
+  Drawer,
+  List,
+  ListItem,
+  ListItemText,
+  AppBar,
+} from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
+import NavigationTabs from "./NavigationTabs"; // Import your NavigationTabs component
 
 const Header = () => {
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const toggleDrawer = (open) => () => {
+    setDrawerOpen(open);
+  };
+
+  const navLinks = [
+    { text: "Shows", path: "/shows" },
+    { text: "Venues", path: "/venues" },
+    { text: "Bands", path: "/tcupbands" },
+    { text: "People", path: "/people" },
+  ];
+
   return (
-    <Box
+    <AppBar
+      position="sticky"
       sx={{
-        backgroundColor: "primary.main", // Purple background
+        backgroundColor: "primary.main",
         display: "flex",
-        flexDirection: "column", // Stack logo and tabs vertically
-        alignItems: "center", // Center items horizontally
+        flexDirection: "column",
         padding: "10px 20px",
-        position: "relative", // Position for absolute placement
-        height: "120px", // Adjust header height as needed
+        height: "120px",
         boxShadow: 4,
       }}
     >
-      {/* Logo on the left */}
+      {/* Logo */}
       <Box
         sx={{
-          position: "absolute", // Place the logo absolutely
-          top: "50%", // Center vertically in the header
-          left: "20px", // Adjust spacing from the left edge
-          transform: "translateY(-50%)", // Align center vertically
-          display: "flex",
-          alignItems: "center",
+          position: "absolute",
+          top: "50%",
+          left: "20px",
+          transform: "translateY(-50%)",
         }}
       >
         <Box
@@ -40,18 +59,43 @@ const Header = () => {
         />
       </Box>
 
-      {/* Navigation Tabs */}
+      {/* Tabs or Hamburger */}
       <Box
         sx={{
-          marginTop: "auto", // Push to the bottom of the header
-          display: "flex",
-          justifyContent: "center", // Center tabs horizontally
-          width: "100%", // Full width
+          marginTop: "auto",
+          display: { xs: "none", md: "flex" }, // Hide tabs on small screens
+          justifyContent: "center",
+          width: "100%",
         }}
       >
         <NavigationTabs />
       </Box>
-    </Box>
+
+      {/* Hamburger Menu for Small Screens */}
+      <IconButton
+        sx={{
+          display: { xs: "block", md: "none" }, // Show on small screens
+          position: "absolute",
+          top: "50%",
+          right: "20px",
+          transform: "translateY(-50%)",
+          color: "white",
+        }}
+        onClick={toggleDrawer(true)}
+      >
+        <MenuIcon />
+      </IconButton>
+
+      <Drawer anchor="right" open={drawerOpen} onClose={toggleDrawer(false)}>
+        <List>
+          {navLinks.map((link, index) => (
+            <ListItem button key={index} component="a" href={link.path}>
+              <ListItemText primary={link.text} />
+            </ListItem>
+          ))}
+        </List>
+      </Drawer>
+    </AppBar>
   );
 };
 

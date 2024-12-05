@@ -55,10 +55,13 @@ const TCUPBandProfile = ({ allShows = [] }) => {
 
   // Spotify Embed URL Conversion
   const spotifyEmbedUrl = band?.music_links?.spotify
-    ? band.music_links.spotify.includes("embed")
-      ? band.music_links.spotify // Already an embed link
-      : band.music_links.spotify.replace("open.spotify.com/", "open.spotify.com/embed/") // Convert regular link
-    : null;
+  ? band.music_links.spotify.includes("/embed/")
+    ? band.music_links.spotify // Already an embed link
+    : band.music_links.spotify.replace(
+        /open\.spotify\.com\/(track|album|playlist|artist)\//,
+        "open.spotify.com/embed/$1/"
+      )
+  : null;
 
   // Handle modal image
   const handleOpen = (image) => {
@@ -132,7 +135,7 @@ const TCUPBandProfile = ({ allShows = [] }) => {
                 width="100%"
                 height="400"
                 frameBorder="0"
-                allow="encrypted-media"
+                allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
                 title="Spotify Player"
                 style={{
                   borderRadius: "8px",
