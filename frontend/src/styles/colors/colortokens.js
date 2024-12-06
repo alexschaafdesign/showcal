@@ -8,9 +8,9 @@ const colorTokens = {
     dark: colors.purple30,
   },
   secondary: {
-    light: colors.blue80,
-    main: colors.blue50,
-    dark: colors.blue30,
+    light: colors.red80,
+    main: colors.red50,
+    dark: colors.red30,
   },
   error: {
     light: colors.red70,

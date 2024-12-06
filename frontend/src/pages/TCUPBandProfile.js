@@ -156,30 +156,26 @@ const TCUPBandProfile = ({ allShows = [] }) => {
   <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, marginTop: 2 }}>
     {/* First Column */}
     <Box sx={{ flex: 1, minWidth: '45%' }}>
-      <Typography>
-        <a
-          href="https://drive.google.com/file/d/1mDjatch2BQOje0g0sV5YzYhChjN5Oei8/view?usp=sharing"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ color: '#8E6CD1', textDecoration: 'none' }}
-        >
-          Stage Plot
-        </a>
-      </Typography>
+    <Typography>
+      <a
+        href="https://drive.google.com/file/d/1mDjatch2BQOje0g0sV5YzYhChjN5Oei8/view?usp=sharing"
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          color: '#8E6CD1',
+          textDecoration: 'none',
+          fontSize: '1.25rem', // Adjust the font size as needed
+          fontWeight: 'bold', // Makes the font bold
+        }}
+      >
+        Stage Plot (pdf)
+      </a>
+    </Typography>
     </Box>
 
     {/* Second Column */}
     <Box sx={{ flex: 1, minWidth: '45%' }}>
-      <Typography>
-        <a
-          href="https://instagram.com/yellowostrich"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{ color: '#8E6CD1', textDecoration: 'none' }}
-        >
-          Instagram
-        </a>
-      </Typography>
+      
     </Box>
   </Box>
   <Grid item xs={12} md={8}>
