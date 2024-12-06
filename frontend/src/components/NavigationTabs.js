@@ -8,10 +8,11 @@ const NavigationTabs = () => {
 
   // Determine the active tab based on the current route
   const getActiveTab = () => {
-    if (location.pathname.startsWith("/shows")) return 0;
-    if (location.pathname.startsWith("/venues")) return 1;
-    if (location.pathname.startsWith("/tcupbands")) return 2;
-    if (location.pathname.startsWith("/people")) return 3;
+    if (location.pathname.startsWith("/organize")) return 0;
+    if (location.pathname.startsWith("/shows")) return 1;
+    if (location.pathname.startsWith("/venues")) return 2;
+    if (location.pathname.startsWith("/tcupbands")) return 3;
+    if (location.pathname.startsWith("/people")) return 4;
 
     return false; // No tab selected
   };
@@ -19,15 +20,18 @@ const NavigationTabs = () => {
   const handleTabChange = (event, newValue) => {
     switch (newValue) {
       case 0:
-        navigate("/shows");
+        navigate("/organize")
         break;
       case 1:
-        navigate("/venues");
+        navigate("/shows");
         break;
       case 2:
-        navigate("/tcupbands");
+        navigate("/venues");
         break;
       case 3:
+        navigate("/tcupbands");
+        break;
+      case 4:
         navigate("/people");
         break;
       default:
@@ -51,6 +55,9 @@ const NavigationTabs = () => {
         centered
       >
         <Tab
+          label="Organize"
+        />
+        <Tab
           label="Shows"
         />
         <Tab
@@ -59,7 +66,7 @@ const NavigationTabs = () => {
         <Tab
           label="Bands"
         />
-        <Tab
+        <Tab  
           label="People"
         />
       </Tabs>

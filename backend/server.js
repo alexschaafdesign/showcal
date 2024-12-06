@@ -34,7 +34,8 @@ const pool = new Pool({
 });
 
 // Middleware
-app.use(cors());
+// Middleware to handle CORS
+app.use(cors()); // Allow all origins
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // Parse application/x-www-form-urlencoded

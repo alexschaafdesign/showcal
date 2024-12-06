@@ -19,6 +19,7 @@ import Header from "./components/Header.js"; // Import your custom Header compon
 import TCUPPeopleForm from "./pages/TCUPPeopleForm.js";
 import TCUPPeopleTable from "./pages/TCUPPeopleTable.js";
 import TCUPPeopleProfile from "./pages/TCUPPeopleProfile.js";
+import Organize from "./pages/Organize.js";
 
 function App() {
   const [allShows, setAllShows] = useState([]);
@@ -65,6 +66,9 @@ function App() {
         <Routes>
           {/* Home */}
           <Route path="/" element={<ShowsTable />} />
+
+          {/* Organize */}
+          <Route path="/organize" element={<Organize />} />
 
           {/* Shows */}
           <Route path="/shows" element={<ShowsTable allShows={allShows} />} />
