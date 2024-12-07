@@ -64,7 +64,7 @@ const NavigationTabs = () => {
           label="Venues Test"
         />
         <Tab
-          label="Bands"
+          label="Bands Testies"
         />
         <Tab  
           label="People"
