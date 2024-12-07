@@ -24,7 +24,7 @@ const PORT = process.env.PORT || 3001;
 dotenv.config({ path: path.resolve(__dirname, './.env') });
 
 const corsOptions = {
-  origin: ['http://alexschaafdesign.com', 'http://www.alexschaafdesign.com', 'https://alexschaafdesign.com', 'https://www.alexschaafdesign.com'],
+  origin: ['https://alexschaafdesign.com', 'http://www.alexschaafdesign.com', 'https://alexschaafdesign.com', 'https://www.alexschaafdesign.com'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true
 };
@@ -47,12 +47,12 @@ app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 
 
 // Routes
-app.use('/venues', venuesRoutes);       // All routes for venues table
-app.use('/tcupbands', tcupbandsRouter); // All routes for TCUP bands
-app.use('/bands', bandsRoutes);         // All routes for bands table
-app.use('/shows', showsRoutes);         // All routes for shows table
-app.use('/', uploadRoutes);       // Register the upload route
-app.use("/people", peopleRouter); // Ensure the base path is correct
+app.use('/api/venues', venuesRoutes);       // All routes for venues table
+app.use('/api/tcupbands', tcupbandsRouter); // All routes for TCUP bands
+app.use('/api/bands', bandsRoutes);         // All routes for bands table
+app.use('/api/shows', showsRoutes);         // All routes for shows table
+app.use('/api/', uploadRoutes);       // Register the upload route
+app.use("/api/people", peopleRouter); // Ensure the base path is correct
 
 // Serve static files (for the frontend)
 app.use('/assets/images', express.static(path.join(__dirname, '../assets/images')));
