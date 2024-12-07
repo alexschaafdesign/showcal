@@ -11,7 +11,6 @@ import tcupbandsRouter from './routes/tcupbands.js';
 import bandsRoutes from './routes/bands.js';
 import showsRoutes from './routes/shows.js';
 import uploadRoutes from './routes/upload.js';
-import bodyParser from "body-parser"; // Parse application/json
 import peopleRouter from "./routes/people.js"; // Adjust path as needed
 
 
@@ -22,7 +21,14 @@ const __dirname = path.dirname(__filename);
 const { Pool } = pkg;
 const app = express();
 const PORT = process.env.PORT || 3001;
-dotenv.config({ path: path.resolve(__dirname, '../.env') });
+dotenv.config({ path: path.resolve(__dirname, './.env') });
+
+const corsOptions = {
+  origin: ['http://alexschaafdesign.com', 'http://www.alexschaafdesign.com', 'https://alexschaafdesign.com', 'https://www.alexschaafdesign.com'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+};
+
 
 // Database Connection
 const pool = new Pool({
@@ -35,10 +41,9 @@ const pool = new Pool({
 
 // Middleware
 // Middleware to handle CORS
-app.use(cors()); // Allow all origins
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
-app.use(bodyParser.urlencoded({ extended: true })); // Parse application/x-www-form-urlencoded
 
 
 // Routes
@@ -83,8 +88,8 @@ pool.connect((err) => {
 });
 
 // Start the server
-app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`Server is running on http://0.0.0.0:${PORT}`);
 });
 
 console.log('Server started. Routes registered:');

@@ -248,7 +248,7 @@ const TCUPBandsTable = () => {
                     band.images.map((image, index) => (
                       <img
                         key={index}
-                        src={`http://localhost:3001${image}`}
+                        src={`http://alexschaafdesign.com:3001${image}`}
                         alt={`Band ${index + 1}`}
                         style={{ width: 50, height: 50, marginRight: 5 }}
                       />

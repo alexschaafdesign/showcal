@@ -50,7 +50,7 @@ const TCUPPeopleForm = ({ isEdit = false }) => {
     e.preventDefault();
   
     try {
-      const response = await fetch("http://localhost:3001/peopl/add", {
+      const response = await fetch("http://alexschaafdesign.com:3001/people/add", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

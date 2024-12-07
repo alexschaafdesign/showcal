@@ -28,7 +28,7 @@ function App() {
   useEffect(() => {
     const fetchShows = async () => {
       try {
-        const response = await fetch("http://localhost:3001/shows");
+        const response = await fetch("http://alexschaafdesign.com:3001/shows");
         if (!response.ok) throw new Error("Failed to fetch shows");
         const data = await response.json();
         setAllShows(data); // Save shows data in state

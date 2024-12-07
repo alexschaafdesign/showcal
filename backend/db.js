@@ -5,7 +5,7 @@ const { Pool } = pkg; // Destructure Pool from the module
 const pool = new Pool({
     user: 'aschaaf',
     host: 'localhost',
-    database: 'venues',
+    database: 'tcup_db',
     password: 'notthesame', // replace with your actual password
     port: 5432,
 });

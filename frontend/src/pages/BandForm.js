@@ -41,7 +41,7 @@ const TCUPBandForm = ({ isEdit = false }) => {
   const [removedImages, setRemovedImages] = useState([]); // Tracks removed images
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const endpoint = "http://localhost:3001";
+  const endpoint = "http://alexschaafdesign.com:3001";
 
   useEffect(() => {
     const fetchBand = async () => {
@@ -235,7 +235,7 @@ const TCUPBandForm = ({ isEdit = false }) => {
         <CustomFilePond
         files={imageFiles}
         setFiles={setImageFiles}
-        endpoint="http://localhost:3001"
+        endpoint="http://alexschaafdesign.com:3001"
         name="images" // Must match the field name in Multer middleware
         allowMultiple={true}
         maxFiles={10}

@@ -47,7 +47,7 @@ const TCUPBandForm = ({ isEdit = false }) => {
 
   const [imageFiles, setImageFiles] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
-  const endpoint = "http://localhost:3001";
+  const endpoint = "http://alexschaafdesign.com:3001";
 
   const handleGenreChange = (index, value) => {
     const updatedGenres = [...formData.genre];
