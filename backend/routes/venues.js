@@ -68,7 +68,7 @@ router.put("/:venueId/edit", upload.single("cover_image"), async (req, res) => {
 
     const query =
       "UPDATE venues SET venue = $1, location = $2, capacity = $3, cover_image = $4 WHERE id = $5 RETURNING *";
-    const values = [name, location, capacity, coverImagePath, venueId];
+    const values = [venue, location, capacity, coverImagePath, venueId];
     const result = await pool.query(query, values);
 
     if (result.rows.length === 0) {

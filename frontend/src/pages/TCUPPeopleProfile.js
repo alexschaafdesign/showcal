@@ -4,10 +4,12 @@ const TCUPPeopleProfile = ({ personId }) => {
     const [person, setPerson] = useState(null);
     const [loading, setLoading] = useState(true);
 
+    const apiUrl = process.env.REACT_APP_API_URL;  // The backend API URL from the .env file
+
     useEffect(() => {
         const fetchPerson = async () => {
             try {
-                const response = await fetch(`/api/people/${personId}`);
+                const response = await fetch(`${apiUrl}/people/${personId}`);
                 const data = await response.json();
                 setPerson(data);
             } catch (error) {
@@ -18,7 +20,7 @@ const TCUPPeopleProfile = ({ personId }) => {
         };
 
         fetchPerson();
-    }, [personId]);
+    }, [personId, apiUrl]);
 
     if (loading) return <div>Loading...</div>;
 

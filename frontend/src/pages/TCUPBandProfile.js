@@ -17,11 +17,13 @@ const TCUPBandProfile = ({ allShows = [] }) => {
   const [open, setOpen] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
 
+  const apiUrl = process.env.REACT_APP_API_URL;  // The backend API URL from the .env file
+
   // Fetch band data on mount
   useEffect(() => {
     const fetchBand = async () => {
       try {
-        const response = await fetch(`https://alexschaafdesign.com/api/tcupbands/${bandid}`);
+        const response = await fetch(`${apiUrl}/tcupbands/${bandid}`);  // Use the dynamic URL
         if (!response.ok) throw new Error("Failed to fetch band data");
         const data = await response.json();
         const formattedBand = formatBandData(data.data);
@@ -35,7 +37,7 @@ const TCUPBandProfile = ({ allShows = [] }) => {
     };
 
     fetchBand();
-  }, [bandid]);
+  }, [bandid, apiUrl]);
 
   // Compute bandShows using useMemo
   const parsedBandid = parseInt(bandid, 10);
@@ -104,7 +106,9 @@ const TCUPBandProfile = ({ allShows = [] }) => {
   const images = Array.isArray(band.images) ? band.images : [];
   const imageUrl =
     band.profile_photo ||
-    (images?.[0] ? `https://alexschaafdesign.com/api${images[0]}` : "/assets/images/tcup_logo.jpg");
+    (images?.[0] ? `${apiUrl.replace(/\/api$/, '')}${images[0]}` : "../images/tcup_logo.jpg");
+
+    console.log("Image URL:", imageUrl);
 
   return (
     <Box sx={{ padding: 3 }}>
@@ -191,7 +195,7 @@ const TCUPBandProfile = ({ allShows = [] }) => {
                   <Box
                     key={index}
                     component="img"
-                    src={`https://alexschaafdesign.com/api${image}`}
+                    src={`${apiUrl.replace(/\/api$/, '')}${image}`}  // Update to handle the correct URL
                     alt={`Band Photo ${index + 1}`}
                     onClick={() => handleOpen(image)}
                     sx={{
@@ -323,7 +327,7 @@ const TCUPBandProfile = ({ allShows = [] }) => {
         >
           {selectedImage && (
             <img
-              src={`https://alexschaafdesign.com/api${selectedImage}`}
+              src={`${apiUrl.replace(/\/api$/, '')}${selectedImage}`}  // Update to handle the correct URL
               alt="Expanded Image"
               style={{
                 maxWidth: "calc(100vw - 32px)",

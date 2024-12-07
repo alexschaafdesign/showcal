@@ -18,11 +18,13 @@ function ShowsTable() {
   const [showTCUPBandsOnly, setShowTCUPBandsOnly] = useState(false);
   const navigate = useNavigate();
 
+  const apiUrl = process.env.REACT_APP_API_URL;  // The backend API URL from the .env file
+
   useEffect(() => {
     // Fetch shows data
     const fetchShows = async () => {
       try {
-        const response = await fetch('https://alexschaafdesign.com/api/shows');
+        const response = await fetch(`${apiUrl}/shows`);  // Use the dynamic URL
         if (!response.ok) throw new Error('Failed to fetch shows');
         const result = await response.json();
         setShowsData(result);

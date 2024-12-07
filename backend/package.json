@@ -4,9 +4,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "client": "npm start --prefix client",
-    "server": "nodemon server.js",
-    "dev": "concurrently \"npm run server\" \"npm run client\""
+    "server": "NODE_ENV=development nodemon server.js",
+    "start": "NODE_ENV=development node server.js"
   },
   "keywords": [],
   "author": "",

@@ -18,11 +18,14 @@ const TCUPPeopleForm = ({ isEdit = false }) => {
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
+  const apiUrl = process.env.REACT_APP_API_URL;  // The backend API URL from the .env file
+
+
   useEffect(() => {
     if (isEdit) {
       const fetchPerson = async () => {
         try {
-          const response = await fetch(`/api/people/${personId}`);
+          const response = await fetch(`/${apiUrl}/people/${personId}`);
           if (!response.ok) throw new Error("Failed to fetch person data");
           const data = await response.json();
           setFormData({
@@ -39,7 +42,7 @@ const TCUPPeopleForm = ({ isEdit = false }) => {
 
       fetchPerson();
     }
-  }, [isEdit, personId]);
+  }, [isEdit, personId, apiUrl]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -50,11 +53,12 @@ const TCUPPeopleForm = ({ isEdit = false }) => {
     e.preventDefault();
   
     try {
-      const response = await fetch("https://alexschaafdesign.com/api/people/add", {
+      const response = await fetch(`/${apiUrl}/people/add`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
+      
         body: JSON.stringify({
           name: formData.name,
           email: formData.email,

@@ -45,9 +45,11 @@ const TCUPBandForm = ({ isEdit = false }) => {
     },
   });
 
+  const apiUrl = process.env.REACT_APP_API_URL;  // The backend API URL from the .env file
+
   const [imageFiles, setImageFiles] = useState([]);
   const [errorMessage, setErrorMessage] = useState("");
-  const endpoint = "https://alexschaafdesign.com/api";
+  const endpoint = "http://localhost:3001/api";
 
   const handleGenreChange = (index, value) => {
     const updatedGenres = [...formData.genre];
@@ -66,7 +68,7 @@ const TCUPBandForm = ({ isEdit = false }) => {
         if (bandDataFromState) {
           bandData = bandDataFromState;
         } else {
-          const response = await fetch(`${endpoint}/tcupbands/${bandid}/edit`);
+          const response = await fetch(`${apiUrl}//tcupbands/${bandid}/edit`);  // Use the dynamic URL
           const data = await response.json();
           bandData = data.data;
         }
@@ -107,7 +109,7 @@ const TCUPBandForm = ({ isEdit = false }) => {
     };
   
     fetchBand();
-  }, [isEdit, bandid, bandDataFromState]);
+  }, [isEdit, bandid, bandDataFromState, apiUrl]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;

@@ -21,10 +21,15 @@
     "react-scripts": "^5.0.1"
   },
   "devDependencies": {
-    "gh-pages": "^6.2.0"
+    "concurrently": "^9.1.0",
+    "gh-pages": "^6.2.0",
+    "nodemon": "^3.1.7"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "client": "npm start --prefix frontend",
+    "server": "NODE_ENV=development nodemon backend/server.js",  
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "start": "NODE_ENV=production node backend/server.js",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"

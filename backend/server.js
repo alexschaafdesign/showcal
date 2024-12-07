@@ -1,4 +1,3 @@
-
 import express from 'express';
 import cors from 'cors';
 import pkg from 'pg';
@@ -13,22 +12,23 @@ import showsRoutes from './routes/shows.js';
 import uploadRoutes from './routes/upload.js';
 import peopleRouter from "./routes/people.js"; // Adjust path as needed
 
-
-
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const { Pool } = pkg;
 const app = express();
 const PORT = process.env.PORT || 3001;
-dotenv.config({ path: path.resolve(__dirname, './.env') });
+
+// Load environment variables based on NODE_ENV
+dotenv.config({ path: path.resolve(__dirname, `./.env.${process.env.NODE_ENV || 'local'}`) });
 
 const corsOptions = {
-  origin: ['https://alexschaafdesign.com', 'http://www.alexschaafdesign.com', 'https://alexschaafdesign.com', 'https://www.alexschaafdesign.com'],
+  origin: process.env.NODE_ENV === 'development'
+    ? 'http://localhost:3000' // Allow localhost in development mode
+    : ['https://alexschaafdesign.com', 'http://www.alexschaafdesign.com'], // Allow production domain
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true
 };
-
 
 // Database Connection
 const pool = new Pool({
@@ -40,19 +40,17 @@ const pool = new Pool({
 });
 
 // Middleware
-// Middleware to handle CORS
 app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
-
 
 // Routes
 app.use('/api/venues', venuesRoutes);       // All routes for venues table
 app.use('/api/tcupbands', tcupbandsRouter); // All routes for TCUP bands
 app.use('/api/bands', bandsRoutes);         // All routes for bands table
 app.use('/api/shows', showsRoutes);         // All routes for shows table
-app.use('/api/', uploadRoutes);       // Register the upload route
-app.use("/api/people", peopleRouter); // Ensure the base path is correct
+app.use('/api/', uploadRoutes);             // Register the upload route
+app.use("/api/people", peopleRouter);       // Ensure the base path is correct
 
 // Serve static files (for the frontend)
 app.use('/assets/images', express.static(path.join(__dirname, '../assets/images')));
@@ -88,8 +86,10 @@ pool.connect((err) => {
 });
 
 // Start the server
-app.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server is running on http://0.0.0.0:${PORT}`);
+const host = process.env.NODE_ENV === 'production' ? '0.0.0.0' : 'localhost';
+
+app.listen(PORT, host, () => {
+  console.log(`Server is running on http://${host}:${PORT}`);
 });
 
 console.log('Server started. Routes registered:');

@@ -20,10 +20,13 @@ const TCUPPeopleTable = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+  const apiUrl = process.env.REACT_APP_API_URL;  // The backend API URL from the .env file
+
+
   useEffect(() => {
     const fetchPeople = async () => {
       try {
-        const response = await fetch("https://alexschaafdesign.com/api/people");
+        const response = await fetch(`${apiUrl}/api/people`);
         if (!response.ok) throw new Error("Failed to fetch people.");
         const data = await response.json();
         setPeople(data);
@@ -36,7 +39,7 @@ const TCUPPeopleTable = () => {
     };
 
     fetchPeople();
-  }, []);
+  }, [apiUrl]);
 
   const handleViewProfile = (id) => {
     navigate(`/people/${id}`);

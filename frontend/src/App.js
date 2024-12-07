@@ -1,11 +1,8 @@
 
 import React, { useEffect, useState } from "react";
 import { Route, Routes } from "react-router-dom";
-import Calendar from "./pages/Calendar.js";
 import Home from "./pages/Home.js";
 import ShowsTable from "./pages/ShowsTable.js";
-import BandsTable from "./pages/BandsTable.js";
-import BandProfile from "./pages/BandProfile.js";
 import "./styles/App.css";
 import VenuesTable from "./pages/VenuesTable.js";
 import VenueProfile from "./pages/VenueProfile.js";
@@ -24,21 +21,7 @@ import Organize from "./pages/Organize.js";
 function App() {
   const [allShows, setAllShows] = useState([]);
 
-  // Fetch all shows from the backend
-  useEffect(() => {
-    const fetchShows = async () => {
-      try {
-        const response = await fetch("https://alexschaafdesign.com/api/shows");
-        if (!response.ok) throw new Error("Failed to fetch shows");
-        const data = await response.json();
-        setAllShows(data); // Save shows data in state
-      } catch (error) {
-        console.error("Error fetching shows:", error);
-      }
-    };
-
-    fetchShows();
-  }, []);
+  const apiUrl = process.env.REACT_APP_API_URL;  // The backend API URL from the .env file
 
   return (
     <ThemeProvider theme={theme}>
@@ -73,10 +56,6 @@ function App() {
           {/* Shows */}
           <Route path="/shows" element={<ShowsTable allShows={allShows} />} />
 
-          {/* Bands */}
-          <Route path="/bands" element={<BandsTable />} />
-          <Route path="/bands/:id/view" element={<BandProfile />} />
-
           {/* TCUP Bands */}
           <Route path="/tcupbands" element={<TCUPBandsTable />} />
           <Route path="/tcupbands/add" element={<TCUPBandForm isEdit={false} />} />
@@ -101,9 +80,6 @@ function App() {
             element={<TCUPPeopleProfile />}
           />
           <Route path="/people" element={<TCUPPeopleTable />} />
-
-          {/* Calendar */}
-          <Route path="/calendar" element={<Calendar />} />
 
           {/* Catch-All */}
           <Route

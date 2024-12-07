@@ -1,6 +1,8 @@
 import React from "react";
 import { Box, Grid, Card, CardContent, Typography, Icon } from "@mui/material";
 
+const apiUrl = process.env.REACT_APP_API_URL;  // The backend API URL from the .env file
+
 const Organize = () => {
   const cards = [
     {

@@ -22,10 +22,12 @@ const VenuesTable = () => {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+  const apiUrl = process.env.REACT_APP_API_URL;  // The backend API URL from the .env file
+
   useEffect(() => {
     const fetchVenues = async () => {
       try {
-        const response = await fetch("https://alexschaafdesign.com/api/venues");
+        const response = await fetch(`${apiUrl}/venues`);
         if (!response.ok) {
           throw new Error("Failed to fetch venues");
         }
@@ -113,9 +115,10 @@ const VenuesTable = () => {
                   <TableCell>{venue.capacity || "N/A"}</TableCell>
                   <TableCell>
                     {venue.cover_image ? (
+                      console.log(`${apiUrl.replace(/\/api$/, '')}${venue.cover_image}`),
                       <img
-                        src={`https://alexschaafdesign.com/api/images/venueimages/${venue.cover_image}`}
-                        alt={`${venue.name} cover`}
+                      src={`${apiUrl.replace(/\/api$/, '')}/images/venueimages/${venue.cover_image}`} // Correct the path
+                      alt={`${venue.name} cover`}
                         style={{ width: 50, height: 50 }}
                       />
                     ) : (
@@ -135,7 +138,10 @@ const VenuesTable = () => {
         </Table>
       </Paper>
     </Box>
+    
   );
 };
+
+
 
 export default VenuesTable;

@@ -33,8 +33,10 @@ async function crossReferenceBands(bandsString) {
 }
 
 router.get('/', async (req, res) => {
+  const { venueId } = req.query; // Get venueId from query parameter
+  
   try {
-    const query = `
+    let query = `
       SELECT 
         shows.id AS show_id,
         shows.start,
@@ -48,44 +50,39 @@ router.get('/', async (req, res) => {
         shows
       LEFT JOIN 
         venues ON shows.venue_id = venues.id
-      ORDER BY 
-        shows.start ASC;
     `;
-    const { rows: shows } = await pool.query(query);
-
+    
+    // If venueId is provided, filter the results by venue_id
+    if (venueId) {
+      query += ` WHERE shows.venue_id = $1`;
+    }
+    
+    query += ' ORDER BY shows.start ASC';
+    
+    const { rows: shows } = await pool.query(query, venueId ? [venueId] : []);
+    
     // Process bands for each show
     const processedShows = await Promise.all(
       shows.map(async (show) => {
-        // Parse band_list into an array
         const bandNames = show.band_list
           ? show.band_list.split(',').map((name) => name.trim())
           : [];
 
-        // Query the tcupbands table for matching bands
         const { rows: linkedBands } = await pool.query(
-          `
-          SELECT 
-            id, 
-            name 
-          FROM 
-            tcupbands 
-          WHERE 
-            name = ANY ($1::text[])
-          `,
+          `SELECT id, name FROM tcupbands WHERE name = ANY ($1::text[])`,
           [bandNames]
         );
 
-        // Format bands to include links for tcupbands and names for others
         const formattedBands = bandNames.map((name) => {
           const linkedBand = linkedBands.find((band) => band.name.toLowerCase() === name.toLowerCase());
           return linkedBand
-            ? { id: linkedBand.id, name: linkedBand.name } // Link for matched bands
-            : { id: null, name }; // No link for unmatched bands
+            ? { id: linkedBand.id, name: linkedBand.name }
+            : { id: null, name };
         });
 
         return {
           ...show,
-          bands: formattedBands, // Replace raw string with formatted band objects
+          bands: formattedBands,
         };
       })
     );
@@ -96,7 +93,6 @@ router.get('/', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch shows' });
   }
 });
-
 // Get a specific show by ID
 router.get('/:id', async (req, res) => {
   const showId = req.params.id;
@@ -129,7 +125,7 @@ router.get('/:id', async (req, res) => {
     const linkedBands = await crossReferenceBands(show.band_list || '');
     res.json({
       ...show,
-      bands: linkedBands, // Include all bands with optional links
+      bands: linkedBands,
     });
   } catch (error) {
     console.error('Error fetching show:', error);

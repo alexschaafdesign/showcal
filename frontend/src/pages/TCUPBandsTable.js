@@ -37,10 +37,13 @@ const TCUPBandsTable = () => {
     navigate("/tcupbands/add"); // Redirect to the "Add Band" form page
   };
 
+  const apiUrl = process.env.REACT_APP_API_URL;  // The backend API URL from the .env file
+
   useEffect(() => {
     const fetchBands = async () => {
       try {
-        const response = await fetch("http://127.0.0.1:3001/tcupbands");
+        const response = await fetch(`${apiUrl}/tcupbands`);  // Use the dynamic URL
+
         if (!response.ok) throw new Error("Failed to fetch bands");
         const data = await response.json();
 
@@ -248,7 +251,7 @@ const TCUPBandsTable = () => {
                     band.images.map((image, index) => (
                       <img
                         key={index}
-                        src={`https://alexschaafdesign.com/api${image}`}
+                        src={`${apiUrl.replace(/\/api$/, '')}${image}`}  // Update to handle the correct URL
                         alt={`Band ${index + 1}`}
                         style={{ width: 50, height: 50, marginRight: 5 }}
                       />
