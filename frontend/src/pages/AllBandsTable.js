@@ -30,7 +30,7 @@ const BandTable = () => {
   useEffect(() => {
     const fetchBands = async () => {
       try {
-        const response = await fetch('http://alexschaafdesign.com:3001/bands');
+        const response = await fetch('https://alexschaafdesign.com/api/bands');
         if (!response.ok) {
           throw new Error('Failed to fetch bands');
         }

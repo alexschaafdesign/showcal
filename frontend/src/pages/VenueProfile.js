@@ -18,8 +18,8 @@ const VenueProfile = () => {
   useEffect(() => {
     const fetchVenue = async () => {
       try {
-        console.log(`Fetching venue from http://alexschaafdesign.com:3001/tcup/venues/${id}`);
-        const venueResponse = await fetch(`http://alexschaafdesign.com:3001/tcup/venues/${id}`);
+        console.log(`Fetching venue from https://alexschaafdesign.com/api/tcup/venues/${id}`);
+        const venueResponse = await fetch(`https://alexschaafdesign.com/api/tcup/venues/${id}`);
         if (!venueResponse.ok) throw new Error("Venue Not Found");
         const venueData = await venueResponse.json();
         console.log("Fetched venue data:", venueData);
@@ -34,8 +34,8 @@ const VenueProfile = () => {
 
     const fetchShows = async () => {
       try {
-        console.log(`Fetching shows from http://alexschaafdesign.com:3001/tcup/shows?venue=${id}`);
-        const showsResponse = await fetch(`http://alexschaafdesign.com:3001/tcup/shows?venue=${id}`);
+        console.log(`Fetching shows from https://alexschaafdesign.com/api/tcup/shows?venue=${id}`);
+        const showsResponse = await fetch(`https://alexschaafdesign.com/api/tcup/shows?venue=${id}`);
         if (!showsResponse.ok) throw new Error("Failed to fetch shows");
         const showsData = await showsResponse.json();
         console.log("Fetched shows data:", showsData);
@@ -77,7 +77,7 @@ const VenueProfile = () => {
       {venue.cover_image && (
         <Box sx={{ mb: 3 }}>
           <img
-            src={`http://alexschaafdesign.com:3001/images/venuecoverimages/${venue.cover_image}`} // Assumes images are served here
+            src={`https://alexschaafdesign.com/api/images/venuecoverimages/${venue.cover_image}`} // Assumes images are served here
             alt={`${venue.venue} cover`}
             style={{
               width: '50%', // Responsive to container width

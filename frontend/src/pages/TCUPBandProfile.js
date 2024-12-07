@@ -21,7 +21,7 @@ const TCUPBandProfile = ({ allShows = [] }) => {
   useEffect(() => {
     const fetchBand = async () => {
       try {
-        const response = await fetch(`http://alexschaafdesign.com:3001/tcupbands/${bandid}`);
+        const response = await fetch(`https://alexschaafdesign.com/api/tcupbands/${bandid}`);
         if (!response.ok) throw new Error("Failed to fetch band data");
         const data = await response.json();
         const formattedBand = formatBandData(data.data);
@@ -104,7 +104,7 @@ const TCUPBandProfile = ({ allShows = [] }) => {
   const images = Array.isArray(band.images) ? band.images : [];
   const imageUrl =
     band.profile_photo ||
-    (images?.[0] ? `http://alexschaafdesign.com:3001${images[0]}` : "/assets/images/tcup_logo.jpg");
+    (images?.[0] ? `https://alexschaafdesign.com/api${images[0]}` : "/assets/images/tcup_logo.jpg");
 
   return (
     <Box sx={{ padding: 3 }}>
@@ -191,7 +191,7 @@ const TCUPBandProfile = ({ allShows = [] }) => {
                   <Box
                     key={index}
                     component="img"
-                    src={`http://alexschaafdesign.com:3001${image}`}
+                    src={`https://alexschaafdesign.com/api${image}`}
                     alt={`Band Photo ${index + 1}`}
                     onClick={() => handleOpen(image)}
                     sx={{
@@ -323,7 +323,7 @@ const TCUPBandProfile = ({ allShows = [] }) => {
         >
           {selectedImage && (
             <img
-              src={`http://alexschaafdesign.com:3001${selectedImage}`}
+              src={`https://alexschaafdesign.com/api${selectedImage}`}
               alt="Expanded Image"
               style={{
                 maxWidth: "calc(100vw - 32px)",

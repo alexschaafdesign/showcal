@@ -22,7 +22,7 @@ function ShowsTable() {
     // Fetch shows data
     const fetchShows = async () => {
       try {
-        const response = await fetch('http://alexschaafdesign.com:3001/shows');
+        const response = await fetch('https://alexschaafdesign.com/api/shows');
         if (!response.ok) throw new Error('Failed to fetch shows');
         const result = await response.json();
         setShowsData(result);

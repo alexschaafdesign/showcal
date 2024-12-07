@@ -22,7 +22,7 @@ function BandProfile() {
   useEffect(() => {
     const fetchBandData = async () => {
       try {
-        const response = await fetch(`http://alexschaafdesign.com:3001/tcup/bands/${id}`);
+        const response = await fetch(`https://alexschaafdesign.com/api/tcup/bands/${id}`);
         if (!response.ok) throw new Error('Failed to fetch band data');
         const data = await response.json();
         setBandData(data.band || {}); // Adjust to match backend response structure

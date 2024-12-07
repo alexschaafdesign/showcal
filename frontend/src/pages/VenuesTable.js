@@ -25,7 +25,7 @@ const VenuesTable = () => {
   useEffect(() => {
     const fetchVenues = async () => {
       try {
-        const response = await fetch("http://alexschaafdesign.com:3001/venues");
+        const response = await fetch("https://alexschaafdesign.com/api/venues");
         if (!response.ok) {
           throw new Error("Failed to fetch venues");
         }
@@ -114,7 +114,7 @@ const VenuesTable = () => {
                   <TableCell>
                     {venue.cover_image ? (
                       <img
-                        src={`http://alexschaafdesign.com:3001/images/venueimages/${venue.cover_image}`}
+                        src={`https://alexschaafdesign.com/api/images/venueimages/${venue.cover_image}`}
                         alt={`${venue.name} cover`}
                         style={{ width: 50, height: 50 }}
                       />

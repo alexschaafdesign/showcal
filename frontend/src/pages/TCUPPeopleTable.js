@@ -23,7 +23,7 @@ const TCUPPeopleTable = () => {
   useEffect(() => {
     const fetchPeople = async () => {
       try {
-        const response = await fetch("http://alexschaafdesign.com:3001/people");
+        const response = await fetch("https://alexschaafdesign.com/api/people");
         if (!response.ok) throw new Error("Failed to fetch people.");
         const data = await response.json();
         setPeople(data);
