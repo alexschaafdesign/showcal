@@ -116,7 +116,7 @@ CREATE TABLE public.bands (
     social_links jsonb,
     show_id integer,
     genre text,
-    contact text,
+    bandemail text,
     open_to_requests boolean DEFAULT false,
     band_size text
 );
@@ -242,7 +242,7 @@ CREATE TABLE public.tcupbands (
     name text NOT NULL,
     social_links jsonb,
     genre text[],
-    contact text,
+    bandemail text,
     play_shows character varying(20),
     group_size text[] DEFAULT ARRAY[]::text[],
     created_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
@@ -359,7 +359,7 @@ ALTER TABLE ONLY public.venues ALTER COLUMN id SET DEFAULT nextval('public.venue
 -- Data for Name: bands; Type: TABLE DATA; Schema: public; Owner: aschaaf
 --
 
-COPY public.bands (id, band, social_links, show_id, genre, contact, open_to_requests, band_size) FROM stdin;
+COPY public.bands (id, band, social_links, show_id, genre, bandemail, open_to_requests, band_size) FROM stdin;
 \.
 
 
@@ -959,7 +959,7 @@ https://link.dice.fm/F0ef469b1fea?pid=1d4479ef	https://static1.squarespace.com/s
 -- Data for Name: tcupbands; Type: TABLE DATA; Schema: public; Owner: aschaaf
 --
 
-COPY public.tcupbands (id, name, social_links, genre, contact, play_shows, group_size, created_at, images, profile_image, music_links) FROM stdin;
+COPY public.tcupbands (id, name, social_links, genre, bandemail, play_shows, group_size, created_at, images, profile_image, music_links) FROM stdin;
 73	Gully Boys	{"spotify": "", "website": "", "bandcamp": "", "instagram": "", "soundcloud": ""}	{}			{}	2024-12-03 16:33:14.494304	{/assets/images/1733272887182-550288147-77B87E1B-CB34-4C73-96F7-C54BDB46D267_1_102_o.jpeg}	\N	\N
 76	Bryn Battani	{"spotify": "", "website": "", "bandcamp": "", "instagram": "", "soundcloud": ""}	{}			{}	2024-12-05 08:33:56.334841	{"/assets/images/1733430726936-294948278-images (5).jpeg"}	\N	{"spotify": "https://open.spotify.com/album/3LR5fZOA4m2jlNO2Y4y283?si=KvBEt-7zQnifK2dWRuOY3A", "youtube": "", "bandcamp": "", "soundcloud": ""}
 75	bathtub cig	{"spotify": "", "website": "", "bandcamp": "", "instagram": "", "soundcloud": ""}	{}		maybe	{Solo,Duo,Trio,4-piece}	2024-12-05 08:33:18.339812	{/assets/images/1733430637325-801401178-a0510147453_2.jpg,/assets/images/1733432236991-253856342-674653-20210514-bathtub-cig-03-400.jpg}	\N	{"spotify": "https://open.spotify.com/album/7ESFgrL7KHKs9icAL6ogIS?si=K8Jg-PWAR1y27PYW62z8Ww", "youtube": "", "bandcamp": "", "soundcloud": ""}

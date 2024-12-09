@@ -27,11 +27,15 @@
   },
   "scripts": {
     "client": "npm start --prefix frontend",
-    "server": "NODE_ENV=development nodemon backend/server.js",  
-    "dev": "concurrently \"npm run server\" \"npm run client\"",
-    "start": "NODE_ENV=production node backend/server.js",
+    "server": "NODE_ENV=development nodemon backend/server.js",
+    "dev": "concurrently \"npm run dev-backend\" \"npm run dev-frontend\"",
+    "start": "concurrently \"npm run start-backend\" \"npm run start-frontend\"",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "start-backend": "npm --prefix ./backend start",
+    "start-frontend": "npm --prefix ./frontend start",
+    "dev-backend": "npm --prefix ./backend run dev",
+    "dev-frontend": "npm --prefix ./frontend start"
   }
 }

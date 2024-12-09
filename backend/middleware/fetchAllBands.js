@@ -4,7 +4,7 @@ import formatBandData from "../utils/formatBandData.js"; // Import formatting ut
 const fetchAllBandsMiddleware = async (req, res, next) => {
   try {
     const query = `
-      SELECT id, name, genre, contact, play_shows, group_size, social_links, music_links, images, created_at
+      SELECT id, name, genre, bandemail, play_shows, group_size, social_links, music_links, created_at
       FROM tcupbands;
     `;
 

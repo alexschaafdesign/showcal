@@ -1,4 +1,4 @@
-import pool from "../config/db.js";
+import pool from '../config/db.js';
 import { addBandQuery, updateBandQuery } from "../queries/bandQueries.js";
 import sendSuccessResponse from "../utils/sendSuccessResponse.js";
 import cleanArray from "../utils/arrayUtils.js";
@@ -14,7 +14,7 @@ export const getBandById = (req, res) => {
 
   export const addBand = async (req, res) => {
     try {
-      const { name, genre, contact, play_shows, group_size, social_links, music_links, images } = req.bandData;
+      const { name, genre, bandemail, play_shows, group_size, social_links, music_links } = req.bandData;
   
       // Debugging: Log incoming data
       console.log("Incoming band data:", req.bandData);
@@ -36,7 +36,7 @@ export const getBandById = (req, res) => {
       const values = [
         name || "", // Default to empty string if missing
         `{${cleanGenre.join(",")}}`, // Ensure genre is properly formatted
-        contact || "", // Default to empty string if missing
+        bandemail || "", // Default to empty string if missing
         play_shows || "no", // Default to "no" if missing
         `{${cleanGroupSize.join(",")}}`, // Ensure group_size is properly formatted
         JSON.stringify(social_links || {}), // Default to empty object
@@ -62,7 +62,7 @@ export const getBandById = (req, res) => {
   export const updateBand = async (req, res) => {
     try {
       const { bandid } = req.params;
-      const { name, genre, contact, play_shows, group_size, social_links, music_links, images } = req.bandData;
+      const { name, genre, bandemail, play_shows, group_size, social_links, music_links } = req.bandData;
   
       // Clean and validate inputs
       const cleanGenre = cleanArray(genre || []);
@@ -74,7 +74,7 @@ export const getBandById = (req, res) => {
       const values = [
         name,
         `{${cleanGenre.join(",")}}`,
-        contact,
+        bandemail,
         play_shows,
         `{${cleanGroupSize.join(",")}}`,
         JSON.stringify(social_links || {}),

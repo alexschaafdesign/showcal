@@ -35,7 +35,7 @@ async function loadData() {
         if (rows.length) {
             const query = `
                 INSERT INTO venues (
-                    venue, location, capacity, contact, notes, parking, accessibility, owner, tcup_rating
+                    venue, location, capacity, bandemail, notes, parking, accessibility, owner, tcup_rating
                 ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
             `;
             

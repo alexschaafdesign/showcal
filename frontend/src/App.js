@@ -21,8 +21,6 @@ import Organize from "./pages/Organize.js";
 function App() {
   const [allShows, setAllShows] = useState([]);
 
-  const apiUrl = process.env.REACT_APP_API_URL;  // The backend API URL from the .env file
-
   return (
     <ThemeProvider theme={theme}>
       {/* Include Header above the Routes */}

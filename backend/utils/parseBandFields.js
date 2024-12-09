@@ -2,7 +2,7 @@ function parseBandFields(body, files) {
   const {
     name = "",
     genre = "",
-    contact = "",
+    bandemail = "",
     play_shows = "",
     group_size = "[]", // Default to an empty array if not provided
     social_links = "{}", // Default to an empty object if not provided
@@ -18,11 +18,10 @@ function parseBandFields(body, files) {
   return {
     name,
     genre,
-    contact,
+    bandemail,
     play_shows,
     group_size: parsedGroupSize,
     social_links: parsedSocialLinks,
-    images: uploadedImages,
   };
 }
   

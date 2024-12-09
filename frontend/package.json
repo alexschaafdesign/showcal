@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "homepage": "http://www.alexschaafdesign.com",
+  "proxy": "http://localhost:3001",
   "dependencies": {
     "-": "^0.0.1",
     "@emotion/react": "^11.13.5",

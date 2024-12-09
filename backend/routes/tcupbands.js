@@ -8,6 +8,8 @@ import {
   addBand, 
   updateBand 
 } from "../controllers/bandController.js";
+import pool from '../config/db.js';
+
 
 const router = express.Router();
 

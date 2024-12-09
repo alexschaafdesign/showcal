@@ -210,7 +210,7 @@ const TCUPBandsTable = () => {
           <TableRow>
             <TableCell><strong>Band Name</strong></TableCell>
             <TableCell><strong>Images</strong></TableCell>
-            <TableCell><strong>Contact Info</strong></TableCell>
+            <TableCell><strong>bandemail Info</strong></TableCell>
             <TableCell><strong>Social Links</strong></TableCell>
           </TableRow>
         </TableHead>
@@ -260,7 +260,7 @@ const TCUPBandsTable = () => {
                     "No Images"
                   )}
                 </TableCell>
-                <TableCell>{band.contact || "No Contact Info"}</TableCell>
+                <TableCell>{band.bandemail || "No bandemail Info"}</TableCell>
                 <TableCell>
                 <BandSocialLinks links={band.social_links} />
                 </TableCell>
