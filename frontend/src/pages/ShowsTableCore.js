@@ -14,8 +14,9 @@ import {
 
 function ShowsTableCore({ data, onBandClick, onVenueClick }) {
   const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  today.setHours(0, 0, 0, 0); // Set today's date to midnight for comparison
 
+  // Filter the data to include only events starting from today onwards
   const filteredData = data.filter((item) => {
     const eventDate = new Date(item.start);
     return eventDate >= today;
@@ -35,7 +36,7 @@ function ShowsTableCore({ data, onBandClick, onVenueClick }) {
     return grouped;
   };
 
-  const groupedData = groupByDate(filteredData);
+  const groupedData = groupByDate(data); // Use filtered data here
   const sortedDates = Object.keys(groupedData).sort((a, b) => new Date(a) - new Date(b));
 
   return (
@@ -111,45 +112,45 @@ function ShowsTableCore({ data, onBandClick, onVenueClick }) {
                         {item.venue_name || 'Unknown Venue'}
                       </TableCell>
                       <TableCell>
-                        <div style={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column', gap: '4px', width: 'fit-content', }}>
+                        <div style={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column', gap: '4px', width: 'fit-content' }}>
                           {item.bands.map((band, index) =>
                             band.id ? (
                               <Typography
-                              key={`${item.id}-${band.id || band.name}-${index}`} // Unique key for each band in the context of a show
-                              sx={{
-                                fontWeight: band.id ? 'bold' : 'normal',
-                                color: band.id ? 'primary.main' : 'grey.600',
-                                cursor: band.id ? 'pointer' : 'default',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '8px',
-                              }}
-                              onClick={() => band.id && onBandClick && onBandClick(band.id)}
-                            >
-                              {band.name}
-                              {band.id && (
-                                <Chip
-                                  label="TCUP BAND"
-                                  color="primary"
-                                  size="small"
-                                  sx={{
-                                    fontWeight: 'bold',
-                                    textTransform: 'uppercase',
-                                  }}
-                                />
-                              )}
-                            </Typography>
-                          ) : (
-                            <Typography
-                              key={index}
-                              sx={{
-                                fontWeight: 'bold',
-                                color: 'grey.600',
-                                fontSize: '1rem',
-                              }}
-                            >
-                              {band.name}
-                            </Typography>
+                                key={`${item.id}-${band.id || band.name}-${index}`} // Unique key for each band in the context of a show
+                                sx={{
+                                  fontWeight: band.id ? 'bold' : 'normal',
+                                  color: band.id ? 'primary.main' : 'grey.600',
+                                  cursor: band.id ? 'pointer' : 'default',
+                                  display: 'flex',
+                                  alignItems: 'center',
+                                  gap: '8px',
+                                }}
+                                onClick={() => band.id && onBandClick && onBandClick(band.id)}
+                              >
+                                {band.name}
+                                {band.id && (
+                                  <Chip
+                                    label="TCUP BAND"
+                                    color="primary"
+                                    size="small"
+                                    sx={{
+                                      fontWeight: 'bold',
+                                      textTransform: 'uppercase',
+                                    }}
+                                  />
+                                )}
+                              </Typography>
+                            ) : (
+                              <Typography
+                                key={index}
+                                sx={{
+                                  fontWeight: 'bold',
+                                  color: 'grey.600',
+                                  fontSize: '1rem',
+                                }}
+                              >
+                                {band.name}
+                              </Typography>
                             )
                           )}
                         </div>
