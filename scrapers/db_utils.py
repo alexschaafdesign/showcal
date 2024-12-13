@@ -2,7 +2,7 @@ import psycopg2
 import json
 
 # Database connection parameters
-DB_NAME = "tcup"
+DB_NAME = "tcup_db"
 DB_USER = "aschaaf"
 DB_PASSWORD = "notthesame"
 DB_HOST = "localhost"

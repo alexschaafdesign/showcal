@@ -6,6 +6,7 @@ scrapers=(
     "Green_Room python3 grscrape_todb.py"
     "White_Squirrel python3 whitesquirrel.py"
     "331_Club python3 331scrape_todb.py"
+    "Icehouse python3 icehouse.py"
 )
 
 log_file="scraper_run_$(date +'%Y-%m-%d_%H-%M-%S').log"
