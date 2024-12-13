@@ -26,6 +26,7 @@ export const textFieldStyles = {
     styleOverrides: {
       root: {
         color: 'rgba(0, 0, 0, 0.6)',
+        backgroundColor: 'transparent',
       },
       shrink: {
         transform: 'translate(14px, -6px) scale(0.75)',

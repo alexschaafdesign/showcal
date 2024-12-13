@@ -42,15 +42,7 @@ const ShowsTableCore = ({ data, onShowClick }) => {
   return (
     <TableContainer component={Paper}>
       <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>Flyer</TableCell>
-            <TableCell>Venue</TableCell>
-            <TableCell>Bands</TableCell>
-            <TableCell>Start</TableCell>
-            <TableCell>Event Link</TableCell>
-          </TableRow>
-        </TableHead>
+
         <TableBody>
           {sortedDates.length === 0 ? (
             <TableRow>
@@ -67,7 +59,10 @@ const ShowsTableCore = ({ data, onShowClick }) => {
                     style={{
                       textAlign: 'center',
                       fontWeight: '900',
+                      padding: '12px',
                       textTransform: 'uppercase',
+                      fontSize: "20px",
+                      fontStyle: 'normal',
                       background: '#d8d8d8',
                     }}
                   >
@@ -97,8 +92,8 @@ const ShowsTableCore = ({ data, onShowClick }) => {
                               src={item.flyer_image}
                               alt="Flyer"
                               style={{
-                                maxWidth: '150px',
-                                maxHeight: '150px',
+                                maxWidth: '100px',
+                                maxHeight: '100px',
                                 borderRadius: '5px',
                               }}
                             />
@@ -107,15 +102,21 @@ const ShowsTableCore = ({ data, onShowClick }) => {
                           'No Flyer'
                         )}
                       </TableCell>
-                      <TableCell>{item.venue_name || 'Unknown Venue'}</TableCell>
+                      <TableCell>
+                          <Typography 
+                            variant="h4" 
+                              sx={{ color: 'primary.main', textTransform: 'uppercase', fontWeight: 'bold' }}>
+                          {item.venue_name || 'Unknown Venue'}
+                          </Typography>
+                      </TableCell>
                       <TableCell>
                         <div style={{ display: 'flex', flexDirection: 'column' }}>
                           {item.bands.map((band, index) => (
                             <Typography
                               key={`${item.id}-${band.id || band.name}-${index}`}
                               sx={{
-                                fontWeight: band.id ? 'bold' : 'normal',
-                                color: band.id ? 'primary.main' : 'grey.600',
+                                fontWeight: band.id ? 'bold' : 'bold',
+                                color: band.id ? 'primary.main' : 'grey.900',
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: '8px',
@@ -144,16 +145,7 @@ const ShowsTableCore = ({ data, onShowClick }) => {
                           hour12: true,
                         })}
                       </TableCell>
-                      <TableCell sx={{ fontSize: '18px' }}>
-                        {item.event_link ? (
-                          <a href={item.event_link} target="_blank" rel="noopener noreferrer">
-                            Event Link
-                          </a>
-                        ) : (
-                          'No Link Available'
-                        )}
-                      </TableCell>
-                    </TableRow>
+                                      </TableRow>
                   ))}
               </React.Fragment>
             ))

@@ -12,7 +12,7 @@ export const tables = {
   MuiTableCell: {
     styleOverrides: {
       root: {
-        padding: '16px', // Add padding to table cells
+        padding: '8px', // Add padding to table cells
         '@media (max-width: 600px)': {
           display: 'block',
           width: '100%',

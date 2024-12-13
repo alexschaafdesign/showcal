@@ -94,31 +94,17 @@ function ShowsTable() {
 
   // Handle row click to navigate to ShowProfile
   const handleShowClick = (showId) => {
-    console.log("Navigating to show:", showId); // Debugging
+    console.log("Navigating to show:", showId); // This will help us debug
     if (showId) {
-      navigate(`/shows/${showId}`); // Navigate to the ShowProfile page
+      navigate(`/shows/${showId}`); // Navigate to the ShowProfile page with the correct showId
     } else {
-      console.error("No show ID found");
+      console.error("No show ID found"); // This will be triggered if showId is undefined
     }
   };
 
   return (
     <Box sx={{ paddingBottom: '150px', paddingTop: 2, overflowY: 'auto' }}>
-      <Typography variant="h2" gutterBottom textAlign="center">
-        TWIN CITIES SHOW LIST
-      </Typography>
 
-      {/* Show TCUP Bands Only Filter */}
-      <FormControlLabel
-        control={
-          <Checkbox
-            checked={showTCUPBandsOnly}
-            onChange={(e) => setShowTCUPBandsOnly(e.target.checked)}
-          />
-        }
-        label="Show TCUP bands only"
-        style={{ marginBottom: '16px' }}
-      />
 
       {/* Search Field */}
       <TextField
@@ -146,6 +132,18 @@ function ShowsTable() {
           </MenuItem>
         ))}
       </Select>
+
+      {/* Show TCUP Bands Only Filter */}
+      <FormControlLabel
+        control={
+          <Checkbox
+            checked={showTCUPBandsOnly}
+            onChange={(e) => setShowTCUPBandsOnly(e.target.checked)}
+          />
+        }
+        label="Show TCUP bands only"
+        style={{ marginBottom: '8px' }}
+      />
 
       {/* Use ShowsTableCore to render the table */}
       <ShowsTableCore
