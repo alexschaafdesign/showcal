@@ -17,6 +17,7 @@ import TCUPPeopleForm from "./pages/TCUPPeopleForm.js";
 import TCUPPeopleTable from "./pages/TCUPPeopleTable.js";
 import TCUPPeopleProfile from "./pages/TCUPPeopleProfile.js";
 import Organize from "./pages/Organize.js";
+import ShowProfile from "./pages/ShowProfile.js";
 
 function App() {
   const [allShows, setAllShows] = useState([]);
@@ -53,6 +54,10 @@ function App() {
 
           {/* Shows */}
           <Route path="/shows" element={<ShowsTable allShows={allShows} />} />
+
+          {/* Individual shows */}
+          <Route path="/shows/:id" element={<ShowProfile />} />
+
 
           {/* TCUP Bands */}
           <Route path="/tcupbands" element={<TCUPBandsTable />} />

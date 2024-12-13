@@ -39,7 +39,7 @@ const PORT = process.env.PORT || 3001;
 // CORS configuration
 const corsOptions = {
   origin: process.env.NODE_ENV === 'development'
-    ? 'http://localhost:3000'
+    ? 'http://localhost:3002'
     : ['https://alexschaafdesign.com', 'http://www.alexschaafdesign.com'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true,

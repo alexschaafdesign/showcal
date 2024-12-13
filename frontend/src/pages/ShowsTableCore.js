@@ -7,12 +7,12 @@ import {
   TableHead,
   TableRow,
   Paper,
-  Button,
   Typography,
   Chip,
 } from '@mui/material';
 
-function ShowsTableCore({ data, onBandClick, onVenueClick }) {
+const ShowsTableCore = ({ data, onShowClick }) => {
+  console.log("Shows data passed to ShowsTableCore:", data);  // Debugging step
   const today = new Date();
   today.setHours(0, 0, 0, 0); // Set today's date to midnight for comparison
 
@@ -36,7 +36,7 @@ function ShowsTableCore({ data, onBandClick, onVenueClick }) {
     return grouped;
   };
 
-  const groupedData = groupByDate(data); // Use filtered data here
+  const groupedData = groupByDate(filteredData); // Use filtered data here
   const sortedDates = Object.keys(groupedData).sort((a, b) => new Date(a) - new Date(b));
 
   return (
@@ -82,7 +82,14 @@ function ShowsTableCore({ data, onBandClick, onVenueClick }) {
                 {groupedData[date]
                   .sort((a, b) => new Date(a.start) - new Date(b.start))
                   .map((item, idx) => (
-                    <TableRow key={idx}>
+                    <TableRow
+                      key={idx}
+                      style={{ cursor: 'pointer' }}
+                      onClick={() => {
+                        console.log("Show ID clicked:", item.show_id);  // Add this log
+                        onShowClick(item.show_id);
+                      }}
+                    >
                       <TableCell>
                         {item.flyer_image ? (
                           <a href={item.event_link} target="_blank" rel="noopener noreferrer">
@@ -100,59 +107,34 @@ function ShowsTableCore({ data, onBandClick, onVenueClick }) {
                           'No Flyer'
                         )}
                       </TableCell>
-                      <TableCell
-                        style={{
-                          textTransform: 'uppercase',
-                          fontWeight: '400',
-                          fontSize: '1.1rem',
-                          cursor: 'pointer',
-                        }}
-                        onClick={() => onVenueClick && onVenueClick(item.venue_id)}
-                      >
-                        {item.venue_name || 'Unknown Venue'}
-                      </TableCell>
+                      <TableCell>{item.venue_name || 'Unknown Venue'}</TableCell>
                       <TableCell>
-                        <div style={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column', gap: '4px', width: 'fit-content' }}>
-                          {item.bands.map((band, index) =>
-                            band.id ? (
-                              <Typography
-                                key={`${item.id}-${band.id || band.name}-${index}`} // Unique key for each band in the context of a show
-                                sx={{
-                                  fontWeight: band.id ? 'bold' : 'normal',
-                                  color: band.id ? 'primary.main' : 'grey.600',
-                                  cursor: band.id ? 'pointer' : 'default',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  gap: '8px',
-                                }}
-                                onClick={() => band.id && onBandClick && onBandClick(band.id)}
-                              >
-                                {band.name}
-                                {band.id && (
-                                  <Chip
-                                    label="TCUP BAND"
-                                    color="primary"
-                                    size="small"
-                                    sx={{
-                                      fontWeight: 'bold',
-                                      textTransform: 'uppercase',
-                                    }}
-                                  />
-                                )}
-                              </Typography>
-                            ) : (
-                              <Typography
-                                key={index}
-                                sx={{
-                                  fontWeight: 'bold',
-                                  color: 'grey.600',
-                                  fontSize: '1rem',
-                                }}
-                              >
-                                {band.name}
-                              </Typography>
-                            )
-                          )}
+                        <div style={{ display: 'flex', flexDirection: 'column' }}>
+                          {item.bands.map((band, index) => (
+                            <Typography
+                              key={`${item.id}-${band.id || band.name}-${index}`}
+                              sx={{
+                                fontWeight: band.id ? 'bold' : 'normal',
+                                color: band.id ? 'primary.main' : 'grey.600',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '8px',
+                              }}
+                            >
+                              {band.name}
+                              {band.id && (
+                                <Chip
+                                  label="TCUP BAND"
+                                  color="primary"
+                                  size="small"
+                                  sx={{
+                                    fontWeight: 'bold',
+                                    textTransform: 'uppercase',
+                                  }}
+                                />
+                              )}
+                            </Typography>
+                          ))}
                         </div>
                       </TableCell>
                       <TableCell sx={{ fontSize: '18px' }}>
@@ -180,6 +162,6 @@ function ShowsTableCore({ data, onBandClick, onVenueClick }) {
       </Table>
     </TableContainer>
   );
-}
+};
 
 export default ShowsTableCore;
