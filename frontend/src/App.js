@@ -1,6 +1,5 @@
-
-import React, { useEffect, useState } from "react";
-import { Route, Routes } from "react-router-dom";
+import React, { useState } from "react";
+import { Route, Routes, useLocation } from "react-router-dom";
 import Home from "./pages/Home.js";
 import ShowsTable from "./pages/ShowsTable.js";
 import "./styles/App.css";
@@ -18,14 +17,17 @@ import TCUPPeopleTable from "./pages/TCUPPeopleTable.js";
 import TCUPPeopleProfile from "./pages/TCUPPeopleProfile.js";
 import Organize from "./pages/Organize.js";
 import ShowProfile from "./pages/ShowProfile.js";
+import ShowsMinimal from "./pages/ShowsMinimal.js";
 
 function App() {
   const [allShows, setAllShows] = useState([]);
+  const location = useLocation(); // Get the current route location
 
   return (
     <ThemeProvider theme={theme}>
-      {/* Include Header above the Routes */}
-      <Header />
+      {/* Conditionally render Header based on the current route */}
+      {location.pathname !== "/showsminimal" && <Header />}
+      
       <Box
         sx={{
           paddingTop: {
@@ -49,6 +51,9 @@ function App() {
           {/* Home */}
           <Route path="/" element={<ShowsTable />} />
 
+          {/* Shows Minimal */}
+          <Route path="/showsminimal" element={<ShowsMinimal />} />
+
           {/* Organize */}
           <Route path="/organize" element={<Organize />} />
 
@@ -57,7 +62,6 @@ function App() {
 
           {/* Individual shows */}
           <Route path="/shows/:id" element={<ShowProfile />} />
-
 
           {/* TCUP Bands */}
           <Route path="/tcupbands" element={<TCUPBandsTable />} />

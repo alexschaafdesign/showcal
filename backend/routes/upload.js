@@ -28,4 +28,12 @@ router.post('/upload', upload.array('images', 10), (req, res) => {
   }
 });
 
+router.post('/simple-upload', upload.single('image'), (req, res) => {
+  console.log("File upload request received");
+  if (!req.file) {
+      return res.status(400).json({ error: 'No file uploaded' });
+  }
+  return res.status(200).json({ imageUrl: `/assets/images/${req.file.filename}` });
+});
+
 export default router;

@@ -61,6 +61,16 @@ export const getBandById = (req, res) => {
 
   export const updateBand = async (req, res) => {
     try {
+      // Log the parsed data from the request
+      console.log('Band Data:', req.bandData);
+  
+      // Access the images from parsed data
+      const { images } = req.bandData;
+  
+      // If images are not defined or empty, handle the case
+      if (!images || images.length === 0) {
+        return res.status(400).json({ error: 'No images provided' });
+      }
       const { bandid } = req.params;
       const { name, genre, bandemail, play_shows, group_size, social_links, music_links } = req.bandData;
   
@@ -89,9 +99,9 @@ export const getBandById = (req, res) => {
         return res.status(404).json({ error: "Band not found." });
       }
   
-      res.json({ success: true, data: rows[0] });
-    } catch (error) {
-      console.error("Error updating band:", error);
-      res.status(500).json({ error: "Failed to update band." });
-    }
-  };
+      res.status(200).json({ message: 'Band updated successfully' });
+  } catch (error) {
+    console.error('Error updating band:', error);
+    res.status(500).json({ error: 'An error occurred while updating the band' });
+  }
+};

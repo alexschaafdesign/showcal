@@ -13,7 +13,6 @@ import fs from 'fs';
 // Route imports
 import venuesRoutes from './routes/venues.js';
 import tcupbandsRouter from './routes/tcupbands.js';
-import bandsRoutes from './routes/bands.js';
 import showsRoutes from './routes/shows.js';
 import uploadRoutes from './routes/upload.js';
 import peopleRouter from './routes/people.js'; // Adjust path as needed
@@ -60,7 +59,6 @@ ensureDirectoryExistence(path.join(__dirname, '../assets/images'));
 // Routes
 app.use('/api/venues', venuesRoutes);
 app.use('/api/tcupbands', tcupbandsRouter);
-app.use('/api/bands', bandsRoutes);
 app.use('/api/shows', showsRoutes);
 app.use('/api/', uploadRoutes);
 app.use('/api/people', peopleRouter);
