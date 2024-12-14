@@ -120,6 +120,7 @@ const ShowsTableCore = ({ data, onShowClick }) => {
                                 display: 'flex',
                                 alignItems: 'center',
                                 gap: '8px',
+                                textTransform: 'capitalize',
                               }}
                             >
                               {band.name}

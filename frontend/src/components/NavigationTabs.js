@@ -61,10 +61,10 @@ const NavigationTabs = () => {
           label="Shows"
         />
         <Tab
-          label="Venues Test"
+          label="Venues"
         />
         <Tab
-          label="Bands Testies"
+          label="Bands"
         />
         <Tab  
           label="People"
