@@ -14,7 +14,6 @@ import fs from 'fs';
 import venuesRoutes from './routes/venues.js';
 import tcupbandsRouter from './routes/tcupbands.js';
 import showsRoutes from './routes/shows.js';
-import uploadRoutes from './routes/upload.js';
 import peopleRouter from './routes/people.js'; // Adjust path as needed
 
 // Recreate __dirname for ES modules
@@ -25,7 +24,7 @@ const __dirname = path.dirname(__filename);
 dotenv.config();
 
 // Load environment variables
-const envFilePath = path.resolve(__dirname, `./.env.development.${process.env.NODE_ENV || 'development'}`);
+const envFilePath = path.resolve(__dirname, `./.env.${process.env.NODE_ENV || 'development'}`);
 
 console.log('Loaded environment variables from:', envFilePath);
 console.log('DB_USER:', process.env.DB_USER);
@@ -60,12 +59,11 @@ ensureDirectoryExistence(path.join(__dirname, '../assets/images'));
 app.use('/api/venues', venuesRoutes);
 app.use('/api/tcupbands', tcupbandsRouter);
 app.use('/api/shows', showsRoutes);
-app.use('/api/', uploadRoutes);
 app.use('/api/people', peopleRouter);
 
 // Static file serving
-app.use('/assets/images', express.static(path.join(__dirname, '../assets/images')));
-app.use('/images/venueimages', express.static(path.join(__dirname, './public/images/venueimages')));
+app.use('/assets/images/bands', express.static(path.join(__dirname, '../assets/images/bands')));
+app.use('/assets/images/venues', express.static(path.join(__dirname, '../assets/images/venues')));
 
 // Validate required environment variables
 const requiredEnvVars = ['DB_USER', 'DB_HOST', 'DB_NAME', 'DB_PASSWORD', 'DB_PORT'];

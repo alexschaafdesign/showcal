@@ -1,12 +1,12 @@
 // Get all bands
 export const getAllBandsQuery = `
-  SELECT id, name, genre, bandemail, play_shows, group_size, social_links, music_links, created_at
+  SELECT id, name, genre, bandemail, play_shows, group_size, social_links, music_links, created_at, profile_image, other_images
   FROM tcupbands;
 `;
 
 // Get a specific band by ID
 export const getBandByIdQuery = `
-  SELECT id, name, genre, bandemail, play_shows, group_size, social_links, music_links, created_at
+  SELECT id, name, genre, bandemail, play_shows, group_size, social_links, music_links, created_at, profile_image, other_images
   FROM tcupbands
   WHERE id = $1;
 `;
@@ -21,13 +21,15 @@ export const updateBandQuery = `
     group_size = $5, 
     social_links = $6, 
     music_links = $7, 
-  WHERE id = $8
+    profile_image = $8,
+    other_images = $9
+  WHERE id = $10
   RETURNING *;
 `;
 
 // Insert a new band
 export const addBandQuery = `
-  INSERT INTO tcupbands (name, genre, bandemail, play_shows, group_size, social_links, music_links)
-  VALUES ($1, $2, $3, $4, $5, $6, $7)
+  INSERT INTO tcupbands (name, genre, bandemail, play_shows, group_size, social_links, music_links, profile_image, other_images)
+  VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
   RETURNING *;
 `;

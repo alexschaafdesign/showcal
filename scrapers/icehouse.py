@@ -39,8 +39,8 @@ try:
         bands = re.split(r'\s+(w/|and|\+|\&)\s+', band_string)  # Split by these separators with optional spaces around them
         
         # Clean up extra spaces around each band name
-        return [b.strip() for b in bands if b.strip()]
-
+        return [b.strip() for b in bands if b.strip() and b.strip().lower() not in ['w/', 'and', '+', '&', 'with']]  # Clean unwanted separators
+    
     # Loop through each event on the page
     events = soup.find_all('div', class_="details flex flex-col gap-2 md:flex-row border-b last:border-b-0 border-linear-g-primary py-12 px-4 md:px-0 md:py-16 md:gap-10")
     for event in events:

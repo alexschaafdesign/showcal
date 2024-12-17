@@ -126,7 +126,9 @@ function ShowsTable() {
         style={{ marginBottom: '20px' }}
       >
         <MenuItem value="">All Venues</MenuItem>
-        {[...new Set(showsData.map((item) => item.venue_name))].map((venue, index) => (
+        {[...new Set(showsData.map((item) => item.venue_name))]
+        .sort()
+        .map((venue, index) => (
           <MenuItem key={index} value={venue}>
             {venue}
           </MenuItem>

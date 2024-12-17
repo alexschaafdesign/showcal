@@ -15,7 +15,6 @@ import {
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import CustomFilePond from "../components/CustomFilePond";
 import AppBreadcrumbs from "../components/Breadcrumbs";
-import { extractBandcampEmbedSrc, normalizeBandcampEmbedLink } from "../utils/formatBandcamp";
 
 const TCUPBandForm = ({ isEdit = false }) => {
   const { bandid } = useParams();
@@ -26,7 +25,7 @@ const TCUPBandForm = ({ isEdit = false }) => {
 
   const [formData, setFormData] = useState({
     name: bandDataFromState?.name || "",
-    genre: bandDataFromState?.genre || ["", "", ""], // Change this to an array for three genres
+    genre: bandDataFromState?.genre || ["", "", ""],
     bandemail: bandDataFromState?.bandemail || "",
     play_shows: bandDataFromState?.play_shows || "",
     group_size: bandDataFromState?.group_size || [],
@@ -43,40 +42,85 @@ const TCUPBandForm = ({ isEdit = false }) => {
       soundcloud: "",
       youtube: "",
     },
+    profile_image: bandDataFromState?.profile_image || null,
+    other_images: bandDataFromState?.other_images || [],
   });
 
-  const apiUrl = process.env.REACT_APP_API_URL;  // The backend API URL from the .env file
-
-  const [imageFiles, setImageFiles] = useState([]);
+  const [isReadyToSubmit, setIsReadyToSubmit] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const endpoint = "http://localhost:3001/api";
+  const apiUrl = process.env.REACT_APP_API_URL;
+
+  formData.genre = formData.genre || ["","",""];
+
+
+  // Update isReadyToSubmit whenever formData changes
+  useEffect(() => {
+    // If no images are required, then you can just allow submission if name or other required fields are filled.
+    // For simplicity, let's remove the image requirement:
+    const canSubmit = formData.name.trim() !== "";
+    setIsReadyToSubmit(canSubmit);
+  }, [formData]);
 
   const handleGenreChange = (index, value) => {
     const updatedGenres = [...formData.genre];
-    updatedGenres[index] = value; // Update the specific genre at the given index
+    updatedGenres[index] = value;
     setFormData((prev) => ({ ...prev, genre: updatedGenres }));
+  };
+
+  const handleImageChange = (files, isProfileImage = false) => {
+    if (isProfileImage) {
+      if (files[0] instanceof File) {
+        // Just store the File object directly
+        setFormData(prev => ({ ...prev, profile_image: files[0] }));
+      } else {
+        setFormData(prev => ({ ...prev, profile_image: files[0] }));
+      }
+    } else {
+      // For other images, store the File objects directly as well
+      setFormData(prev => ({ ...prev, other_images: files }));
+    }
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   useEffect(() => {
     const fetchBand = async () => {
       if (!isEdit) return;
-  
       try {
         let bandData;
-  
-        // Use data from state if available, otherwise fetch from API
         if (bandDataFromState) {
           bandData = bandDataFromState;
         } else {
-          const response = await fetch(`${apiUrl}//tcupbands/${bandid}/edit`);  // Use the dynamic URL
+          const response = await fetch(`${apiUrl}/tcupbands/${bandid}/edit`);
           const data = await response.json();
           bandData = data.data;
         }
-  
-        // Update formData with the fetched data
+
+        console.log("Band data profile_image before construction:", bandData.profile_image);
+        console.log("Band data other_images before construction:", bandData.other_images);
+
+        const baseApiUrl = process.env.REACT_APP_API_URL;
+        const baseUrl = baseApiUrl.replace(/\/api$/, ''); // 'http://localhost:3001'
+
+
+        // Construct image URLs from the base URL (no /api)
+        const profileImageUrl = bandData.profile_image
+          ? `${baseUrl}/assets/images/bands/${bandData.profile_image}`
+          : null;
+
+        const otherImageUrls =
+          bandData.other_images?.map((imagePath) => `${baseUrl}/assets/images/bands/${imagePath}`) || [];
+
+          console.log("Constructed profileImageUrl:", profileImageUrl);
+          console.log("Constructed otherImageUrls:", otherImageUrls);
+
         setFormData({
           name: bandData.name || "",
-          genre: bandData.genre || "",
+          genre: bandData.genre || ["", "", ""],
           bandemail: bandData.bandemail || "",
           play_shows: bandData.play_shows || "",
           group_size: bandData.group_size || [],
@@ -93,115 +137,75 @@ const TCUPBandForm = ({ isEdit = false }) => {
             soundcloud: "",
             youtube: "",
           },
+          profile_image: profileImageUrl, 
+          other_images: otherImageUrls,
         });
-  
-        // Preloaded images (ensure proper formatting for FilePond)
-        const preloadedImages = bandData.images?.map((image) => ({
-          source: image, // URL of the image
-          options: { type: "local" }, // Indicates the image is preloaded
-        }));
-  
-        // Update imageFiles state with preloaded images
-        setImageFiles(preloadedImages || []);
+
       } catch (error) {
         console.error("Error fetching band data:", error);
       }
     };
-  
     fetchBand();
   }, [isEdit, bandid, bandDataFromState, apiUrl]);
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
   
-  function validateLink(url, platform) {
-    if (!url) return true; // Allow empty fields
+    const handleSubmit = async (e) => {
+      e.preventDefault();
   
-    const regexes = {
-      spotify: /^(https?:\/\/)?(open\.)?spotify\.com\/(track|album|playlist|artist)\/[a-zA-Z0-9]+/,
-      bandcampSocial: /^(https?:\/\/)?([a-zA-Z0-9-]+\.bandcamp\.com)(\/.*)?$/,
-      bandcampMusic: /<iframe[^>]*src="https:\/\/bandcamp\.com\/EmbeddedPlayer\/(album|track)=\d+[^"]*"|https:\/\/bandcamp\.com\/EmbeddedPlayer\/(album|track)=\d+/, // Match iframe or direct embed link
-      youtube: /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be)\/.+$/,
+      if (!isReadyToSubmit) {
+        console.log("Form not ready for submission.");
+        return;
+      }
+  
+      const dataToSubmit = new FormData();
+  
+      // Append text fields
+      dataToSubmit.append("name", formData.name);
+      dataToSubmit.append("genre", JSON.stringify(formData.genre));
+      dataToSubmit.append("bandemail", formData.bandemail);
+      dataToSubmit.append("play_shows", formData.play_shows);
+      dataToSubmit.append("group_size", JSON.stringify(formData.group_size));
+      dataToSubmit.append("social_links", JSON.stringify(formData.social_links));
+      dataToSubmit.append("music_links", JSON.stringify(formData.music_links));
+  
+      // Append profile_image if it's a file
+      if (formData.profile_image instanceof File) {
+        dataToSubmit.append("profile_image", formData.profile_image);
+      }
+  
+      // Append other_images if they are files
+      if (Array.isArray(formData.other_images) && formData.other_images.length > 0) {
+        formData.other_images.forEach((file) => {
+          if (file instanceof File) dataToSubmit.append("other_images", file);
+        });
+      }
+  
+      try {
+        const endpointURL = isEdit
+          ? `${endpoint}/tcupbands/${bandid}/edit`
+          : `${endpoint}/tcupbands/add`;
+  
+        const response = await fetch(endpointURL, {
+          method: isEdit ? "PUT" : "POST",
+          body: dataToSubmit,
+        });
+  
+        if (!response.ok) {
+          const errorDetails = await response.text();
+          console.log("Error details from API:", errorDetails);
+          throw new Error("Failed to submit band data");
+        }
+  
+        const result = await response.json();
+        console.log("Response from backend:", result);
+        navigate("/tcupbands");
+      } catch (err) {
+        console.error("Error submitting band data:", err);
+        setErrorMessage("Failed to submit band data.");
+      }
     };
-  
-    return regexes[platform]?.test(url);
-  }
 
-  // HANDLE SUBMIT \\
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-  
-    // Only normalize and validate Bandcamp if it has a value
-    const normalizedBandcampMusic = formData.music_links.bandcamp
-      ? normalizeBandcampEmbedLink(formData.music_links.bandcamp)
-      : null;
-  
-    // If Bandcamp music embed link exists but is invalid, show error
-    if (formData.music_links.bandcamp && !normalizedBandcampMusic) {
-      setErrorMessage(
-        "Invalid Bandcamp embed code. Please paste the full iframe embed code or a valid embed link."
-      );
-      return;
-    }
-  
-    // Prepare normalized data
-    const updatedMusicLinks = {
-      ...formData.music_links,
-      bandcamp: normalizedBandcampMusic || formData.music_links.bandcamp, // Keep the existing value if unchanged
-    };
-  
-    const dataToSubmit = new FormData();
-  
-
-    // Sanitize genre array
-    const sanitizedGenres = formData.genre.filter((genre) => genre.trim() !== ""); // Remove empty genres
-
-    dataToSubmit.append("name", formData.name);
-    dataToSubmit.append("genre", `{${sanitizedGenres.join(",")}}`); // Properly format array
-    dataToSubmit.append("bandemail", formData.bandemail);
-    dataToSubmit.append("play_shows", formData.play_shows);
-    dataToSubmit.append("group_size", JSON.stringify(formData.group_size));
-    dataToSubmit.append("social_links", JSON.stringify(formData.social_links));
-    dataToSubmit.append("music_links", JSON.stringify(updatedMusicLinks));
-  
-    // Include preUploadedImages in the request
-    const preUploadedImages = imageFiles
-      .filter((file) => typeof file.source === "string") // Pre-existing files have `source` as a string
-      .map((file) => file.source);
-  
-    if (preUploadedImages.length > 0) {
-      dataToSubmit.append("preUploadedImages", JSON.stringify(preUploadedImages));
-    }
-  
-    // Include newly uploaded files
-    const newFiles = imageFiles.filter((file) => file.file); // Newly added files
-    newFiles.forEach((file) => {
-      dataToSubmit.append("images", file.file);
-    });
-  
-    try {
-      const endpointURL = isEdit
-        ? `${endpoint}/tcupbands/${bandid}/edit`
-        : `${endpoint}/tcupbands/add`;
-  
-      const response = await fetch(endpointURL, {
-        method: isEdit ? "PUT" : "POST",
-        body: dataToSubmit,
-      });
-  
-      if (!response.ok) throw new Error("Failed to submit band data");
-  
-      const result = await response.json();
-      console.log("Response from backend:", result);
-      navigate("/tcupbands");
-    } catch (err) {
-      console.error("Error submitting band data:", err);
-      setErrorMessage("Failed to submit band data.");
-    }
-  };
+    console.log("Final profile_image passed to FilePond:", formData.profile_image);
+    console.log("Final other_images passed to FilePond:", formData.other_images);
 
   return (
     <Box sx={{ paddingTop: 2, paddingBottom: 10, paddingX: 4 }}>
@@ -216,7 +220,7 @@ const TCUPBandForm = ({ isEdit = false }) => {
         </Alert>
       )}
 
-      <form onSubmit={handleSubmit}>
+      <form encType="multipart/form-data" onSubmit={handleSubmit}>
         <TextField
           label="Band Name"
           name="name"
@@ -373,14 +377,26 @@ const TCUPBandForm = ({ isEdit = false }) => {
             />
           ))}
         </Box>
-
-        <Typography>Images</Typography>
+        {/* Profile Image Upload */}
+        <Typography variant="h6">Profile Image</Typography>
         <CustomFilePond
-          files={imageFiles}
-          setFiles={setImageFiles}
-          endpoint={endpoint}
+          files={formData.profile_image 
+            ? [{ source: formData.profile_image }] 
+            : []}        
+          setFiles={(files) => handleImageChange(files, true)}
+          allowMultiple={false}
+          maxFiles={1}
+          name="profile_image"
+        />
+
+        {/* Other Images Upload */}
+        <Typography variant="h6">Other Images</Typography>
+        <CustomFilePond
+          files={formData.other_images.map(url => ({ source: url }))} // no type: 'local'
+          setFiles={(files) => handleImageChange(files, false)}
           allowMultiple={true}
-          maxFiles={10}
+          maxFiles={5}
+          name="other_images"
         />
 
         <Button
@@ -389,6 +405,7 @@ const TCUPBandForm = ({ isEdit = false }) => {
           color="primary"
           fullWidth
           sx={{ mt: 4 }}
+          disabled={!isReadyToSubmit}
         >
           {isEdit ? "Update Band" : "Add Band"}
         </Button>

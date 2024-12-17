@@ -43,7 +43,7 @@ cursor.execute("""
 # Function to split band names based on custom rules
 def split_band_names(band_string):
     # Split by custom rules: commas, "and", "with", "w/", "&", and "+"
-    bands = re.split(r',|\s+and\s+|\s+with\s+|w/|&|\+', band_string, flags=re.IGNORECASE)
+    bands = re.split(r',|\s+and\s+|\s+with\s+|w/|W/|&|\+', band_string, flags=re.IGNORECASE)
     # Strip extra whitespace and filter out any empty strings
     return [b.strip() for b in bands if b.strip()]
 

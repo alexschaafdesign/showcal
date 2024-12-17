@@ -15,6 +15,7 @@
     "@mui/material": "^6.1.8",
     "dotenv": "^16.4.5",
     "knex": "^3.1.0",
+    "multer": "^1.4.5-lts.1",
     "pg": "^8.13.1",
     "react": "^18.3.1",
     "react-datepicker": "^7.5.0",

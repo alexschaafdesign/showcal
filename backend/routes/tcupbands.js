@@ -1,7 +1,8 @@
 import express from "express";
 import fetchAllBandsMiddleware from "../middleware/fetchAllBands.js";
 import fetchBandMiddleware from "../middleware/fetchBand.js";
-import uploadAndParseMiddleware from "../middleware/uploadAndParse.js";
+import upload from "../middleware/upload.js";
+import uploadAndParse from "../middleware/uploadAndParse.js";
 import { 
   getAllBands, 
   getBandById, 
@@ -23,10 +24,10 @@ router.get("/:bandid", fetchBandMiddleware, getBandById);
 router.get("/:bandid/edit", fetchBandMiddleware, getBandById);
 
 // Route: Add a new band
-router.post("/add", uploadAndParseMiddleware, addBand);
+router.post("/add", uploadAndParse, addBand);
 
 // Route: Update an existing band
-router.put("/:bandid/edit", uploadAndParseMiddleware, updateBand);
+router.put("/:bandid/edit", uploadAndParse, updateBand);
 
 // Route: Fetch shows associated with a band
 router.get("/:id/shows", async (req, res) => {

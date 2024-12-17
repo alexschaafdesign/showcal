@@ -2,46 +2,48 @@ import upload from "../middleware/upload.js";
 import parseBandFields from "../utils/parseBandFields.js";
 
 const uploadAndParse = (req, res, next) => {
-  try {
-    const { files, body } = req;
+  console.log("Upload and parse middleware triggered");
 
-    // Log incoming files and body
-    console.log('Incoming files:', files);  // Should be an array
-    console.log('Request body:', body);
+  // Log the incoming headers and body before Multer handles the data
+  console.log("Request Headers:", req.headers);  // Logs the headers
+  console.log("Request Body before Multer:", req.body);  // Logs the form fields in the request
 
-    // Parse the incoming form data
-    const parsedData = parseBandFields(body, files);
+  // First, upload the files using the `upload` middleware
+  upload.fields([{ name: "profile_image", maxCount: 1 }, { name: "other_images", maxCount: 5 }])(req, res, (err) => {
+      console.log('Request body in multer:', req.body);  // Logs form fields
+      console.log('Request files in multer:', req.files);  // Logs files from Multer
+    if (err) {
+      console.error("Error in Multer upload middleware:", err);
+      // Handle Multer errors here
+      return res.status(400).json({ error: err.message });
+    }
 
-    // Ensure music_links is parsed correctly
-    parsedData.music_links = body.music_links
-      ? JSON.parse(body.music_links)
-      : { spotify: "", bandcamp: "", soundcloud: "", youtube: "" };
+      // If Multer is successful, log the files and proceed to the next middleware
+      console.log('Request body after Multer:', req.body);  // Logs body after Multer processing
+      console.log('Request files after Multer:', req.files);  // Logs the uploaded files
 
-    // Retrieve preUploadedImages from the request body and parse them
-    const preUploadedImages = body.preUploadedImages
-      ? JSON.parse(body.preUploadedImages)
-      : [];
+    try {
+      const { files, body } = req;
 
-    // Log preUploadedImages
-    console.log('Pre-uploaded images:', preUploadedImages);
+      // Log incoming files for debugging
+      console.log('Files received in uploadAndParse:', files);
+      console.log('Request body:', body);
 
-    // Map newly uploaded files to their URLs
-    const newUploadedImages = files.map((file) => `/assets/images/${file.filename}`);
+      // Parse the incoming form data (this includes images)
+      const parsedData = parseBandFields(body, files);
 
-    // Log new uploaded images
-    console.log('Newly uploaded images:', newUploadedImages);
+      // Log the parsed data for debugging
+      console.log('Parsed data (with images):', parsedData);
 
-    // Combine preloaded images with newly uploaded images
-    parsedData.images = [...preUploadedImages, ...newUploadedImages];
-    console.log('Parsed data (with images):', parsedData);
+      // Store the parsedData (which includes the images) on the req object
+      req.bandData = parsedData;  // All the parsed data, including images, are stored here
 
-    // Attach the final parsed data (including combined images) to req
-    req.bandData = parsedData;
-    next();
-  } catch (error) {
-    console.error("Error parsing uploaded data:", error);
-    res.status(400).json({ error: "Invalid form data or file upload failed." });
-  }
+      next();
+    } catch (error) {
+      console.error("Error parsing uploaded data:", error);
+      res.status(400).json({ error: "Invalid form data or file upload failed." });
+    }
+  });
 };
 
-export default [upload.array("images", 10), uploadAndParse];
+export default uploadAndParse;

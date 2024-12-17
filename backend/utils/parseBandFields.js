@@ -1,28 +1,41 @@
-function parseBandFields(body, files) {
+// parseBandFields.js
+export default function parseBandFields(body, files) {
+  // Here we only handle basic conversions.
+  // For arrays like genre or group_size, we trust they are already JSON strings from the frontend.
+  // For social_links, music_links, do NOT parse them here. Just leave them as they are.
+
+  // Example:
   const {
-    name = "",
-    genre = "",
-    bandemail = "",
-    play_shows = "",
-    group_size = "[]", // Default to an empty array if not provided
-    social_links = "{}", // Default to an empty object if not provided
+    name,
+    genre,          // still a JSON string from frontend
+    bandemail,
+    play_shows,
+    group_size,      // still a JSON string from frontend
+    social_links,    // still a JSON string
+    music_links,     // still a JSON string
   } = body;
 
-  // Parse group_size and social_links to ensure they are arrays/objects
-  const parsedGroupSize = Array.isArray(group_size) ? group_size : JSON.parse(group_size || "[]");
-  const parsedSocialLinks = typeof social_links === "object" ? social_links : JSON.parse(social_links || "{}");
+  // For images, just extract filenames.
+  let profile_image = null;
+  if (files && files.profile_image && files.profile_image.length > 0) {
+    profile_image = files.profile_image[0].filename;
+  }
 
-  // Parse uploaded images
-  const uploadedImages = files.map((file) => `/assets/images/${file.filename}`);
+  let other_images = [];
+  if (files && files.other_images && files.other_images.length > 0) {
+    other_images = files.other_images.map(file => file.filename);
+  }
 
+  // Return all fields as-is. Do not parse them into objects here.
   return {
     name,
     genre,
     bandemail,
     play_shows,
-    group_size: parsedGroupSize,
-    social_links: parsedSocialLinks,
+    group_size,
+    social_links,  // still a string like '{"instagram":""...}'
+    music_links,   // still a string
+    profile_image,
+    other_images
   };
 }
-  
-  export default parseBandFields;

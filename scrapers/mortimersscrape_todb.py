@@ -7,7 +7,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from bs4 import BeautifulSoup
 from datetime import datetime
-from db_utils import connect_to_db, insert_show, insert_band, link_band_to_show, get_venue_id
+from db_utils import connect_to_db, insert_show, get_venue_id
 
 # Initialize WebDriver
 driver = webdriver.Chrome()
@@ -35,9 +35,12 @@ shows_skipped = 0
 bands_added = 0
 bands_skipped = 0
 
+# Set to track already visited event links
+visited_event_links = set()
+
 # Function to split band names based on custom rules
 def split_band_names(band_string):
-    bands = re.split(r'\s*(?:,|w/|&|\+)\s*', band_string)
+    bands = re.split(r'\s*(?:,|w/|W/|&|\+)\s*', band_string)
     return [b.strip() for b in bands if b.strip()]
 
 # Loop through each event item to click and extract details from individual event pages
@@ -46,8 +49,17 @@ for event in events:
         # Click on the "Details" button to go to the event's page
         details_button = event.find("a", {"data-hook": "ev-rsvp-button"})
         event_link = details_button['href']
+        
+        # Skip this event if it has already been processed
+        if event_link in visited_event_links:
+            print(f"Skipping already processed event: {event_link}")
+            continue
+        visited_event_links.add(event_link)  # Mark this event as processed
+
         driver.get(event_link)
-        time.sleep(2)  # Adjust sleep as needed for page load
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, 'h1'))  # Wait for the event details page to load
+        )
 
         # Parse the event page with BeautifulSoup
         event_soup = BeautifulSoup(driver.page_source, 'html.parser')
@@ -78,46 +90,34 @@ for event in events:
         else:
             event_details['start'] = None
 
-        # Extract show flyer using `data-hook="event-image"`
+        # Extract show flyer
         flyer_img_tag = event_soup.find("div", {"data-hook": "event-image"})
         if flyer_img_tag:
-            # Check for the highest resolution image
             wow_image_tag = flyer_img_tag.find("wow-image")
             if wow_image_tag and "data-image-info" in wow_image_tag.attrs:
                 image_info = json.loads(wow_image_tag["data-image-info"])
-                if "imageData" in image_info and "uri" in image_info["imageData"]:
-                    # Construct the full URL
-                    base_url = "https://static.wixstatic.com/media/"
-                    flyer_file_name = image_info["imageData"]["uri"]
-                    event_details['flyer_image'] = f"{base_url}{flyer_file_name}"
-                    print(f"Found high-res show flyer: {event_details['flyer_image']}")
-                else:
-                    print("Could not find a high-res flyer URI in imageData.")
-                    event_details['flyer_image'] = None
+                flyer_image = f"https://static.wixstatic.com/media/{image_info['imageData']['uri']}" if "imageData" in image_info else None
             else:
                 img_tag = flyer_img_tag.find("img")
-                if img_tag and "src" in img_tag.attrs:
-                    event_details['flyer_image'] = img_tag["src"]
-                    print(f"Found standard flyer: {event_details['flyer_image']}")
-                else:
-                    print("No flyer image found for this event.")
-                    event_details['flyer_image'] = None
+                flyer_image = img_tag["src"] if img_tag else None
         else:
-            event_details['flyer_image'] = None
-            print("No flyer image section found for this event.")
+            flyer_image = None
 
-        # Save event link
+        # Fallback flyer image
+        event_details['flyer_image'] = flyer_image or "https://example.com/default_image.jpg"
         event_details['event_link'] = event_link
 
-        # Append event details to events_data
+        # Append event details
         events_data.append(event_details.copy())
 
         # Go back to the main event list page
         driver.back()
-        time.sleep(2)
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_all_elements_located((By.CSS_SELECTOR, 'li[data-hook="event-list-item"]'))  # Wait for the list to reload
+        )
 
     except Exception as e:
-        print("Failed to expand event details or retrieve event link:", e)
+        print(f"Error processing event: {e}")
         continue
 
 # Close the driver
@@ -135,13 +135,13 @@ for event_details in events_data:
     try:
         # Insert or update the show
         show_id, was_inserted = insert_show(
-            cursor,
+            conn,  # Pass the connection object first
+            cursor,  # Pass the cursor object second
             venue_id=venue_id,
             bands=event_details['bands'],
             start=event_details['start'],
             event_link=event_details['event_link'],
             flyer_image=event_details['flyer_image'],
-            allow_update=True  # Allow updates to existing records
         )
         if was_inserted:
             shows_added += 1
@@ -149,15 +149,6 @@ for event_details in events_data:
         else:
             shows_skipped += 1
             print(f"Updated existing show with ID: {show_id}")
-
-        # Process each band
-        for band_name in split_band_names(event_details['bands']):
-            band_id, band_inserted = insert_band(cursor, band_name)
-            if band_inserted:
-                bands_added += 1
-            else:
-                bands_skipped += 1
-            link_band_to_show(cursor, band_id, show_id)
 
     except Exception as e:
         print(f"Error processing event: {event_details['bands']}. Error: {e}")

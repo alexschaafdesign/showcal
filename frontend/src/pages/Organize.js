@@ -6,6 +6,13 @@ const apiUrl = process.env.REACT_APP_API_URL;  // The backend API URL from the .
 const Organize = () => {
   const cards = [
     {
+      title: "Join TCUP as an official member!",
+      description:
+        "Here's why you should become a full member (and how to do it)",
+      color: "#8E6CD1",
+      icon: "table_chart", // Material-UI icon name
+    },
+    {
       title: "Venue Report Card",
       description:
         "We are working to increase transparency around venue-artist relationships. Fill out a Venue Report Card after you play a show to help us in our quest!",

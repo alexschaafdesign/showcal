@@ -1,14 +1,15 @@
 const formatBandData = (band) => {
   return {
     ...band,
-    images: Array.isArray(band.images)
-      ? band.images
-      : band.images
-      ? band.images
-          .replace(/{|}/g, "") // Remove curly braces
-          .split(",") // Split into an array
-          .map((img) => img.trim().replace(/^"|"$/g, "")) // Remove extra quotes and trim whitespace
-      : [], // Default to an empty array if `images` is null
+    profile_image: band.profile_image || null,
+    other_images: Array.isArray(band.other_images)
+      ? band.other_images
+      : band.other_images && typeof band.other_images === "string"
+      ? band.other_images
+          .replace(/{|}/g, "")
+          .split(",")
+          .map((img) => img.trim().replace(/^"|"$/g, ""))
+      : [],
   };
 };
 

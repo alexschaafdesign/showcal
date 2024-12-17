@@ -247,17 +247,15 @@ const TCUPBandsTable = () => {
               >
                 <TableCell>{band.name}</TableCell>
                 <TableCell>
-                  {Array.isArray(band.images) && band.images.length > 0 ? (
-                    band.images.map((image, index) => (
-                      <img
-                        key={index}
-                        src={`${apiUrl.replace(/\/api$/, '')}${image}`}  // Update to handle the correct URL
-                        alt={`Band ${index + 1}`}
-                        style={{ width: 50, height: 50, marginRight: 5 }}
-                      />
-                    ))
+                  {/* Display Profile Image */}
+                  {band.profile_image ? (
+                    <img
+                      src={`${apiUrl.replace(/\/api$/, '')}/assets/images/bands/${band.profile_image}`}
+                      alt="Profile Image"
+                      style={{ width: 50, height: 50, marginRight: 5, borderRadius: "50%" }}
+                    />
                   ) : (
-                    "No Images"
+                    <span>No Profile Image</span>
                   )}
                 </TableCell>
                 <TableCell>{band.bandemail || "No bandemail Info"}</TableCell>

@@ -6,26 +6,49 @@ import pool from '../config/db.js';
 
 const router = express.Router();
 
-router.post('/upload', upload.array('images', 10), (req, res) => {
-  try {
-      if (!req.files || req.files.length === 0) {
-          return res.status(400).json({ error: 'No files uploaded' });
-      }
+router.post('/upload', 
+  upload.fields([
+    { name: 'profile_image', maxCount: 1 },  // Expecting only 1 file for profile_image
+    { name: 'other_images', maxCount: 5 }    // Expecting up to 5 files for other_images
+  ]), 
+  (req, res) => {
+    try {
+        // Check if the required files are uploaded
+        if (!req.files || (!req.files['profile_image'] && !req.files['other_images'])) {
+            return res.status(400).json({ error: 'No files uploaded' });
+        }
 
-      console.log('Uploaded Files:', req.files);  // Log files for debugging
-      const uploadedImages = req.files.map((file) => `/images/${file.filename}`);
-      console.log('Uploaded Images:', uploadedImages);
+        // Log the request body (non-file fields)
+        console.log('Request body:', req.body);
 
-      return res.status(200).json({ images: uploadedImages });
-  } catch (err) {
-      if (err instanceof multer.MulterError) {
-          console.error('Multer Error:', err);
-          return res.status(400).json({ error: err.message });
-      }
+        // Log the uploaded files
+        console.log('Uploaded files:', req.files);
 
-      console.error('Unexpected Error:', err);
-      return res.status(500).json({ error: 'An unexpected error occurred during file upload' });
-  }
+        // Process the uploaded files
+        const uploadedProfileImage = req.files['profile_image'] 
+          ? `/assets/images/bands/${req.files['profile_image'][0].filename}` 
+          : null;
+
+        const uploadedOtherImages = req.files['other_images']
+          ? req.files['other_images'].map(file => `/assets/images/bands/${file.filename}`)
+          : [];
+
+        // Return the URLs of the uploaded files
+        res.status(200).json({
+            profile_image: uploadedProfileImage,
+            other_images: uploadedOtherImages
+        });
+    } catch (err) {
+        // Handle errors related to file uploads
+        if (err instanceof multer.MulterError) {
+            console.error('Multer Error:', err);
+            return res.status(400).json({ error: err.message });
+        }
+
+        // Handle unexpected errors
+        console.error('Unexpected Error:', err);
+        return res.status(500).json({ error: 'An unexpected error occurred during file upload' });
+    }
 });
 
 router.post('/simple-upload', upload.single('image'), (req, res) => {

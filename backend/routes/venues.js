@@ -1,6 +1,7 @@
 import express from "express";
 import pool from "../config/db.js";
-import upload from "../middleware/upload.js";
+import upload from "../middleware/upload.js";  // Multer middleware for file uploads
+import uploadAndParse from "../middleware/uploadAndParse.js";  // Custom parsing middleware
 import sendSuccessResponse from "../utils/sendSuccessResponse.js";
 
 const router = express.Router();
@@ -36,50 +37,61 @@ router.get("/:venueId", async (req, res) => {
 });
 
 // Add a new venue
-router.post("/add", upload.single("cover_image"), async (req, res) => {
-  try {
-    const { venue, location, capacity } = req.body;
+// Apply the upload.fields middleware for file uploads, then the uploadAndParse middleware, followed by the route handler.
+router.post("/add", 
+  upload.fields([{ name: "cover_image", maxCount: 1 }]), // Multer middleware to handle file uploads
+  uploadAndParse,  // Custom middleware to parse the uploaded data
+  async (req, res) => {  // Final route handler to process the request
+    try {
+      const { venue, location, capacity } = req.body;
 
-    const coverImagePath = req.file
-      ? `/assets/images/${req.file.filename}`
-      : null;
+      // Handle the cover image path
+      const coverImagePath = req.files["cover_image"]
+        ? `/assets/images/venues/${req.files["cover_image"][0].filename}`
+        : null;
 
-    const query =
-      "INSERT INTO venues (venue, location, capacity, cover_image) VALUES ($1, $2, $3, $4) RETURNING *";
-    const values = [venue, location, capacity, coverImagePath];
-    const result = await pool.query(query, values);
+      const query =
+        "INSERT INTO venues (venue, location, capacity, cover_image) VALUES ($1, $2, $3, $4) RETURNING *";
+      const values = [venue, location, capacity, coverImagePath];
+      const result = await pool.query(query, values);
 
-    sendSuccessResponse(res, result.rows[0]);
-  } catch (error) {
-    console.error("Error adding venue:", error);
-    res.status(500).json({ error: "Server error" });
+      sendSuccessResponse(res, result.rows[0]);
+    } catch (error) {
+      console.error("Error adding venue:", error);
+      res.status(500).json({ error: "Server error" });
+    }
   }
-});
+);
 
 // Edit an existing venue
-router.put("/:venueId/edit", upload.single("cover_image"), async (req, res) => {
-  try {
-    const { venueId } = req.params;
-    const { venue, location, capacity } = req.body;
+router.put("/:venueId/edit", 
+  upload.fields([{ name: "cover_image", maxCount: 1 }]), // Multer for file upload
+  uploadAndParse, // Parsing middleware
+  async (req, res) => {  // Route handler
+    try {
+      const { venueId } = req.params;
+      const { venue, location, capacity } = req.body;
 
-    const coverImagePath = req.file
-      ? `/assets/images/${req.file.filename}`
-      : null;
+      // Get the cover image path from uploaded file
+      const coverImagePath = req.files["cover_image"]
+        ? `/assets/images/venues/${req.files["cover_image"][0].filename}`
+        : null;
 
-    const query =
-      "UPDATE venues SET venue = $1, location = $2, capacity = $3, cover_image = $4 WHERE id = $5 RETURNING *";
-    const values = [venue, location, capacity, coverImagePath, venueId];
-    const result = await pool.query(query, values);
+      const query =
+        "UPDATE venues SET venue = $1, location = $2, capacity = $3, cover_image = $4 WHERE id = $5 RETURNING *";
+      const values = [venue, location, capacity, coverImagePath, venueId];
+      const result = await pool.query(query, values);
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: "Venue not found" });
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: "Venue not found" });
+      }
+
+      sendSuccessResponse(res, result.rows[0]);
+    } catch (error) {
+      console.error("Error editing venue:", error);
+      res.status(500).json({ error: "Server error" });
     }
-
-    sendSuccessResponse(res, result.rows[0]);
-  } catch (error) {
-    console.error("Error editing venue:", error);
-    res.status(500).json({ error: "Server error" });
   }
-});
+);
 
 export default router;

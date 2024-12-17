@@ -10,6 +10,7 @@ scrapers=(
     "The_Cedar_Cultural_Center python3 cedar.py"
     "Pilllar Forum python3 pilllarscrape_todb.py"
     "Zhora Darling python3 zhorascrape_todb.py"
+    "Mortimer's python3 mortimersscrape_todb.py"
 )
 
 log_file="scraper_run_$(date +'%Y-%m-%d_%H-%M-%S').log"

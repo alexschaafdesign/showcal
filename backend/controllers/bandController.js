@@ -4,102 +4,175 @@ import sendSuccessResponse from "../utils/sendSuccessResponse.js";
 import cleanArray from "../utils/arrayUtils.js";
 
 export const getAllBands = (req, res) => {
-  sendSuccessResponse(res, req.bands); // Use `req.bands` from middleware
+  sendSuccessResponse(res, req.bands);
 };
 
 export const getBandById = (req, res) => {
-  sendSuccessResponse(res, req.band); // Use `req.band` from middleware
+  sendSuccessResponse(res, req.band);
 };
 
+export const addBand = async (req, res) => {
+  try {
+    // Now social_links and music_links are guaranteed to be strings here
+    const {
+      name = "",
+      genre = "[]",
+      bandemail = "",
+      play_shows = "no",
+      group_size = "[]",
+      social_links = "{}",
+      music_links = "{}",
+      profile_image = null,
+      other_images = [],
+    } = req.bandData;
 
-  export const addBand = async (req, res) => {
-    try {
-      const { name, genre, bandemail, play_shows, group_size, social_links, music_links } = req.bandData;
-  
-      // Debugging: Log incoming data
-      console.log("Incoming band data:", req.bandData);
-  
-      // Ensure genre and group_size are arrays and clean them
-      const cleanGenre = cleanArray(genre || []); // Default to empty array if undefined
-      const cleanGroupSize = cleanArray(group_size || []); // Default to empty array if undefined
-  
-      // Ensure images are properly formatted
-      const formattedImages = Array.isArray(images) && images.length
-        ? `{${images.map((img) => `"${img}"`).join(",")}}`
-        : "{}"; // Default to empty array literal for PostgreSQL
-  
-      // Debugging: Log formatted values
-      console.log("Formatted genre:", cleanGenre);
-      console.log("Formatted group_size:", cleanGroupSize);
-      console.log("Formatted images:", formattedImages);
-  
-      const values = [
-        name || "", // Default to empty string if missing
-        `{${cleanGenre.join(",")}}`, // Ensure genre is properly formatted
-        bandemail || "", // Default to empty string if missing
-        play_shows || "no", // Default to "no" if missing
-        `{${cleanGroupSize.join(",")}}`, // Ensure group_size is properly formatted
-        JSON.stringify(social_links || {}), // Default to empty object
-        JSON.stringify(music_links || {}), // Default to empty object
-        formattedImages, // Ensure images is a valid array literal
-      ];
-  
-      // Debugging: Log final values before query
-      console.log("Values for INSERT:", values);
-  
-      // Run the INSERT query
-      const { rows } = await pool.query(addBandQuery, values);
-  
-      // Respond with the newly added band
-      res.json({ success: true, data: rows[0] });
-    } catch (error) {
-      console.error("Error adding band:", error);
-      res.status(500).json({ error: "Failed to add band." });
+    // Parse fields here, knowing they are strings:
+    const parsedGenre = JSON.parse(genre);
+    const parsedGroupSize = JSON.parse(group_size);
+    const parsedSocialLinks = JSON.parse(social_links);
+    const parsedMusicLinks = JSON.parse(music_links);
+
+    // Clean arrays before converting to Postgres arrays
+    const cleanGenre = cleanArray(parsedGenre).map(g => `"${g}"`);
+    const cleanGroupSize = cleanArray(parsedGroupSize); // array of strings
+
+    // Convert arrays to Postgres array literals
+    // For empty arrays, use '{}'
+    const pgGenre = `{${cleanGenre.join(",")}}`;
+    const pgGroupSize = `{${cleanGroupSize.join(",")}}`; // e.g. {} if empty
+
+    // social_links and music_links stored as JSON strings in DB
+    const socialLinksStr = JSON.stringify(parsedSocialLinks);
+    const musicLinksStr = JSON.stringify(parsedMusicLinks);
+
+    // Handle images: only store filenames
+    const formattedProfileImage = profile_image ? profile_image.split('/').pop() : null;
+
+    // Convert other_images array to Postgres array literal
+    // If no images, '{}'
+   
+    // Assuming other_images is an array of filenames:
+    let formattedOtherImages = '{}';
+    if (Array.isArray(other_images) && other_images.length > 0) {
+      // Map each element to a double-quoted string
+      const quotedImages = other_images.map(img => `"${img}"`);
+      formattedOtherImages = `{${quotedImages.join(",")}}`;
+    } else {
+      formattedOtherImages = '{}';
     }
-  };
 
+    const values = [
+      name,           // text
+      pgGenre,        // Postgres array literal for genre
+      bandemail,      // text
+      play_shows,     // text
+      pgGroupSize,    // Postgres array literal for group_size
+      socialLinksStr, // text field containing JSON string
+      musicLinksStr,  // text field containing JSON string
+      formattedProfileImage, // text (filename)
+      formattedOtherImages   // Postgres array literal for other_images
+    ];
 
-  export const updateBand = async (req, res) => {
+    console.log("Values for INSERT query:", values);
+
+    const { rows } = await pool.query(addBandQuery, values);
+
+    res.json({ success: true, data: rows[0] });
+  } catch (error) {
+    console.error("Error adding band:", error);
+    res.status(500).json({ error: "Failed to add band." });
+  }
+};
+
+export const updateBand = async (req, res) => {
+  try {
+    console.log('Band Data for update:', req.bandData);
+    const {
+      name = "",
+      genre = "[]",
+      bandemail = "",
+      play_shows = "no",
+      group_size = "[]",
+      social_links = "{}",
+      music_links = "{}",
+      profile_image = null,
+      other_images = []
+    } = req.bandData;
+
+    let parsedGenre, parsedGroupSize, parsedSocialLinks, parsedMusicLinks;
+
     try {
-      // Log the parsed data from the request
-      console.log('Band Data:', req.bandData);
-  
-      // Access the images from parsed data
-      const { images } = req.bandData;
-  
-      // If images are not defined or empty, handle the case
-      if (!images || images.length === 0) {
-        return res.status(400).json({ error: 'No images provided' });
-      }
-      const { bandid } = req.params;
-      const { name, genre, bandemail, play_shows, group_size, social_links, music_links } = req.bandData;
-  
-      // Clean and validate inputs
-      const cleanGenre = cleanArray(genre || []);
-      const cleanGroupSize = cleanArray(group_size || []);
-      const formattedImages = Array.isArray(images) && images.length
-        ? `{${images.map((img) => `"${img}"`).join(",")}}`
-        : "{}";
-  
-      const values = [
-        name,
-        `{${cleanGenre.join(",")}}`,
-        bandemail,
-        play_shows,
-        `{${cleanGroupSize.join(",")}}`,
-        JSON.stringify(social_links || {}),
-        JSON.stringify(music_links || {}),
-        formattedImages,
-        bandid,
-      ];
-  
-      const { rows } = await pool.query(updateBandQuery, values);
-  
-      if (rows.length === 0) {
-        return res.status(404).json({ error: "Band not found." });
-      }
-  
-      res.status(200).json({ message: 'Band updated successfully' });
+      parsedGenre = JSON.parse(genre);
+      if (!Array.isArray(parsedGenre)) parsedGenre = [];
+    } catch (err) {
+      console.error("Error parsing genre in update:", genre, err);
+      parsedGenre = [];
+    }
+
+    try {
+      parsedGroupSize = JSON.parse(group_size);
+      if (!Array.isArray(parsedGroupSize)) parsedGroupSize = [];
+    } catch (err) {
+      console.error("Error parsing group_size in update:", group_size, err);
+      parsedGroupSize = [];
+    }
+
+    try {
+      parsedSocialLinks = JSON.parse(social_links);
+      if (typeof parsedSocialLinks !== 'object' || parsedSocialLinks === null) parsedSocialLinks = {};
+    } catch (err) {
+      console.error("Error parsing social_links in update:", social_links, err);
+      parsedSocialLinks = {};
+    }
+
+    try {
+      parsedMusicLinks = JSON.parse(music_links);
+      if (typeof parsedMusicLinks !== 'object' || parsedMusicLinks === null) parsedMusicLinks = {};
+    } catch (err) {
+      console.error("Error parsing music_links in update:", music_links, err);
+      parsedMusicLinks = {};
+    }
+
+    const cleanGenre = cleanArray(parsedGenre).map(g => `"${g}"`);
+    const cleanGroupSize = cleanArray(parsedGroupSize).map(g => `"${g}"`);
+    
+    // Now wrap them:
+    const pgGenre = `{${cleanGenre.join(",")}}`;
+    const pgGroupSize = `{${cleanGroupSize.join(",")}}`;
+
+    const formattedProfileImage = profile_image ? profile_image.split('/').pop() : null;
+    
+    let formattedOtherImages = '{}';
+    if (Array.isArray(other_images) && other_images.length > 0) {
+      // Map each element to a double-quoted string
+      const quotedImages = other_images.map(img => `"${img}"`);
+      formattedOtherImages = `{${quotedImages.join(",")}}`;
+    } else {
+      formattedOtherImages = '{}';
+    }
+
+    const values = [
+      name,
+      pgGenre,
+      bandemail,
+      play_shows,
+      pgGroupSize,
+      JSON.stringify(parsedSocialLinks),
+      JSON.stringify(parsedMusicLinks),
+      formattedProfileImage,
+      formattedOtherImages,
+      req.params.bandid
+    ];
+
+    console.log("Values for update query:", values);
+
+    const { rows } = await pool.query(updateBandQuery, values);
+
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Band not found." });
+    }
+
+    res.status(200).json({ message: 'Band updated successfully' });
   } catch (error) {
     console.error('Error updating band:', error);
     res.status(500).json({ error: 'An error occurred while updating the band' });
