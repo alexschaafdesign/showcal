@@ -43,10 +43,12 @@ const TCUPBandForm = ({ isEdit = false }) => {
     },
     profile_image: bandDataFromState?.profile_image || null,
     other_images: bandDataFromState?.other_images || [],
+    location: bandDataFromState?.location || "",
   });
 
   const [isReadyToSubmit, setIsReadyToSubmit] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [previouslyUploadedImages, setPreviouslyUploadedImages] = useState([]);
   const endpoint = "http://localhost:3001/api";
   const apiUrl = process.env.REACT_APP_API_URL;
 
@@ -190,8 +192,11 @@ const TCUPBandForm = ({ isEdit = false }) => {
           },
           profile_image: profileImageUrl, // Use Cloudinary URL directly
           other_images: otherImageUrls,   // Use Cloudinary URLs directly
+          location: bandData.location || "",
         });
   
+        // Set previously uploaded images
+        setPreviouslyUploadedImages(otherImageUrls);
       } catch (error) {
         console.error("Error fetching band data:", error);
       }
@@ -201,51 +206,52 @@ const TCUPBandForm = ({ isEdit = false }) => {
   }, [isEdit, bandid, bandDataFromState, apiUrl]);
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-
-  if (!isReadyToSubmit) {
-    console.log("Form not ready for submission.");
-    return;
-  }
-
-  // Prepare the data as JSON
-  const dataToSubmit = {
-    name: formData.name,
-    genre: formData.genre, // Already an array
-    bandemail: formData.bandemail,
-    play_shows: formData.play_shows,
-    group_size: formData.group_size, // Already an array
-    social_links: formData.social_links, // JSON
-    music_links: formData.music_links,  // JSON
-    profile_image: formData.profile_image, // Cloudinary URL
-    other_images: formData.other_images,   // Array of Cloudinary URLs
-  };
-
-  try {
-    const endpointURL = isEdit
-      ? `${endpoint}/tcupbands/${bandid}/edit`
-      : `${endpoint}/tcupbands/add`;
-
-    const response = await fetch(endpointURL, {
-      method: isEdit ? "PUT" : "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(dataToSubmit), // Send the entire formData as JSON
-    });
-
-    if (!response.ok) {
-      throw new Error("Failed to submit band data");
+    e.preventDefault();
+  
+    if (!isReadyToSubmit) {
+      console.log("Form not ready for submission.");
+      return;
     }
-
-    const result = await response.json();
-    console.log("Response from backend:", result);
-    navigate("/tcupbands"); // Redirect after successful submission
-  } catch (err) {
-    console.error("Error submitting band data:", err);
-    setErrorMessage("Failed to submit band data.");
-  }
-};
+  
+    // Prepare the data as JSON
+    const dataToSubmit = {
+      name: formData.name,
+      genre: formData.genre, 
+      bandemail: formData.bandemail,
+      play_shows: formData.play_shows,
+      group_size: formData.group_size, 
+      social_links: formData.social_links, 
+      music_links: formData.music_links, 
+      profile_image: formData.profile_image, 
+      other_images: formData.other_images, // Send the current state directly
+      location: formData.location,
+    };
+  
+    try {
+      const endpointURL = isEdit
+        ? `${endpoint}/tcupbands/${bandid}/edit`
+        : `${endpoint}/tcupbands/add`;
+  
+      const response = await fetch(endpointURL, {
+        method: isEdit ? "PUT" : "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(dataToSubmit),
+      });
+  
+      if (!response.ok) {
+        throw new Error("Failed to submit band data");
+      }
+  
+      const result = await response.json();
+      console.log("Response from backend:", result);
+      navigate("/tcupbands");
+    } catch (err) {
+      console.error("Error submitting band data:", err);
+      setErrorMessage("Failed to submit band data.");
+    }
+  };
 
   return (
     <Box sx={{ paddingTop: 2, paddingBottom: 10, paddingX: 4 }}>
@@ -265,6 +271,15 @@ const TCUPBandForm = ({ isEdit = false }) => {
           label="Band Name"
           name="name"
           value={formData.name}
+          onChange={handleChange}
+          fullWidth
+          required
+          sx={{ mb: 2 }}
+        />
+        <TextField
+          label="Location"
+          name="location"
+          value={formData.location}
           onChange={handleChange}
           fullWidth
           required
@@ -298,7 +313,7 @@ const TCUPBandForm = ({ isEdit = false }) => {
           Profile Links (to your overall artist profiles, not a specific album or song)
         </Typography>
         <TextField
-          label="Spotify Arist Profile Link"
+          label="Spotify Artist Profile Link"
           name="spotify"
           value={formData.social_links.spotify}
           fullWidth
@@ -453,46 +468,46 @@ const TCUPBandForm = ({ isEdit = false }) => {
         )}
 
        {/* Other Images Upload */}
-        <Typography variant="h6" sx={{ mt: 2 }}>
-          Other Images (Max 10)
-        </Typography>
-        <input
-          type="file"
-          accept="image/*"
-          multiple
-          onChange={(e) => handleImageChange(e.target.files, false)}
-          disabled={formData.other_images.length >= 10} // Disable input if limit is reached
-          aria-label="Upload additional images"
-        />
+      <Typography variant="h6" sx={{ mt: 2 }}>
+        Other Images (Max 10)
+      </Typography>
+      <input
+        type="file"
+        accept="image/*"
+        multiple
+        onChange={(e) => handleImageChange(e.target.files, false)}
+        disabled={formData.other_images.length >= 10} // Disable input if limit is reached
+        aria-label="Upload additional images"
+      />
 
-        {formData.other_images.length > 0 && (
-          <Box sx={{ mt: 2, display: "flex", gap: 2, flexWrap: "wrap" }}>
-            {formData.other_images.map((url, index) => (
-              <Box key={index} sx={{ position: "relative" }}>
-                <img
-                  src={url}
-                  alt={`Other Image ${index + 1}`}
-                  style={{
-                    width: "150px",
-                    height: "150px",
-                    objectFit: "cover",
-                    borderRadius: "8px",
-                    border: "2px solid #ccc",
-                  }}
-                />
-                <Button
-                  onClick={() => handleRemoveImage(index, false)}
-                  variant="outlined"
-                  color="error"
-                  size="small"
-                  sx={{ position: "absolute", top: 0, right: 0 }}
-                >
-                  Remove
-                </Button>
-              </Box>
-            ))}
-          </Box>
-        )}
+      {formData.other_images.length > 0 && (
+        <Box sx={{ mt: 2, display: "flex", gap: 2, flexWrap: "wrap" }}>
+          {formData.other_images.map((url, index) => (
+            <Box key={index} sx={{ position: "relative" }}>
+              <img
+                src={url}
+                alt={`Other Image ${index + 1}`}
+                style={{
+                  width: "150px",
+                  height: "150px",
+                  objectFit: "cover",
+                  borderRadius: "8px",
+                  border: "2px solid #ccc",
+                }}
+              />
+              <Button
+                onClick={() => handleRemoveImage(index, false)}
+                variant="outlined"
+                color="error"
+                size="small"
+                sx={{ position: "absolute", top: 0, right: 0 }}
+              >
+                Remove
+              </Button>
+            </Box>
+          ))}
+        </Box>
+      )}
         <Button
           type="submit"
           variant="contained"

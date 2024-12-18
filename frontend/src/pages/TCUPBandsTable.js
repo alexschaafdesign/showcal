@@ -19,6 +19,7 @@ import {
 import { useNavigate, useLocation } from "react-router-dom"; // For navigation and state
 import formatBandData from "../utils/formatBandData";
 import BandSocialLinks from "../components/BandSocialLinks";
+import ProfileImage from "../components/ProfileImage";
 
 const TCUPBandsTable = () => {
   const [bands, setBands] = useState([]);
@@ -247,16 +248,18 @@ const TCUPBandsTable = () => {
               >
                 <TableCell>{band.name}</TableCell>
                 <TableCell>
-                  {/* Display Profile Image */}
-                  {band.profile_image ? (
-                    <img
-                      src={`${apiUrl.replace(/\/api$/, '')}/assets/images/bands/${band.profile_image}`}
-                      alt="Profile Image"
-                      style={{ width: 50, height: 50, marginRight: 5, borderRadius: "50%" }}
-                    />
-                  ) : (
-                    <span>No Profile Image</span>
-                  )}
+                {/* Display Profile Image */}
+                {band.profile_image ? (
+                <ProfileImage
+                  src={`${band.profile_image.replace(
+                    "/upload/",
+                    "/upload/w_50,h_50,c_fill/"
+                  )}`}
+                  alt={`${band.name}'s Thumbnail`}
+                  shape="rectangle" // Square/rectangle for table
+                  size={50} // Thumbnail size
+                />
+              ) : null}
                 </TableCell>
                 <TableCell>{band.bandemail || "No bandemail Info"}</TableCell>
                 <TableCell>

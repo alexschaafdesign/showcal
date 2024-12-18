@@ -97,18 +97,9 @@ const TCUPBandProfile = ({ allShows = [] }) => {
     }
   };
 
-  // Conditional rendering for loading, errors, and missing band data
-  if (loading) return <Typography>Loading...</Typography>;
-  if (error) return <Typography color="error">{error}</Typography>;
-  if (!band) return <Typography>Band not found</Typography>;
-
   // Band profile image handling
-  const images = Array.isArray(band.images) ? band.images : [];
-  const imageUrl =
-    band.profile_photo ||
-    (images?.[0] ? `${apiUrl.replace(/\/api$/, '')}${images[0]}` : "../images/tcup_logo.jpg");
-
-    console.log("Image URL:", imageUrl);
+  const profileImageUrl = band.profile_image || ""; // Fallback if no profile image
+  const otherImages = Array.isArray(band.other_images) ? band.other_images : []; // Ensure it's an array
 
   return (
     <Box sx={{ padding: 3 }}>
@@ -117,13 +108,14 @@ const TCUPBandProfile = ({ allShows = [] }) => {
       <Grid container spacing={3} alignItems="flex-start">
         {/* Left Column */}
         <Grid item xs={12} md={4}>
-          <ProfilePhotoCard
-            name={band.name}
-            imageUrl={imageUrl}
-            onEdit={handleEdit}
-            socialLinks={band.social_links}
-            genre={band.genre}
-          />
+        <ProfilePhotoCard
+        name={band.name} // Band name
+        imageUrl={band.profile_image} // URL of the profile image
+        location={band.location || "Unknown Location"} // Band location, fallback if not available
+        genre={band.genre} // Array of genres
+        socialLinks={band.social_links} // Object containing social links
+        onEdit={() => console.log("Edit button clicked")} // Action for the edit button
+      />
 
           <Box mt={2}>
             <Button
@@ -183,40 +175,43 @@ const TCUPBandProfile = ({ allShows = [] }) => {
     </Box>
   </Box>
   <Grid item xs={12} md={8}>
-          <Box sx={{ width: "100%", marginTop: 4, display: "flex", flexDirection: "column" }}>
-            {images.length > 0 ? (
-              <Stack
-                direction={{ xs: "column", sm: "row" }}
-                spacing={2}
-                alignItems="center"
-                justifyContent="flex-start"
-              >
-                {images.map((image, index) => (
-                  <Box
-                    key={index}
-                    component="img"
-                    src={`${apiUrl.replace(/\/api$/, '')}${image}`}  // Update to handle the correct URL
-                    alt={`Band Photo ${index + 1}`}
-                    onClick={() => handleOpen(image)}
-                    sx={{
-                      width: { xs: "80px", sm: "100px" }, // Thumbnail size
-                      height: { xs: "80px", sm: "100px" }, // Maintain square aspect ratio
-                      objectFit: "cover", // Ensures the image is contained within the box
-                      borderRadius: "8px",
-                      boxShadow: "0 2px 4px rgba(0,0,0,0.2)", // Subtle shadow
-                      cursor: "pointer",
-                      transition: "transform 0.2s", // Add hover effect
-                      "&:hover": {
-                        transform: "scale(1.05)", // Slightly enlarge on hover
-                      },
-                    }}
-                  />
-                ))}
-              </Stack>
-            ) : (
-              <Typography>No images available.</Typography>
-            )}
-          </Box>
+         
+            {/* Other Images */}
+            <Box>
+              <Typography variant="h5">Other Images</Typography>
+              {otherImages.length > 0 ? (
+                <Stack
+                  direction={{ xs: "column", sm: "row" }}
+                  spacing={2}
+                  alignItems="center"
+                  justifyContent="flex-start"
+                >
+                  {otherImages.map((image, index) => (
+                    <Box
+                      key={index}
+                      component="img"
+                      src={image}
+                      alt={`Band Photo ${index + 1}`}
+                      onClick={() => handleOpen(image)}
+                      sx={{
+                        width: "100px",
+                        height: "100px",
+                        objectFit: "cover",
+                        borderRadius: "8px",
+                        boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                        cursor: "pointer",
+                        transition: "transform 0.2s",
+                        "&:hover": {
+                          transform: "scale(1.05)",
+                        },
+                      }}
+                    />
+                  ))}
+                </Stack>
+              ) : (
+                <Typography>No additional images available.</Typography>
+              )}
+            </Box>
         </Grid>
 </Box>
 
@@ -305,42 +300,37 @@ const TCUPBandProfile = ({ allShows = [] }) => {
             <Typography>No upcoming shows for this band.</Typography>
           )}
         </Box>
-
-      <Modal open={open} onClose={handleClose}>
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            bgcolor: "transparent",
-            boxShadow: "none",
-            p: 0,
-            maxWidth: "90vw",
-            maxHeight: "90vh",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            overflow: "hidden",
-            outline: "none",
-          }}
-        >
-          {selectedImage && (
-            <img
-              src={`${apiUrl.replace(/\/api$/, '')}${selectedImage}`}  // Update to handle the correct URL
-              alt="Expanded Image"
-              style={{
-                maxWidth: "calc(100vw - 32px)",
-                maxHeight: "calc(100vh - 32px)",
-                width: "auto",
-                height: "auto",
-                objectFit: "contain",
-                borderRadius: "8px",
-              }}
-            />
-          )}
-        </Box>
-      </Modal>
+        {/* Image Modal */}
+        <Modal open={open} onClose={handleClose}>
+          <Box
+            sx={{
+              position: "absolute",
+              top: "50%",
+              left: "50%",
+              transform: "translate(-50%, -50%)",
+              maxWidth: "90vw",
+              maxHeight: "90vh",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              bgcolor: "transparent",
+              boxShadow: "none",
+            }}
+          >
+            {selectedImage && (
+              <img
+                src={selectedImage}
+                alt="Expanded Image"
+                style={{
+                  maxWidth: "calc(100vw - 32px)",
+                  maxHeight: "calc(100vh - 32px)",
+                  objectFit: "contain",
+                  borderRadius: "8px",
+                }}
+              />
+            )}
+          </Box>
+        </Modal>
     </Box>
   );
 };

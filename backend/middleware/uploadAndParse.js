@@ -16,6 +16,7 @@ const uploadAndParse = (req, res, next) => {
       music_links: req.body.music_links || {},
       profile_image: req.body.profile_image || null, // Cloudinary URL
       other_images: Array.isArray(req.body.other_images) ? req.body.other_images : [], // Cloudinary URLs
+      location: req.body.location || "",
     };
 
     // Log the parsed data for debugging

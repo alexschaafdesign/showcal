@@ -1,7 +1,7 @@
-
 import React from "react";
 import { Box, Typography, Stack, Button } from "@mui/material";
 import BandSocialLinks from "./BandSocialLinks";
+import ProfileImage from "./ProfileImage";
 
 const ProfilePhotoCard = ({ name, imageUrl, location, genre, onEdit, socialLinks }) => {
   return (
@@ -17,18 +17,14 @@ const ProfilePhotoCard = ({ name, imageUrl, location, genre, onEdit, socialLinks
       }}
     >
       {/* Profile Photo */}
-      <Box
-        component="img"
-        src={imageUrl}
-        alt={`${name}'s profile`}
-        sx={{
-          width: 100,
-          height: 100,
-          borderRadius: "50%",
-          objectFit: "cover",
-          backgroundColor: "grey.300",
-        }}
-      />
+      <Box>
+        <ProfileImage
+          src={imageUrl} // Assuming `imageUrl` is passed as a prop to ProfilePhotoCard
+          alt={`${name}'s Profile`} // Using the `name` prop for alt text
+          shape="circle" // Circle shape for profile images
+          size={200} // Larger size for profile page
+        />
+      </Box>
 
       {/* Band Information */}
       <Box sx={{ display: "flex", flexDirection: "column", flex: 1 }}>

@@ -23,6 +23,7 @@ export const addBand = async (req, res) => {
       music_links = {}, // Already parsed as an object
       profile_image = null,
       other_images = [],
+      location = "",
     } = req.bandData;
 
     // Clean and prepare arrays
@@ -52,6 +53,7 @@ export const addBand = async (req, res) => {
       musicLinksStr,
       formattedProfileImage,
       formattedOtherImages,
+      location,
     ];
 
     console.log("Values for INSERT query:", values);
@@ -67,60 +69,43 @@ export const addBand = async (req, res) => {
 
 export const updateBand = async (req, res) => {
   try {
-    console.log("Band Data for update:", req.bandData);
+    console.log('Band Data for update:', req.bandData);
 
     const {
       name = "",
       genre = [],
       bandemail = "",
-      play_shows = "",
+      play_shows = "no",
       group_size = [],
-      social_links = {},
-      music_links = {},
-      profile_image = null,        // New profile image
-      other_images = [],           // New images array
-      remove_images = [],          // Images to be removed
+      social_links = {}, // Already parsed as an object
+      music_links = {}, // Already parsed as an object
+      profile_image = null,
+      other_images = [],
+      location = "",
     } = req.bandData;
 
-    const { bandid } = req.params;
+    const bandid = parseInt(req.params.bandid, 10);
 
-    // Fetch the current images from the database
-    const currentResult = await pool.query(
-      "SELECT profile_image, other_images FROM tcupbands WHERE id = $1",
-      [bandid]
-    );
-
-    if (currentResult.rows.length === 0) {
-      return res.status(404).json({ error: "Band not found." });
+    if (isNaN(bandid)) {
+      return res.status(400).json({ error: "Invalid band ID provided." });
     }
 
-    const currentImages = currentResult.rows[0];
-    let updatedOtherImages = currentImages.other_images || [];
-
-    // Remove specified images
-    const imagesToRemove = new Set(remove_images);
-    updatedOtherImages = updatedOtherImages.filter((img) => !imagesToRemove.has(img));
-
-    // Add new images to the list
-    if (other_images.length > 0) {
-      updatedOtherImages.push(...other_images);
-    }
-
-    // Convert to Postgres array literal
-    const formattedOtherImages = updatedOtherImages.length
-      ? `{${updatedOtherImages.map((img) => `"${img}"`).join(",")}}`
-      : "{}";
-
-    // Prepare JSON strings and arrays
+    // Parse and validate `genre` and `group_size`
     const cleanGenre = cleanArray(genre).map((g) => `"${g}"`);
     const cleanGroupSize = cleanArray(group_size).map((g) => `"${g}"`);
+
     const pgGenre = `{${cleanGenre.join(",")}}`;
     const pgGroupSize = `{${cleanGroupSize.join(",")}}`;
-    const socialLinksStr = JSON.stringify(social_links);
-    const musicLinksStr = JSON.stringify(music_links);
 
-    // Use new profile image if provided; otherwise, keep the existing one
-    const updatedProfileImage = profile_image || currentImages.profile_image;
+    // Prepare image data
+    const formattedProfileImage = profile_image || null;
+    const formattedOtherImages = other_images.length
+      ? `{${other_images.map((img) => `"${img}"`).join(",")}}`
+      : "{}";
+
+    // Convert objects to JSON strings
+    const socialLinksStr = JSON.stringify(social_links); // No parsing needed
+    const musicLinksStr = JSON.stringify(music_links); // No parsing needed
 
     const values = [
       name,
@@ -130,20 +115,21 @@ export const updateBand = async (req, res) => {
       pgGroupSize,
       socialLinksStr,
       musicLinksStr,
-      updatedProfileImage,
+      formattedProfileImage,
       formattedOtherImages,
+      location,
       bandid,
     ];
 
     console.log("Values for update query:", values);
 
-    // Execute the update query
     const { rows } = await pool.query(updateBandQuery, values);
 
-    res.status(200).json({
-      message: "Band updated successfully",
-      data: rows[0],
-    });
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Band not found." });
+    }
+
+    res.status(200).json({ message: "Band updated successfully", data: rows[0] });
   } catch (error) {
     console.error("Error updating band:", error);
     res.status(500).json({ error: "An error occurred while updating the band." });
