@@ -379,6 +379,22 @@ const TCUPBandForm = ({ isEdit = false }) => {
           }
           sx={{ mb: 2 }}
         />
+                <TextField
+          label="YouTube Music Video Link"
+          name="youtube"
+          value={formData.music_links.youtube || ""}
+          fullWidth
+          onChange={(e) =>
+            setFormData((prev) => ({
+              ...prev,
+              music_links: {
+                ...prev.music_links,
+                youtube: e.target.value,
+              },
+            }))
+          }
+          sx={{ mb: 2 }}
+        />
         <TextField
           label="Bandcamp Music Embed"
           name="bandcamp"

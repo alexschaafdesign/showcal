@@ -8,7 +8,7 @@ export const textFieldStyles = {
     },
     styleOverrides: {
       root: {
-        marginBottom: '16px',
+        marginBottom: '0px',
       },
     },
   },

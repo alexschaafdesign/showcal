@@ -4,12 +4,13 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from selenium.common.exceptions import TimeoutException
 from bs4 import BeautifulSoup
 import psycopg2
 from datetime import datetime
 
 # Database connection parameters
-DB_NAME = "tcup"
+DB_NAME = "tcup_db"
 DB_USER = "aschaaf"
 DB_PASSWORD = "notthesame"
 DB_HOST = "localhost"
@@ -36,70 +37,95 @@ soup = BeautifulSoup(driver.page_source, 'html.parser')
 events = soup.select("article.eventlist-event")
 events_data = []
 
-# Loop through each music event card to gather event details
 for event in events:
     event_details = {'venue': "The Cedar Cultural Center"}
 
     # Get the event URL
     link = event.find("a", href=True)
-    if link:
-        event_url = link['href']
-        full_event_url = f"https://www.thecedar.org{event_url}"  # Ensure full URL if relative
-        event_details['event_link'] = full_event_url
+    if not link:
+        print("No event link found for this event card.")
+        continue
+
+    event_url = link['href']
+    full_event_url = f"https://www.thecedar.org{event_url}"
+    event_details['event_link'] = full_event_url
 
     # Get the event date
     date_tag = event.find("time", class_="event-date")
     if date_tag and date_tag.has_attr("datetime"):
         date_text = date_tag["datetime"]
         event_date = datetime.strptime(date_text, "%Y-%m-%d").date()
-        print(f"Parsed event date: {event_date}")
+        event_details['date'] = event_date
     else:
-        event_date = None
-        print("Date not found.")
+        print("Event date not found.")
+        continue
 
-    # Get the start time and combine with event date
-    start_time_tag = event.find("time", class_="event-time-localized-start")
-    if start_time_tag:
-        start_time_text = start_time_tag.get_text(strip=True)
-        
-        # Replace non-standard characters in time text if needed
-        start_time_text = start_time_text.replace(" ", " ")  # Replace non-standard spaces
-
-        try:
+    # Extract start time
+    try:
+        start_time_tag = event.find("time", class_="event-time-localized-start")
+        if start_time_tag:
+            start_time_text = start_time_tag.get_text(strip=True).replace(" ", " ")
             show_time = datetime.strptime(start_time_text, "%I:%M %p").time()
-            if event_date:
-                # Combine date and time to form a complete datetime object
-                event_details['start'] = datetime.combine(event_date, show_time)
-                print(f"Parsed start datetime: {event_details['start']}")
-            else:
-                event_details['start'] = None
-                print("Date missing, cannot combine with time.")
-        except ValueError:
-            print(f"Error parsing time: {start_time_text}")
+            event_details['start'] = datetime.combine(event_date, show_time)
+        else:
             event_details['start'] = None
-    else:
+    except Exception as e:
+        print(f"Error parsing start time: {e}")
         event_details['start'] = None
-        print("Start time not found.")
 
-    # Now navigate to the individual event page to get band names
-    driver.get(full_event_url)
-    event_soup = BeautifulSoup(driver.page_source, 'html.parser')
+    # Navigate to individual event page
+    try:
+        driver.get(full_event_url)
+        WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "div.eventitem-column-meta"))
+        )
+        event_soup = BeautifulSoup(driver.page_source, 'html.parser')
+    except TimeoutException:
+        print(f"Timed out loading page: {full_event_url}")
+        continue
 
     # Extract band names
-    band_names = []
-    headers = event_soup.find_all("h4", style="white-space:pre-wrap;")
-    for header in headers:
-        band_name = header.get_text(strip=True)
-        if band_name.lower() not in ["listen", "about this show"]:
-            band_names.append(band_name)
+    meta_div = event_soup.find("div", class_="eventitem-column-meta")
+    if meta_div:
+        title_tag = meta_div.find("h1", class_="eventitem-title")
+        if title_tag:
+            title_text = title_tag.get_text(strip=True)
+            connectors = [" and ", " + ", " & ", " with ", " featuring "]
+            for connector in connectors:
+                if connector in title_text.lower():
+                    band_names = [band.strip() for band in title_text.split(connector)]
+                    break
+            else:
+                band_names = [title_text.strip()]
+            event_details['bands'] = ", ".join(band_names)
+        else:
+            print("Band title not found.")
+    else:
+        print("Meta div not found for band names.")
 
-    # Join all bands in a single string for 'shows' table and list for 'bands' table
-    event_details['bands'] = ", ".join(band_names)
-    print(f"Parsed band names: {band_names}")
-    events_data.append(event_details.copy())
+    # Extract flyer image
+    try:
+        flyer_image_tag = event_soup.select_one(
+            "div.eventitem-column-content img.sqs-image-shape-container-element"
+        )
+        if flyer_image_tag and 'src' in flyer_image_tag.attrs:
+            flyer_image = flyer_image_tag['src'].replace("-size", "-original")
+            event_details['flyer_image'] = flyer_image
+        else:
+            event_details['flyer_image'] = None
+    except Exception as e:
+        print(f"Error parsing flyer image: {e}")
+        event_details['flyer_image'] = None
 
-# Close the driver after scraping
-driver.quit()
+    # Append if valid
+    if not event_details['start']:
+        print(f"Missing start time for event: {event_details['event_link']}")
+    if not event_details['flyer_image']:
+        print(f"Missing flyer image for event: {event_details['event_link']}")
+    if event_details['start'] and event_details['bands']:
+        events_data.append(event_details)
+    else:
+        print(f"Skipped event due to missing critical data: {event_details}")
 
 # Connect to the PostgreSQL database
 conn = psycopg2.connect(
@@ -110,72 +136,37 @@ conn = psycopg2.connect(
 )
 cursor = conn.cursor()
 
-# Create tables if they don't exist
-cursor.execute("""
-    CREATE TABLE IF NOT EXISTS shows (
-        id SERIAL PRIMARY KEY,
-        venue TEXT,
-        bands TEXT,
-        start TIMESTAMP,
-        event_link TEXT UNIQUE
-    );
-""")
-cursor.execute("""
-    CREATE TABLE IF NOT EXISTS bands (
-        band TEXT PRIMARY KEY
-    );
-""")
+# Directly assign the correct venue_id
+venue_id = 262  # Correct venue ID
 
 # Fetch existing events to avoid duplicates
-cursor.execute("SELECT venue, start, event_link FROM shows")
+cursor.execute("SELECT venue_id, start, event_link FROM shows")
 existing_events = set(cursor.fetchall())
 
 # Prepare rows for 'shows' table insertion, only if 'bands' is not empty
 rows_to_add = []
-unique_bands = set()  # Track unique bands to insert into the bands table
 for event in events_data:
-    if event.get('start') and (event['venue'], event['start'], event['event_link']) not in existing_events:
+    if event.get('start') and (event['venue_id'], event['start'], event['event_link']) not in existing_events:
         print(f"Adding event to rows_to_add: {event}")
         rows_to_add.append((
-            event['venue'],
+            venue_id,
             event['bands'],
             event['start'],
-            event['event_link']
+            event['event_link'],
+            event['flyer_image']
         ))
-        
-        # Add each band to unique_bands set for insertion into the bands table
-        for band in event['bands'].split(", "):
-            unique_bands.add(band.strip())
 
 # Insert rows if they exist
 if rows_to_add:
     insert_query = """
-    INSERT INTO shows (venue, bands, start, event_link)
-    VALUES (%s, %s, %s, %s)
+    INSERT INTO shows (venue_id, bands, start, event_link, flyer_image)
+    VALUES (%s, %s, %s, %s, %s)
     """
     cursor.executemany(insert_query, rows_to_add)
     conn.commit()
     print(f"{len(rows_to_add)} new events added to the shows table.")
 else:
     print("No new events to add to the shows table.")
-
-# Prepare unique band names for the 'bands' table insertion
-for event in events_data:
-    if event.get('bands'):
-        for band in event['bands'].split(", "):
-            unique_bands.add(band.strip())
-
-# Log unique bands to verify
-print(f"Unique bands collected for insertion: {unique_bands}")
-
-# Insert unique bands into the 'bands' table
-if unique_bands:
-    for band in unique_bands:
-        cursor.execute("INSERT INTO bands (band) VALUES (%s) ON CONFLICT (band) DO NOTHING", (band,))
-    conn.commit()
-    print(f"{len(unique_bands)} unique bands added to the bands table.")
-else:
-    print("No bands to add to the bands table.")
 
 # Close the database connection
 cursor.close()

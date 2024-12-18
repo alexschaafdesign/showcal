@@ -8,6 +8,7 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from datetime import datetime, timedelta
 from db_utils import connect_to_db, insert_show
+import re
 
 # If modifying access, you'll need to authenticate
 SCOPES = ['https://www.googleapis.com/auth/calendar.readonly']

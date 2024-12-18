@@ -102,79 +102,115 @@ const TCUPBandProfile = ({ allShows = [] }) => {
   const otherImages = Array.isArray(band.other_images) ? band.other_images : []; // Ensure it's an array
 
   return (
+
+    // OVERALL BOX 
+
     <Box sx={{ padding: 3 }}>
-      <AppBreadcrumbs />
 
-      <Grid container spacing={3} alignItems="flex-start">
-        {/* Left Column */}
-        <Grid item xs={12} md={4}>
-        <ProfilePhotoCard
-        name={band.name} // Band name
-        imageUrl={band.profile_image} // URL of the profile image
-        location={band.location || "Unknown Location"} // Band location, fallback if not available
-        genre={band.genre} // Array of genres
-        socialLinks={band.social_links} // Object containing social links
-        onEdit={() => console.log("Edit button clicked")} // Action for the edit button
-      />
+    {/* Box holding the two columns */}
 
-          <Box mt={2}>
-            <Button
-              variant="contained"
-              color="primary"
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 3, // Add some margin below the row
+          }}
+        >
 
-              fullWidth
-              onClick={handleEdit}
-              sx={{ marginBottom: 2 }}
-            >
-              Edit Band Profile
-            </Button>
-          </Box>
+          {/* Breadcrumbs on the top left */}
+          <AppBreadcrumbs />
 
-          <Box sx={{ marginTop: 4 }}>
-          {/* Bio Header */}
-          <Typography variant="h5" gutterBottom>
-            Bio
-          </Typography>
-
-          {/* Bio Body */}
-          <Typography variant="body1" color="textSecondary">
-            Here's a spot to put your bio or whatever lorem lorem married ipsum and ispsum and lorem had a wonderful ipsum and lorem life together. 
-          </Typography>
+          {/* Edit button on the top right */}
+          <Button
+            variant="outlined"
+            color="primary"
+            onClick={handleEdit}
+            sx={{
+              textTransform: "none", // Optional: Disable uppercase if undesired
+            }}
+          >
+            Edit your band
+          </Button>
         </Box>
+          
+          {/* Main two-column container */}
 
-        <Box sx={{ marginTop: 4 }}>
-  {/* Links Header */}
-  <Typography variant="h5" gutterBottom>
-    Links
-  </Typography>
+              <Grid
+            container
+            spacing={3}
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+            }}
+          >        
+            {/* Left Column */}
+            <Grid
+              item
+              xs={12}
+              md={6}
+              sx={{
+                display: "flex",
+                flexDirection: "column",
+                flex: 1,
+              }}
+            >       
+             <ProfilePhotoCard
+              name={band.name} // Band name
+              imageUrl={band.profile_image} // URL of the profile image
+              location={band.location || "Unknown Location"} // Band location, fallback if not available
+              genre={band.genre} // Array of genres
+              socialLinks={band.social_links} // Object containing social links
+              onEdit={() => console.log("Edit button clicked")} // Action for the edit button
+            />
 
-  {/* Links Content */}
-  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, marginTop: 2 }}>
-    {/* First Column */}
-    <Box sx={{ flex: 1, minWidth: '45%' }}>
-    <Typography>
-      <a
-        href="https://drive.google.com/file/d/1mDjatch2BQOje0g0sV5YzYhChjN5Oei8/view?usp=sharing"
-        target="_blank"
-        rel="noopener noreferrer"
-        style={{
-          color: '#8E6CD1',
-          textDecoration: 'none',
-          fontSize: '1.25rem', // Adjust the font size as needed
-          fontWeight: 'bold', // Makes the font bold
-        }}
-      >
-        Stage Plot (pdf)
-      </a>
-    </Typography>
-    </Box>
+            {/* Bio */}
+            <Box sx={{ marginTop: 4 }}>
+            {/* Bio Header */}
+            <Typography variant="h5" gutterBottom>
+              Bio
+            </Typography>
+            {/* Bio Body */}
+            <Typography variant="body1" color="textSecondary">
+              Here's a spot to put your bio or whatever lorem lorem married ipsum and ispsum and lorem had a wonderful ipsum and lorem life together. 
+            </Typography>
+            </Box>
 
-    {/* Second Column */}
-    <Box sx={{ flex: 1, minWidth: '45%' }}>
-      
-    </Box>
-  </Box>
-  <Grid item xs={12} md={8}>
+             {/* Links */}
+             <Box sx={{ marginTop: 4 }}>
+
+            {/* Links Header */}
+            <Typography variant="h5" gutterBottom>
+              Links
+            </Typography>
+
+            {/* Links Content - a two column sub-section */}
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, marginTop: 2 }}>
+              {/* First sub-Column */}
+              <Box sx={{ flex: 1, minWidth: '45%' }}>
+              <Typography>
+                <a
+                  href="https://drive.google.com/file/d/1mDjatch2BQOje0g0sV5YzYhChjN5Oei8/view?usp=sharing"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    color: '#8E6CD1',
+                    textDecoration: 'none',
+                    fontSize: '1.25rem', // Adjust the font size as needed
+                    fontWeight: 'bold', // Makes the font bold
+                  }}
+                >
+                  Stage Plot (pdf)
+                </a>
+              </Typography>
+              </Box>
+
+                {/* Second sub-Column */}
+                <Box sx={{ flex: 1, minWidth: '45%' }}>
+                  
+                </Box>
+            </Box>
+              <Grid item xs={12} md={8}>
          
             {/* Other Images */}
             <Box>
@@ -208,30 +244,27 @@ const TCUPBandProfile = ({ allShows = [] }) => {
                     />
                   ))}
                 </Stack>
-              ) : (
-                <Typography>No additional images available.</Typography>
-              )}
+                    ) : (
+                      <Typography>No additional images available.</Typography>
+                    )}
+                  </Box>
+               </Grid>
             </Box>
-        </Grid>
-</Box>
+           </Grid>
 
+          {/* End of left main column */}
 
-        </Grid>
-
-        {/* Right Column */}
-        <Grid
-          item
-          xs={12}
-          md={8}
-          sx={{
-            display: "flex", 
-            flexGrow: 1,
-            flexDirection: "column", 
-            justifyContent: "space-between", // Space out elements vertically
-            height: "100%", // Ensure the column itself stretches
-          }}
-        >
-
+          {/* Right main Column */}
+          <Grid
+            item
+            xs={12}
+            md={6}
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              flex: 1,
+            }}
+          >
             {/* Spotify Embed */}
             {spotifyEmbedUrl && (
             <Box
@@ -258,6 +291,43 @@ const TCUPBandProfile = ({ allShows = [] }) => {
             </Box>
           )}
 
+            {/* YouTube Music Embed */}
+            {band.music_links.youtube && (
+            <Box sx={{ mt: 4 }}>
+              <Typography variant="h6" gutterBottom>
+                YouTube Music Video
+              </Typography>
+              <Box
+                sx={{
+                  position: "relative",
+                  overflow: "hidden",
+                  width: "100%",
+                  paddingTop: "56.25%", // Maintain 16:9 aspect ratio
+                  borderRadius: "8px",
+                  boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                }}
+              >
+                <iframe
+                  src={band.music_links.youtube.replace(
+                    "watch?v=",
+                    "embed/"
+                  )}
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  style={{
+                    position: "absolute",
+                    top: 0,
+                    left: 0,
+                    width: "100%",
+                    height: "100%",
+                  }}
+                  title="YouTube Music Video"
+                ></iframe>
+                </Box>
+               </Box> 
+                )}
+
 
           {/* Bandcamp Embed
           {band?.music_links?.bandcamp && (
@@ -276,18 +346,14 @@ const TCUPBandProfile = ({ allShows = [] }) => {
               ></iframe>
             </Box>
           )} */}
-
-
         </Grid>
         </Grid>
 
-          {/* Bottom show section */}
-
-
-         
+          {/* Bottom show section that spans full width*/}
         <Box  
           sx={{
             marginTop: 4,
+            marginBottom: 12,
           }}
         > 
           {bandShows.length > 0 ? (
@@ -300,6 +366,7 @@ const TCUPBandProfile = ({ allShows = [] }) => {
             <Typography>No upcoming shows for this band.</Typography>
           )}
         </Box>
+        
         {/* Image Modal */}
         <Modal open={open} onClose={handleClose}>
           <Box
