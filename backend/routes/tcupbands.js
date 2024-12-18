@@ -1,7 +1,6 @@
 import express from "express";
 import fetchAllBandsMiddleware from "../middleware/fetchAllBands.js";
 import fetchBandMiddleware from "../middleware/fetchBand.js";
-import upload from "../middleware/upload.js";
 import uploadAndParse from "../middleware/uploadAndParse.js";
 import { 
   getAllBands, 

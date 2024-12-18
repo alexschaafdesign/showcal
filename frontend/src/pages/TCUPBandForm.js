@@ -13,7 +13,6 @@ import {
   Button,
 } from "@mui/material";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
-import CustomFilePond from "../components/CustomFilePond";
 import AppBreadcrumbs from "../components/Breadcrumbs";
 
 const TCUPBandForm = ({ isEdit = false }) => {
@@ -53,11 +52,7 @@ const TCUPBandForm = ({ isEdit = false }) => {
 
   formData.genre = formData.genre || ["","",""];
 
-
-  // Update isReadyToSubmit whenever formData changes
   useEffect(() => {
-    // If no images are required, then you can just allow submission if name or other required fields are filled.
-    // For simplicity, let's remove the image requirement:
     const canSubmit = formData.name.trim() !== "";
     setIsReadyToSubmit(canSubmit);
   }, [formData]);
@@ -68,17 +63,80 @@ const TCUPBandForm = ({ isEdit = false }) => {
     setFormData((prev) => ({ ...prev, genre: updatedGenres }));
   };
 
-  const handleImageChange = (files, isProfileImage = false) => {
-    if (isProfileImage) {
-      if (files[0] instanceof File) {
-        // Just store the File object directly
-        setFormData(prev => ({ ...prev, profile_image: files[0] }));
+  // Upload to Cloudinary
+  const uploadToCloudinary = async (file, preset) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", preset);
+
+    try {
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/dsll3ms2c/image/upload`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+      const data = await response.json();
+      return data.secure_url; // Cloudinary image URL
+    } catch (error) {
+      console.error("Cloudinary upload error:", error);
+      return null;
+    }
+  };
+
+  // Handle file selection and upload
+  const handleImageChange = async (files, isProfileImage = false) => {
+    if (files && files.length > 0) {
+      const preset = isProfileImage
+        ? "band_profile_image_upload" // Preset for profile image
+        : "band_other_images_upload"; // Preset for other images
+
+      if (isProfileImage) {
+        // Limit to one profile image
+        if (formData.profile_image) {
+          alert("You can only upload one profile image. Remove the existing one first.");
+          return;
+        }
+        const uploadedUrls = await Promise.all(
+          Array.from(files).map((file) => uploadToCloudinary(file, preset))
+        );
+
+        setFormData((prev) => ({
+          ...prev,
+          profile_image: uploadedUrls[0], // Replace with the new profile image
+        }));
       } else {
-        setFormData(prev => ({ ...prev, profile_image: files[0] }));
+        // Limit other_images to 10
+        if (formData.other_images.length >= 10) {
+          alert("You can upload a maximum of 10 other images.");
+          return;
+        }
+
+        const remainingSlots = 10 - formData.other_images.length;
+        const filesToUpload = Array.from(files).slice(0, remainingSlots);
+
+        const uploadedUrls = await Promise.all(
+          filesToUpload.map((file) => uploadToCloudinary(file, preset))
+        );
+
+        setFormData((prev) => ({
+          ...prev,
+          other_images: [...prev.other_images, ...uploadedUrls],
+        }));
       }
+    }
+  };
+
+  // Remove an image (profile or other)
+  const handleRemoveImage = (index, isProfileImage = false) => {
+    if (isProfileImage) {
+      setFormData((prev) => ({ ...prev, profile_image: null }));
     } else {
-      // For other images, store the File objects directly as well
-      setFormData(prev => ({ ...prev, other_images: files }));
+      setFormData((prev) => ({
+        ...prev,
+        other_images: prev.other_images.filter((_, i) => i !== index),
+      }));
     }
   };
 
@@ -92,6 +150,8 @@ const TCUPBandForm = ({ isEdit = false }) => {
       if (!isEdit) return;
       try {
         let bandData;
+  
+        // Check if bandData is coming from state or fetch it from the API
         if (bandDataFromState) {
           bandData = bandDataFromState;
         } else {
@@ -99,25 +159,16 @@ const TCUPBandForm = ({ isEdit = false }) => {
           const data = await response.json();
           bandData = data.data;
         }
-
-        console.log("Band data profile_image before construction:", bandData.profile_image);
-        console.log("Band data other_images before construction:", bandData.other_images);
-
-        const baseApiUrl = process.env.REACT_APP_API_URL;
-        const baseUrl = baseApiUrl.replace(/\/api$/, ''); // 'http://localhost:3001'
-
-
-        // Construct image URLs from the base URL (no /api)
-        const profileImageUrl = bandData.profile_image
-          ? `${baseUrl}/assets/images/bands/${bandData.profile_image}`
-          : null;
-
-        const otherImageUrls =
-          bandData.other_images?.map((imagePath) => `${baseUrl}/assets/images/bands/${imagePath}`) || [];
-
-          console.log("Constructed profileImageUrl:", profileImageUrl);
-          console.log("Constructed otherImageUrls:", otherImageUrls);
-
+  
+        console.log("Fetched Band Data:", bandData);
+  
+        // Directly use Cloudinary URLs returned from the backend
+        const profileImageUrl = bandData.profile_image || null; // Full Cloudinary URL
+        const otherImageUrls = Array.isArray(bandData.other_images)
+          ? bandData.other_images
+          : []; // Array of Cloudinary URLs
+  
+        // Update the form data
         setFormData({
           name: bandData.name || "",
           genre: bandData.genre || ["", "", ""],
@@ -137,75 +188,64 @@ const TCUPBandForm = ({ isEdit = false }) => {
             soundcloud: "",
             youtube: "",
           },
-          profile_image: profileImageUrl, 
-          other_images: otherImageUrls,
+          profile_image: profileImageUrl, // Use Cloudinary URL directly
+          other_images: otherImageUrls,   // Use Cloudinary URLs directly
         });
-
+  
       } catch (error) {
         console.error("Error fetching band data:", error);
       }
     };
+  
     fetchBand();
   }, [isEdit, bandid, bandDataFromState, apiUrl]);
-  
-    const handleSubmit = async (e) => {
-      e.preventDefault();
-  
-      if (!isReadyToSubmit) {
-        console.log("Form not ready for submission.");
-        return;
-      }
-  
-      const dataToSubmit = new FormData();
-  
-      // Append text fields
-      dataToSubmit.append("name", formData.name);
-      dataToSubmit.append("genre", JSON.stringify(formData.genre));
-      dataToSubmit.append("bandemail", formData.bandemail);
-      dataToSubmit.append("play_shows", formData.play_shows);
-      dataToSubmit.append("group_size", JSON.stringify(formData.group_size));
-      dataToSubmit.append("social_links", JSON.stringify(formData.social_links));
-      dataToSubmit.append("music_links", JSON.stringify(formData.music_links));
-  
-      // Append profile_image if it's a file
-      if (formData.profile_image instanceof File) {
-        dataToSubmit.append("profile_image", formData.profile_image);
-      }
-  
-      // Append other_images if they are files
-      if (Array.isArray(formData.other_images) && formData.other_images.length > 0) {
-        formData.other_images.forEach((file) => {
-          if (file instanceof File) dataToSubmit.append("other_images", file);
-        });
-      }
-  
-      try {
-        const endpointURL = isEdit
-          ? `${endpoint}/tcupbands/${bandid}/edit`
-          : `${endpoint}/tcupbands/add`;
-  
-        const response = await fetch(endpointURL, {
-          method: isEdit ? "PUT" : "POST",
-          body: dataToSubmit,
-        });
-  
-        if (!response.ok) {
-          const errorDetails = await response.text();
-          console.log("Error details from API:", errorDetails);
-          throw new Error("Failed to submit band data");
-        }
-  
-        const result = await response.json();
-        console.log("Response from backend:", result);
-        navigate("/tcupbands");
-      } catch (err) {
-        console.error("Error submitting band data:", err);
-        setErrorMessage("Failed to submit band data.");
-      }
-    };
 
-    console.log("Final profile_image passed to FilePond:", formData.profile_image);
-    console.log("Final other_images passed to FilePond:", formData.other_images);
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  if (!isReadyToSubmit) {
+    console.log("Form not ready for submission.");
+    return;
+  }
+
+  // Prepare the data as JSON
+  const dataToSubmit = {
+    name: formData.name,
+    genre: formData.genre, // Already an array
+    bandemail: formData.bandemail,
+    play_shows: formData.play_shows,
+    group_size: formData.group_size, // Already an array
+    social_links: formData.social_links, // JSON
+    music_links: formData.music_links,  // JSON
+    profile_image: formData.profile_image, // Cloudinary URL
+    other_images: formData.other_images,   // Array of Cloudinary URLs
+  };
+
+  try {
+    const endpointURL = isEdit
+      ? `${endpoint}/tcupbands/${bandid}/edit`
+      : `${endpoint}/tcupbands/add`;
+
+    const response = await fetch(endpointURL, {
+      method: isEdit ? "PUT" : "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(dataToSubmit), // Send the entire formData as JSON
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to submit band data");
+    }
+
+    const result = await response.json();
+    console.log("Response from backend:", result);
+    navigate("/tcupbands"); // Redirect after successful submission
+  } catch (err) {
+    console.error("Error submitting band data:", err);
+    setErrorMessage("Failed to submit band data.");
+  }
+};
 
   return (
     <Box sx={{ paddingTop: 2, paddingBottom: 10, paddingX: 4 }}>
@@ -379,26 +419,80 @@ const TCUPBandForm = ({ isEdit = false }) => {
         </Box>
         {/* Profile Image Upload */}
         <Typography variant="h6">Profile Image</Typography>
-        <CustomFilePond
-          files={formData.profile_image 
-            ? [{ source: formData.profile_image }] 
-            : []}        
-          setFiles={(files) => handleImageChange(files, true)}
-          allowMultiple={false}
-          maxFiles={1}
-          name="profile_image"
+        <input
+          type="file"
+          accept="image/*"
+          onChange={(e) => handleImageChange(e.target.files, true)}
+          disabled={!!formData.profile_image} // Disable input if profile_image already exists
+          aria-label="Upload a profile image"
         />
 
-        {/* Other Images Upload */}
-        <Typography variant="h6">Other Images</Typography>
-        <CustomFilePond
-          files={formData.other_images.map(url => ({ source: url }))} // no type: 'local'
-          setFiles={(files) => handleImageChange(files, false)}
-          allowMultiple={true}
-          maxFiles={5}
-          name="other_images"
+        {formData.profile_image && (
+          <Box sx={{ mt: 2, position: "relative" }}>
+            <img
+              src={formData.profile_image}
+              alt="Profile Preview"
+              style={{
+                width: "200px",
+                height: "200px",
+                borderRadius: "50%",
+                objectFit: "cover",
+                border: "2px solid #ccc",
+              }}
+            />
+            <Button
+              onClick={() => handleRemoveImage(null, true)}
+              variant="outlined"
+              color="error"
+              size="small"
+              sx={{ position: "absolute", top: 0, right: 0 }}
+            >
+              Remove
+            </Button>
+          </Box>
+        )}
+
+       {/* Other Images Upload */}
+        <Typography variant="h6" sx={{ mt: 2 }}>
+          Other Images (Max 10)
+        </Typography>
+        <input
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={(e) => handleImageChange(e.target.files, false)}
+          disabled={formData.other_images.length >= 10} // Disable input if limit is reached
+          aria-label="Upload additional images"
         />
 
+        {formData.other_images.length > 0 && (
+          <Box sx={{ mt: 2, display: "flex", gap: 2, flexWrap: "wrap" }}>
+            {formData.other_images.map((url, index) => (
+              <Box key={index} sx={{ position: "relative" }}>
+                <img
+                  src={url}
+                  alt={`Other Image ${index + 1}`}
+                  style={{
+                    width: "150px",
+                    height: "150px",
+                    objectFit: "cover",
+                    borderRadius: "8px",
+                    border: "2px solid #ccc",
+                  }}
+                />
+                <Button
+                  onClick={() => handleRemoveImage(index, false)}
+                  variant="outlined"
+                  color="error"
+                  size="small"
+                  sx={{ position: "absolute", top: 0, right: 0 }}
+                >
+                  Remove
+                </Button>
+              </Box>
+            ))}
+          </Box>
+        )}
         <Button
           type="submit"
           variant="contained"

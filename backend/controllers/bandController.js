@@ -13,64 +13,45 @@ export const getBandById = (req, res) => {
 
 export const addBand = async (req, res) => {
   try {
-    // Now social_links and music_links are guaranteed to be strings here
     const {
       name = "",
-      genre = "[]",
+      genre = [],
       bandemail = "",
-      play_shows = "no",
-      group_size = "[]",
-      social_links = "{}",
-      music_links = "{}",
+      play_shows = "",
+      group_size = [],
+      social_links = {}, // Already parsed as an object
+      music_links = {}, // Already parsed as an object
       profile_image = null,
       other_images = [],
     } = req.bandData;
 
-    // Parse fields here, knowing they are strings:
-    const parsedGenre = JSON.parse(genre);
-    const parsedGroupSize = JSON.parse(group_size);
-    const parsedSocialLinks = JSON.parse(social_links);
-    const parsedMusicLinks = JSON.parse(music_links);
+    // Clean and prepare arrays
+    const cleanGenre = cleanArray(genre).map(g => `"${g}"`); // Prepare for Postgres array
+    const cleanGroupSize = cleanArray(group_size).map(g => `"${g}"`);
 
-    // Clean arrays before converting to Postgres arrays
-    const cleanGenre = cleanArray(parsedGenre).map(g => `"${g}"`);
-    const cleanGroupSize = cleanArray(parsedGroupSize); // array of strings
+    const pgGenre = `{${cleanGenre.join(",")}}`; // Postgres array literal
+    const pgGroupSize = `{${cleanGroupSize.join(",")}}`;
 
-    // Convert arrays to Postgres array literals
-    // For empty arrays, use '{}'
-    const pgGenre = `{${cleanGenre.join(",")}}`;
-    const pgGroupSize = `{${cleanGroupSize.join(",")}}`; // e.g. {} if empty
+    // Prepare images
+    const formattedProfileImage = profile_image || null; // Store as URL
+    const formattedOtherImages = other_images.length
+      ? `{${other_images.map(img => `"${img}"`).join(",")}}`
+      : "{}"; // Postgres array literal
 
-    // social_links and music_links stored as JSON strings in DB
-    const socialLinksStr = JSON.stringify(parsedSocialLinks);
-    const musicLinksStr = JSON.stringify(parsedMusicLinks);
-
-    // Handle images: only store filenames
-    const formattedProfileImage = profile_image ? profile_image.split('/').pop() : null;
-
-    // Convert other_images array to Postgres array literal
-    // If no images, '{}'
-   
-    // Assuming other_images is an array of filenames:
-    let formattedOtherImages = '{}';
-    if (Array.isArray(other_images) && other_images.length > 0) {
-      // Map each element to a double-quoted string
-      const quotedImages = other_images.map(img => `"${img}"`);
-      formattedOtherImages = `{${quotedImages.join(",")}}`;
-    } else {
-      formattedOtherImages = '{}';
-    }
+    // Convert objects to JSON strings for database storage
+    const socialLinksStr = JSON.stringify(social_links);
+    const musicLinksStr = JSON.stringify(music_links);
 
     const values = [
-      name,           // text
-      pgGenre,        // Postgres array literal for genre
-      bandemail,      // text
-      play_shows,     // text
-      pgGroupSize,    // Postgres array literal for group_size
-      socialLinksStr, // text field containing JSON string
-      musicLinksStr,  // text field containing JSON string
-      formattedProfileImage, // text (filename)
-      formattedOtherImages   // Postgres array literal for other_images
+      name,
+      pgGenre,
+      bandemail,
+      play_shows,
+      pgGroupSize,
+      socialLinksStr,
+      musicLinksStr,
+      formattedProfileImage,
+      formattedOtherImages,
     ];
 
     console.log("Values for INSERT query:", values);
@@ -86,70 +67,60 @@ export const addBand = async (req, res) => {
 
 export const updateBand = async (req, res) => {
   try {
-    console.log('Band Data for update:', req.bandData);
+    console.log("Band Data for update:", req.bandData);
+
     const {
       name = "",
-      genre = "[]",
+      genre = [],
       bandemail = "",
-      play_shows = "no",
-      group_size = "[]",
-      social_links = "{}",
-      music_links = "{}",
-      profile_image = null,
-      other_images = []
+      play_shows = "",
+      group_size = [],
+      social_links = {},
+      music_links = {},
+      profile_image = null,        // New profile image
+      other_images = [],           // New images array
+      remove_images = [],          // Images to be removed
     } = req.bandData;
 
-    let parsedGenre, parsedGroupSize, parsedSocialLinks, parsedMusicLinks;
+    const { bandid } = req.params;
 
-    try {
-      parsedGenre = JSON.parse(genre);
-      if (!Array.isArray(parsedGenre)) parsedGenre = [];
-    } catch (err) {
-      console.error("Error parsing genre in update:", genre, err);
-      parsedGenre = [];
+    // Fetch the current images from the database
+    const currentResult = await pool.query(
+      "SELECT profile_image, other_images FROM tcupbands WHERE id = $1",
+      [bandid]
+    );
+
+    if (currentResult.rows.length === 0) {
+      return res.status(404).json({ error: "Band not found." });
     }
 
-    try {
-      parsedGroupSize = JSON.parse(group_size);
-      if (!Array.isArray(parsedGroupSize)) parsedGroupSize = [];
-    } catch (err) {
-      console.error("Error parsing group_size in update:", group_size, err);
-      parsedGroupSize = [];
+    const currentImages = currentResult.rows[0];
+    let updatedOtherImages = currentImages.other_images || [];
+
+    // Remove specified images
+    const imagesToRemove = new Set(remove_images);
+    updatedOtherImages = updatedOtherImages.filter((img) => !imagesToRemove.has(img));
+
+    // Add new images to the list
+    if (other_images.length > 0) {
+      updatedOtherImages.push(...other_images);
     }
 
-    try {
-      parsedSocialLinks = JSON.parse(social_links);
-      if (typeof parsedSocialLinks !== 'object' || parsedSocialLinks === null) parsedSocialLinks = {};
-    } catch (err) {
-      console.error("Error parsing social_links in update:", social_links, err);
-      parsedSocialLinks = {};
-    }
+    // Convert to Postgres array literal
+    const formattedOtherImages = updatedOtherImages.length
+      ? `{${updatedOtherImages.map((img) => `"${img}"`).join(",")}}`
+      : "{}";
 
-    try {
-      parsedMusicLinks = JSON.parse(music_links);
-      if (typeof parsedMusicLinks !== 'object' || parsedMusicLinks === null) parsedMusicLinks = {};
-    } catch (err) {
-      console.error("Error parsing music_links in update:", music_links, err);
-      parsedMusicLinks = {};
-    }
-
-    const cleanGenre = cleanArray(parsedGenre).map(g => `"${g}"`);
-    const cleanGroupSize = cleanArray(parsedGroupSize).map(g => `"${g}"`);
-    
-    // Now wrap them:
+    // Prepare JSON strings and arrays
+    const cleanGenre = cleanArray(genre).map((g) => `"${g}"`);
+    const cleanGroupSize = cleanArray(group_size).map((g) => `"${g}"`);
     const pgGenre = `{${cleanGenre.join(",")}}`;
     const pgGroupSize = `{${cleanGroupSize.join(",")}}`;
+    const socialLinksStr = JSON.stringify(social_links);
+    const musicLinksStr = JSON.stringify(music_links);
 
-    const formattedProfileImage = profile_image ? profile_image.split('/').pop() : null;
-    
-    let formattedOtherImages = '{}';
-    if (Array.isArray(other_images) && other_images.length > 0) {
-      // Map each element to a double-quoted string
-      const quotedImages = other_images.map(img => `"${img}"`);
-      formattedOtherImages = `{${quotedImages.join(",")}}`;
-    } else {
-      formattedOtherImages = '{}';
-    }
+    // Use new profile image if provided; otherwise, keep the existing one
+    const updatedProfileImage = profile_image || currentImages.profile_image;
 
     const values = [
       name,
@@ -157,24 +128,24 @@ export const updateBand = async (req, res) => {
       bandemail,
       play_shows,
       pgGroupSize,
-      JSON.stringify(parsedSocialLinks),
-      JSON.stringify(parsedMusicLinks),
-      formattedProfileImage,
+      socialLinksStr,
+      musicLinksStr,
+      updatedProfileImage,
       formattedOtherImages,
-      req.params.bandid
+      bandid,
     ];
 
     console.log("Values for update query:", values);
 
+    // Execute the update query
     const { rows } = await pool.query(updateBandQuery, values);
 
-    if (rows.length === 0) {
-      return res.status(404).json({ error: "Band not found." });
-    }
-
-    res.status(200).json({ message: 'Band updated successfully' });
+    res.status(200).json({
+      message: "Band updated successfully",
+      data: rows[0],
+    });
   } catch (error) {
-    console.error('Error updating band:', error);
-    res.status(500).json({ error: 'An error occurred while updating the band' });
+    console.error("Error updating band:", error);
+    res.status(500).json({ error: "An error occurred while updating the band." });
   }
 };

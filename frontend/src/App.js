@@ -18,7 +18,6 @@ import TCUPPeopleProfile from "./pages/TCUPPeopleProfile.js";
 import Organize from "./pages/Organize.js";
 import ShowProfile from "./pages/ShowProfile.js";
 import ShowsMinimal from "./pages/ShowsMinimal.js";
-import BandProfileImageUploader from "./pages/BandProfImage.js";
 
 function App() {
   const [allShows, setAllShows] = useState([]);
@@ -88,8 +87,6 @@ function App() {
             element={<TCUPPeopleProfile />}
           />
           <Route path="/people" element={<TCUPPeopleTable />} />
-
-          <Route path="/bandprofimage" element={<BandProfileImageUploader />} />
 
 
           {/* Catch-All */}
