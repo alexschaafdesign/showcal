@@ -22,3 +22,6 @@ frontend/node_modules/.cache/
 
 # Ignore build folder
 build/
+
+token.json
+scrapers/credentials.json
