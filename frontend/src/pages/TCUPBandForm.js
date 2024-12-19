@@ -246,7 +246,7 @@ const TCUPBandForm = ({ isEdit = false }) => {
   
       const result = await response.json();
       console.log("Response from backend:", result);
-      navigate("/tcupbands");
+      navigate(`/tcupbands/${bandid}`);
     } catch (err) {
       console.error("Error submitting band data:", err);
       setErrorMessage("Failed to submit band data.");

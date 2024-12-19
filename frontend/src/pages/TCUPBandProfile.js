@@ -77,6 +77,24 @@ const TCUPBandProfile = ({ allShows = [] }) => {
     return null; // Invalid URL
   };
 
+  const getYouTubeEmbedUrl = (url) => {
+    if (!url) return null;
+  
+    // Handle standard watch URLs
+    if (url.includes("watch?v=")) {
+      return url.replace("watch?v=", "embed/");
+    }
+  
+    // Handle shortened youtu.be URLs
+    if (url.includes("youtu.be/")) {
+      const videoId = url.split("youtu.be/")[1];
+      return `https://www.youtube.com/embed/${videoId}`;
+    }
+  
+    return url; // Return as is for other valid embed URLs
+  };
+
+
   // Handle modal image
   const handleOpen = (image) => {
     if (image) {
@@ -105,7 +123,7 @@ const TCUPBandProfile = ({ allShows = [] }) => {
 
     // OVERALL BOX 
 
-    <Box sx={{ padding: 3 }}>
+    <Box sx={{ paddingLeft: 1, paddingRight: 1, paddingTop: 3, paddingBottom: 4 }}>
 
     {/* Box holding the two columns */}
 
@@ -295,7 +313,6 @@ const TCUPBandProfile = ({ allShows = [] }) => {
             {band.music_links.youtube && (
             <Box sx={{ mt: 4 }}>
               <Typography variant="h6" gutterBottom>
-                YouTube Music Video
               </Typography>
               <Box
                 sx={{
@@ -307,11 +324,9 @@ const TCUPBandProfile = ({ allShows = [] }) => {
                   boxShadow: "0 2px 4px rgba(0,0,0,0.2)",
                 }}
               >
+                
                 <iframe
-                  src={band.music_links.youtube.replace(
-                    "watch?v=",
-                    "embed/"
-                  )}
+                  src={getYouTubeEmbedUrl(band.music_links.youtube)}
                   frameBorder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowFullScreen
@@ -323,7 +338,7 @@ const TCUPBandProfile = ({ allShows = [] }) => {
                     height: "100%",
                   }}
                   title="YouTube Music Video"
-                ></iframe>
+                />
                 </Box>
                </Box> 
                 )}

@@ -1,5 +1,7 @@
 import React from "react";
 import { Box, Grid, Card, CardContent, Typography, Icon } from "@mui/material";
+import LatestPosts from "../components/Xenforo/LatestPosts";
+import ForumThreads from "../components/Xenforo/ForumThreads";
 
 const apiUrl = process.env.REACT_APP_API_URL;  // The backend API URL from the .env file
 
@@ -71,6 +73,8 @@ const Organize = () => {
           </Grid>
         ))}
       </Grid>
+      <LatestPosts />
+      <ForumThreads />
     </Box>
   );
 };

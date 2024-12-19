@@ -38,7 +38,7 @@ const PORT = process.env.PORT || 3001;
 const corsOptions = {
   origin: process.env.NODE_ENV === 'development'
     ? 'http://localhost:3002'
-    : ['https://alexschaafdesign.com', 'http://www.alexschaafdesign.com'],
+    : ['https://portal.tcupboard.org', 'http://www.portal.tcupboard.org'],
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true,
 };
@@ -61,10 +61,6 @@ app.use('/api/tcupbands', tcupbandsRouter);
 app.use('/api/shows', showsRoutes);
 app.use('/api/people', peopleRouter);
 
-// Static file serving
-app.use('/assets/images/bands', express.static(path.join(__dirname, '../assets/images/bands')));
-app.use('/assets/images/venues', express.static(path.join(__dirname, '../assets/images/venues')));
-
 // Validate required environment variables
 const requiredEnvVars = ['DB_USER', 'DB_HOST', 'DB_NAME', 'DB_PASSWORD', 'DB_PORT'];
 const missingEnvVars = requiredEnvVars.filter((key) => !process.env[key]);
@@ -72,6 +68,14 @@ if (missingEnvVars.length > 0) {
   console.error(`Missing required environment variables: ${missingEnvVars.join(', ')}`);
   process.exit(1);
 }
+
+// Serve static files from the React app build directory
+app.use(express.static(path.join(__dirname, 'client/build')));
+
+// Catch-all route to serve the React app for any undefined routes
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'client/build', 'index.html'));
+});
 
 // Test database connection
 console.log('Testing database connection...');
